@@ -16,7 +16,12 @@
         
         .hero { text-align: center; padding: 4.5rem 1.5rem 2.5rem; max-width: 900px; margin: 0 auto; }
         .hero h1 { font-size: 3.2rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.2rem; background: linear-gradient(135deg, #38bdf8 0%, #00e676 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
-        .hero p { font-size: 1.15rem; color: #94a3b8; margin-bottom: 2rem; }
+        .hero p { font-size: 1.15rem; color: #94a3b8; margin-bottom: 1.5rem; }
+        
+        .motto-banner { background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 1.2rem 2rem; max-width: 800px; margin: 0 auto 2rem; text-align: center; }
+        .motto-text { font-size: 1.3rem; font-weight: 700; color: #00e676; letter-spacing: 1px; }
+        .motto-sub { font-size: 1.05rem; color: #38bdf8; margin-top: 0.4rem; font-family: monospace; font-weight: 600; }
+
         .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
         .cta-btn { background: linear-gradient(135deg, #0284c7 0%, #00e676 100%); color: #040711; font-weight: 700; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; font-size: 1rem; transition: transform 0.2s; }
         .cta-btn-alt { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid #00e676; font-weight: 700; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; font-size: 1rem; }
@@ -69,6 +74,13 @@
     <section class="hero">
         <h1 id="txtHeroTitle">有缘自来，天予其利</h1>
         <p id="txtHeroSub">塞在移动 SSD 里的私有智力方舟 · 搭载 Qwen 3.6 27B MTP 极速物理推理引擎 (20+ tokens/s · 16K 上下文) · 最小双席位高级会议隐私防护 · 零第三方依赖点火</p>
+
+        <!-- 🌟 核心格言与 16,000:1 注脚 Banner -->
+        <div class="motto-banner">
+            <div class="motto-text" id="txtMotto1">“落地的创意是质量的保障。”</div>
+            <div class="motto-sub" id="txtMotto2">⚡ 16000 : 1 是最好的注脚和助推器</div>
+        </div>
+
         <div class="cta-group">
             <a href="demo.html" class="cta-btn" id="btnMainDemo">🚀 在线 Demo (物理极值转换)</a>
             <a href="#pricing" class="cta-btn-alt" style="border-color:#ffeb3b; color:#ffeb3b;" id="btnPricingCta">💰 查看透明 12.5% 硬件锚定定价</a>
@@ -183,6 +195,10 @@
                 document.getElementById("navContact").innerText = "Contact Us";
                 document.getElementById("txtHeroTitle").innerText = "Destiny Arrives Naturally, Heaven Bestows Grace";
                 document.getElementById("txtHeroSub").innerText = "Private AI Ark in a Portable SSD · Powered by Qwen 3.6 27B MTP Engine (20+ tokens/s · 16K Context) · Minimal 2-Seat Executive Meeting Privacy";
+                
+                document.getElementById("txtMotto1").innerText = "“Grounded creativity is the ultimate guarantee of quality.”";
+                document.getElementById("txtMotto2").innerText = "⚡ 16,000 : 1 Compression Ratio is the Strongest Footprint & Booster";
+
                 document.getElementById("btnMainDemo").innerText = "🚀 Interactive Live Demo";
                 document.getElementById("btnPricingCta").innerText = "💰 View 12.5% Hardware Pricing";
                 document.getElementById("txtBarTitle").innerText = "🧪 Physical Isolation Verification Channel:";
