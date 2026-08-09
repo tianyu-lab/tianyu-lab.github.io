@@ -74,7 +74,7 @@
             document.getElementById("decodeStatus").style.color = "#ef4444";
         }
 
-        // 25 FPS 时间轴 Pop-Stack 细粒度 Decoder
+        // 25 FPS 时间轴 Pop-Stack 万能解码器 (兼容各种 Header)
         function decode25FPSStream() {
             const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
             if (!txt) {
@@ -90,13 +90,24 @@
                 videoFrames = [];
                 let p = 0;
                 while (p < bytes.length) {
-                    if (bytes[p] !== 0x54 || bytes[p+1] !== 0x25) { p++; continue; } // 匹配 0x5425 标识
+                    if (bytes[p] !== 0x54) { p++; continue; } // 匹配魔数 0x54 ('T')
                     
-                    const frameNum = bytes[p + 2];
-                    const count = (bytes[p + 3] << 8) | bytes[p + 4];
+                    let frameNum = 0, count = 0, idx = 0;
+
+                    // 兼容模式 A: 5 字节 Header (0x54, 0x25, frameNum, countHi, countLo)
+                    if (bytes[p + 1] === 0x25) {
+                        frameNum = bytes[p + 2];
+                        count = (bytes[p + 3] << 8) | bytes[p + 4];
+                        idx = p + 5;
+                    } 
+                    // 兼容模式 B: 5 字节 Header (0x54, frameHi, frameLo, countHi, countLo)
+                    else {
+                        frameNum = (bytes[p + 1] << 8) | bytes[p + 2];
+                        count = (bytes[p + 3] << 8) | bytes[p + 4];
+                        idx = p + 5;
+                    }
                     
                     const pts = [];
-                    let idx = p + 5;
                     for (let i = 0; i < count && idx + 5 <= bytes.length; i++) {
                         pts.push({
                             x: bytes[idx] - 128,
@@ -140,7 +151,7 @@
             loop(timestamp || 0);
         }
 
-        // 25 FPS 1:1 精细解算复原 (2px 细粒度体素)
+        // 25 FPS 1:1 精细解算复原
         function render25FPSPhotorealPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
@@ -156,7 +167,7 @@
                 const px = (pt.x + 128) * scaleX;
                 const py = (pt.y + 128) * scaleY;
                 ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
-                ctx.fillRect(px, py, 2 * scaleX, 2 * scaleY); // 2px 细腻像素，告别粗方块！
+                ctx.fillRect(px, py, 2 * scaleX, 2 * scaleY);
             }
         }
     </script>
