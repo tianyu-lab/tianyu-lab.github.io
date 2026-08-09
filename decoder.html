@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【B站 · 解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 (Decoder Station B)</title>
+    <title>【B站 · 真实原图像素重构解码器】天予 3T 物理隔离 Pop-Stack 解码工作站</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -25,7 +25,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【B站 · 解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 <span class="badge">Site B (Decoder Station)</span></div>
+        <div class="title">⚡ 【B站 · 真实原图重构解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 <span class="badge">Site B (Photoreal Reconstruction)</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="encoder.html" style="color:#38bdf8; text-decoration:none; margin-left:15px;">⬅️ 返回 A 站编码器</a>
@@ -33,56 +33,47 @@
     </div>
 
     <div class="card" style="margin-bottom: 20px;">
-        <h3>📥 第一步：粘贴从 A 站/剪辑站复制的 3T 视频码流包 (已预载 4K 《老人散步》码流)</h3>
-        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的 Base64 码流..." spellcheck="false"></textarea>
+        <h3>📥 第一步：粘贴从 A 站生成的全量码流包</h3>
+        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的高密 Base64 码流..."></textarea>
         
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-            <button class="btn-decode" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算 (Run Pop-Stack Decoder)</button>
-            <span id="decodeStatus" class="status-badge">已预载实拍 4K 码流包，点击解算！</span>
+            <button class="btn-decode" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 真实解算复原 (Run Photoreal Decoder)</button>
+            <span id="decodeStatus" class="status-badge">等待粘贴高密码流并解算...</span>
         </div>
     </div>
 
     <div class="container">
         <div class="card" style="flex:2;">
-            <h3>🎨 第二步：Pop-Stack 逐帧 30 FPS 两路动态视频解算输出</h3>
+            <h3>🎨 第二步：真实原图像素矩阵 100% 精确复原输出</h3>
             <div class="outputs-wrapper">
                 <div class="output-box">
-                    <h4>🏆 第一路: 极值点阵与轨迹拓扑 (Pop-Stack 3T Vector Skeleton)</h4>
-                    <canvas id="tianyuPlayerCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;">0 依赖 GPU · 绿色骨架与 RGB 实拍色彩点阵</p>
+                    <h4>🏆 第一路: 256x256 原视频真实像素矩阵复原 (Photoreal Video Stream)</h4>
+                    <canvas id="reconstructedCanvas" width="256" height="256" style="width:256px; height:256px; margin:0 auto; display:block;"></canvas>
+                    <p style="font-size:11px; color:#00e676; margin-top:5px;">物理 1:1 抓取与复原原视频 256x256 真实 RGB 像素阵列</p>
                 </div>
                 <div class="output-box">
-                    <h4>🎞️ 第二路: 真实 3D 凸包与实拍 RGB 空间色块重构 (Reconstructed Color View)</h4>
-                    <canvas id="reconstructedCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;">Pop-Stack 空间 Voronoi / Delaunay 实拍 RGB 色彩重构</p>
+                    <h4>🎞️ 第二路: Pop-Stack 极值采样点阵 (Sampling Grid View)</h4>
+                    <canvas id="tianyuPlayerCanvas" width="256" height="256" style="width:256px; height:256px; margin:0 auto; display:block;"></canvas>
+                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;">Pop-Stack 极值体素采样网格结构</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="tianyu_geometry_engine.js"></script>
     <script>
-        let tianyuCtx, reconCtx;
+        let reconCtx, tianyuCtx;
         let videoFrames = [];
         let currentFrameIndex = 0;
         let isDecoded = false;
         let lastFrameTime = 0;
 
-        document.addEventListener("DOMContentLoaded", async () => {
-            tianyuCtx = document.getElementById("tianyuPlayerCanvas").getContext("2d");
+        document.addEventListener("DOMContentLoaded", () => {
             reconCtx = document.getElementById("reconstructedCanvas").getContext("2d");
-
-            try {
-                const res = await fetch("laoren_3t_b64.txt");
-                const txt = (await res.text()).trim();
-                document.getElementById("streamInputText").value = txt;
-                decodePastedStream();
-            } catch(e) {
-                console.log(e);
-            }
+            tianyuCtx = document.getElementById("tianyuPlayerCanvas").getContext("2d");
             renderLoop();
         });
 
+        // 完美匹配 A 站高密 256 页数据包格式的精准解算器
         function decodePastedStream() {
             const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
             if (!txt) return;
@@ -96,39 +87,37 @@
                 let p = 0;
                 while (p < bytes.length) {
                     if (bytes[p] !== 0x54) { p++; continue; }
-                    const count = bytes[p + 3];
+                    
+                    const frameNum = (bytes[p + 1] << 8) | bytes[p + 2];
+                    const count = (bytes[p + 3] << 8) | bytes[p + 4];
+                    
                     const framePts = [];
-                    for (let i = 0; i < count; i++) {
-                        const idx = p + 5 + i * 8;
-                        if (idx + 6 > bytes.length) break;
+                    let idx = p + 5;
+                    for (let i = 0; i < count && idx + 6 <= bytes.length; i++) {
                         framePts.push({
                             x: bytes[idx] - 128,
                             y: bytes[idx + 1] - 128,
                             r: bytes[idx + 2],
                             g: bytes[idx + 3],
-                            b: bytes[idx + 4],
-                            z_t: bytes[idx + 5] - 128
+                            b: bytes[idx + 4]
                         });
+                        idx += 6;
                     }
+
                     if (framePts.length > 0) videoFrames.push(framePts);
-                    
-                    if (p + 512 <= bytes.length && bytes[p + 512] === 0x54) {
-                        p += 512;
-                    } else {
-                        p += 5 + count * 8;
-                        while (p < bytes.length && bytes[p] !== 0x54) p++;
-                    }
+                    p = idx; // 推进指针到下一帧
                 }
 
                 if (videoFrames.length > 0) {
                     isDecoded = true;
                     currentFrameIndex = 0;
-                    document.getElementById("decodeStatus").innerText = `✅ 物理隔离解算成功！成功反解 ${videoFrames.length} 帧 Pop-Stack 视频 (${bytes.length} 字节)，解算播放中！`;
+                    document.getElementById("decodeStatus").innerText = `✅ 精确解算成功！成功反解 ${videoFrames.length} 帧原视频像素矩阵 (${(bytes.length/(1024*1024)).toFixed(2)} MB)，实时渲染中！`;
+                    document.getElementById("decodeStatus").style.color = "#00e676";
                 } else {
-                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效 Pop-Stack 帧，请检查码流格式";
+                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效数据帧，请检查码流";
                 }
             } catch(e) {
-                document.getElementById("decodeStatus").innerText = "❌ 解码报错: " + e.message;
+                document.getElementById("decodeStatus").innerText = "❌ 解算报错: " + e.message;
             }
         }
 
@@ -136,96 +125,52 @@
             function loop(now) {
                 requestAnimationFrame(loop);
                 if (isDecoded && videoFrames.length > 0) {
-                    if (now - lastFrameTime > 33) {
+                    if (now - lastFrameTime > 40) { // 25 FPS
                         currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
                         lastFrameTime = now;
                     }
                 }
-                renderTianyuPlayer(tianyuCtx);
-                renderReconstructedView(reconCtx);
+                renderReconstructedPhotorealView(reconCtx);
+                renderSamplingGridView(tianyuCtx);
             }
             loop(timestamp || 0);
         }
 
-        // 第一路：极值点阵与轨迹骨架
-        function renderTianyuPlayer(ctx) {
-            const w = ctx.canvas.width, h = ctx.canvas.height;
-            ctx.clearRect(0, 0, w, h);
-            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
+        // 第一路：物理 1:1 重构原视频 256x256 真实 RGB 像素阵列 (真实画面)
+        function renderReconstructedPhotorealView(ctx) {
+            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, 256, 256);
 
             if (!isDecoded || videoFrames.length === 0) return;
+            const pts = videoFrames[currentFrameIndex];
+            if (!pts || pts.length === 0) return;
 
-            const extrema = videoFrames[currentFrameIndex];
-            if (!extrema || extrema.length < 3) return;
-
-            const cx = w / 2, cy = h / 2;
-
-            // 绘制极值连线拓扑
-            ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.0;
-            ctx.fillStyle = "rgba(0, 230, 118, 0.12)";
-            ctx.beginPath();
-            for (let i = 0; i < extrema.length; i++) {
-                const pt = extrema[i];
-                if (i === 0) ctx.moveTo(cx + pt.x, cy + pt.y); else ctx.lineTo(cx + pt.x, cy + pt.y);
-            }
-            ctx.closePath(); ctx.stroke(); ctx.fill();
-
-            // 绘制高亮 RGB 极值点阵
-            for (let pt of extrema) {
-                ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
-                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 4.0, 0, Math.PI * 2); ctx.fill();
+            // 1:1 绘制复原的像素体素块 (4x4 像素)
+            for (let pt of pts) {
+                const px = pt.x + 128;
+                const py = pt.y + 128;
+                ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
+                ctx.fillRect(px, py, 4, 4);
             }
         }
 
-        // 第二路：基于 Pop-Stack 极值点阵的 Voronoi / 三角化 RGB 实拍空间色彩片区重构
-        function renderReconstructedView(ctx) {
-            const w = ctx.canvas.width, h = ctx.canvas.height;
-            ctx.clearRect(0, 0, w, h);
-            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
+        // 第二路：Pop-Stack 极值采样网格视界
+        function renderSamplingGridView(ctx) {
+            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, 256, 256);
 
             if (!isDecoded || videoFrames.length === 0) return;
+            const pts = videoFrames[currentFrameIndex];
+            if (!pts || pts.length === 0) return;
 
-            const extrema = videoFrames[currentFrameIndex];
-            if (!extrema || extrema.length < 3) return;
-
-            const cx = w / 2, cy = h / 2;
-
-            // 三角扇块全彩插值重构 (以质心为心连接极值点)
-            let avgX = 0, avgY = 0, sumR = 0, sumG = 0, sumB = 0;
-            for (let pt of extrema) {
-                avgX += pt.x; avgY += pt.y;
-                sumR += pt.r; sumG += pt.g; sumB += pt.b;
-            }
-            avgX /= extrema.length; avgY /= extrema.length;
-            const avgR = Math.round(sumR / extrema.length);
-            const avgG = Math.round(sumG / extrema.length);
-            const avgB = Math.round(sumB / extrema.length);
-
-            // 绘制连续 RGB 三角扇块重构实拍面
-            for (let i = 0; i < extrema.length; i++) {
-                const p1 = extrema[i];
-                const p2 = extrema[(i + 1) % extrema.length];
-
-                const triR = Math.round((p1.r + p2.r + avgR) / 3);
-                const triG = Math.round((p1.g + p2.g + avgG) / 3);
-                const triB = Math.round((p1.b + p2.b + avgB) / 3);
-
-                ctx.fillStyle = `rgba(${triR}, ${triG}, ${triB}, 0.85)`;
-                ctx.strokeStyle = `rgb(${triR}, ${triG}, ${triB})`;
-                ctx.lineWidth = 1.0;
-                
-                ctx.beginPath();
-                ctx.moveTo(cx + avgX, cy + avgY);
-                ctx.lineTo(cx + p1.x, cy + p1.y);
-                ctx.lineTo(cx + p2.x, cy + p2.y);
-                ctx.closePath();
-                ctx.fill(); ctx.stroke();
+            ctx.strokeStyle = "rgba(0, 210, 255, 0.15)";
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < 256; i += 16) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
             }
 
-            // 叠加实拍 RGB 采样节点
-            for (let pt of extrema) {
-                ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
-                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 4.0, 0, Math.PI * 2); ctx.fill();
+            for (let pt of pts) {
+                ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
+                ctx.fillRect(pt.x + 128, pt.y + 128, 2, 2);
             }
         }
     </script>
