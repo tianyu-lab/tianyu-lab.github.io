@@ -99,7 +99,7 @@
                 }
 
                 isDecoded = true;
-                document.getElementById("decodeStatus").innerText = `✅ 复杂矢量码流解算成功！成功反解 ${currentExtrema.length} 个轨迹极值拐点，0 显存渲染中！`;
+                document.getElementById("decodeStatus").innerText = `✅ 复杂矢量码流解算成功！成功精准反解 ${currentExtrema.length} 个轨迹极值拐点，0 显存渲染中！`;
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
             }
@@ -115,7 +115,7 @@
             loop();
         }
 
-        // 第一路：天予矢量播放器 (解算出复杂多瓣轮廓 + 动态血管/涡轮)
+        // 第一路：天予矢量播放器 (100% 精确渲染编码进码流里的复杂解剖/涡轮点阵)
         function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
@@ -128,45 +128,42 @@
             }
 
             const cx = w / 2, cy = h / 2;
-            const t = animTime;
 
-            // 绘制精细的 64-极值拐点复杂多瓣矢量轮廓 (非简单单圆)
+            // 1. 绘制绝对精确的 64-极值点阵多瓣拓扑外轮廓 (非圆！)
             ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
             ctx.fillStyle = "rgba(0, 230, 118, 0.15)";
             ctx.beginPath();
             
             for (let i = 0; i < currentExtrema.length; i++) {
                 const pt = currentExtrema[i];
-                // 叠加物理极值动态波纹，复现复杂动态视频
-                const dynamicR = 1.0 + Math.sin(i * 0.5 + t) * 0.12;
-                const px = cx + pt.x * dynamicR;
-                const py = cy + pt.y * dynamicR;
+                const px = cx + pt.x;
+                const py = cy + pt.y;
                 if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.stroke(); ctx.fill();
 
-            // 内层精细血管/涡轮极值网络
-            ctx.strokeStyle = "#ffeb3b"; ctx.lineWidth = 1.5;
+            // 2. 绘制极值内节点交织网络
+            ctx.strokeStyle = "#ffeb3b"; ctx.lineWidth = 1.2;
             ctx.beginPath();
             for (let i = 0; i < currentExtrema.length; i += 2) {
                 const pt = currentExtrema[i];
-                const px = cx + pt.x * 0.5 * Math.cos(t + i*0.2);
-                const py = cy + pt.y * 0.5 * Math.sin(t + i*0.2);
+                const px = cx + pt.x * 0.5;
+                const py = cy + pt.y * 0.5;
                 if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.stroke();
 
-            // 极值节点跨线条链接
+            // 3. 绘制 64 个白色极值控制节点 Marker
             ctx.fillStyle = "#ffffff";
-            for (let i = 0; i < currentExtrema.length; i += 3) {
+            for (let i = 0; i < currentExtrema.length; i++) {
                 const pt = currentExtrema[i];
                 ctx.beginPath();
-                ctx.arc(cx + pt.x, cy + pt.y, 3, 0, Math.PI * 2);
+                ctx.arc(cx + pt.x, cy + pt.y, 2.5, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        // 第二路：全彩像素重构 Canvas View
+        // 第二路：全彩像素重构 Canvas View (基于码流精准还原)
         function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
@@ -179,23 +176,21 @@
             }
 
             const cx = w / 2, cy = h / 2;
-            const t = animTime;
 
-            // 实彩像素解算重构 (非简单线条)
-            ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
+            // 实彩像素解算重构
+            ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
             ctx.beginPath();
             for (let i = 0; i < currentExtrema.length; i++) {
                 const pt = currentExtrema[i];
-                const dynamicR = 1.0 + Math.sin(i * 0.5 + t) * 0.12;
-                const px = cx + pt.x * dynamicR;
-                const py = cy + pt.y * dynamicR;
+                const px = cx + pt.x;
+                const py = cy + pt.y;
                 if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.fill();
 
-            // 实彩核心叠加
-            ctx.fillStyle = "rgba(255, 235, 59, 0.8)";
-            ctx.beginPath(); ctx.arc(cx, cy, 35 + Math.sin(t*2)*5, 0, Math.PI * 2); ctx.fill();
+            // 实彩核心
+            ctx.fillStyle = "rgba(255, 235, 59, 0.85)";
+            ctx.beginPath(); ctx.arc(cx, cy, 30, 0, Math.PI * 2); ctx.fill();
         }
 
         function setLang(lang) {

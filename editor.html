@@ -100,7 +100,7 @@
         let currentZoom = 1.0;
         let currentRotation = 0;
         let tintColor = "#00e676";
-        let presetMode = "surgical"; // surgical or turbine
+        let presetMode = "surgical";
 
         document.addEventListener("DOMContentLoaded", () => {
             canvas = document.getElementById("editorCanvas");
@@ -156,6 +156,7 @@
         function setPresetShape(mode) {
             presetMode = mode;
             drawFrame();
+            generateProjectStream();
         }
 
         function drawFrame() {
@@ -180,10 +181,8 @@
             ctx.restore();
         }
 
-        // 复杂解剖/血管与水刀拓扑模型
         function drawComplexSurgicalVessels(ctx, t) {
             const count = 64;
-            // 外轮廓：复杂大脑/器官轮廓
             ctx.strokeStyle = tintColor; ctx.lineWidth = 2.5 / currentZoom;
             ctx.fillStyle = tintColor + "22";
             ctx.beginPath();
@@ -198,7 +197,6 @@
             }
             ctx.closePath(); ctx.stroke(); ctx.fill();
 
-            // 内层血管网络 1
             ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 1.8 / currentZoom;
             ctx.beginPath();
             for (let i = 0; i < 32; i++) {
@@ -209,7 +207,6 @@
             }
             ctx.closePath(); ctx.stroke();
 
-            // 极值切削点阵标记
             ctx.fillStyle = "#ffffff";
             for (let i = 0; i < pts.length; i += 2) {
                 const pt = pts[i];
@@ -219,7 +216,6 @@
             }
         }
 
-        // 高精物理工程/涡轮模型
         function drawComplexTurbineMesh(ctx, t) {
             const blades = 12;
             ctx.strokeStyle = tintColor; ctx.lineWidth = 2 / currentZoom;
@@ -236,18 +232,28 @@
                 ctx.closePath(); ctx.stroke(); ctx.fill();
             }
 
-            // 中心核心轴
             ctx.strokeStyle = "#ffeb3b"; ctx.lineWidth = 2 / currentZoom;
             ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.stroke();
         }
 
+        // 精确编码 64 个复杂解剖/涡轮极值点入 512 字节码流 (非单圆！)
         function generateProjectStream() {
             const buf = new Uint8Array(512);
             buf[0] = 0x54; buf[1] = 0x93; buf[2] = 0x3A; buf[3] = 64; buf[4] = 0x7E;
+            const t = frameIndex / 10;
             for (let i = 0; i < 64 && (i * 8 + 12) < 512; i++) {
                 const th = (i / 64) * Math.PI * 2;
-                buf[i * 8 + 5] = (Math.round(Math.cos(th) * 90) + 128) & 0xFF;
-                buf[i * 8 + 6] = (Math.round(Math.sin(th) * 90) + 128) & 0xFF;
+                let r = 90;
+                if (presetMode === "surgical") {
+                    r = 90 + Math.sin(th * 5 + t) * 25 + Math.cos(th * 3 - t * 1.5) * 15;
+                } else {
+                    r = 85 + Math.sin(th * 12 + t * 2) * 30;
+                }
+                const x = Math.cos(th) * r;
+                const y = Math.sin(th) * r;
+
+                buf[i * 8 + 5] = (Math.round(x) + 128) & 0xFF;
+                buf[i * 8 + 6] = (Math.round(y) + 128) & 0xFF;
                 buf[i * 8 + 7] = 0; buf[i * 8 + 8] = 230; buf[i * 8 + 9] = 118;
             }
             let binary = '';
