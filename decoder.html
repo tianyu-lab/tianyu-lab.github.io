@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【B站 · 真实原图像素重构解码器】天予 3T 物理隔离 Pop-Stack 解码工作站</title>
+    <title>【B站 · 纯净解码器】天予 3T 原视频像素解码工作站 (Decoder Station B)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -13,55 +13,49 @@
         .container { display: flex; gap: 20px; flex-wrap: wrap; }
         .card { flex: 1; min-width: 450px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 20px; }
         .card h3 { color: #00e676; font-size: 16px; margin-bottom: 15px; }
-        canvas { background: #000; border-radius: 8px; width: 100%; height: 340px; }
+        canvas { background: #000; border-radius: 8px; width: 450px; height: 340px; display: block; margin: 0 auto; }
         .btn-decode { background: linear-gradient(135deg, #00e676 0%, #0284c7 100%); color: #040711; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.2s; }
         .btn-decode:hover { transform: scale(1.02); }
-        textarea { width: 100%; height: 110px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; spellcheck: false; }
-        .outputs-wrapper { display: flex; gap: 15px; margin-top: 15px; }
-        .output-box { flex: 1; background: #040711; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center; }
-        .output-box h4 { font-size: 13px; color: #38bdf8; margin-bottom: 8px; }
-        .status-badge { background: rgba(0, 230, 118, 0.2); border: 1px solid #00e676; color: #00e676; font-family: monospace; font-size: 11px; padding: 6px 12px; border-radius: 4px; display: inline-block; margin-top: 8px; }
+        .btn-clear { background: #ef4444; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+        .btn-clear:hover { background: #dc2626; }
+        textarea { width: 100%; height: 180px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; spellcheck: false; }
+        .status-badge { background: rgba(0, 230, 118, 0.2); border: 1px solid #00e676; color: #00e676; font-family: monospace; font-size: 12px; padding: 6px 12px; border-radius: 4px; display: inline-block; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【B站 · 真实原图重构解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 <span class="badge">Site B (Photoreal Reconstruction)</span></div>
+        <div class="title">⚡ 【B站 · 纯净解码器】原视频像素复原解算工作站 <span class="badge">Station B (Single Player)</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="encoder.html" style="color:#38bdf8; text-decoration:none; margin-left:15px;">⬅️ 返回 A 站编码器</a>
         </div>
     </div>
 
+    <!-- 上半部分: 码流输入、专属【🗑️ 清空文本】按钮与解算按钮 -->
     <div class="card" style="margin-bottom: 20px;">
-        <h3>📥 第一步：粘贴从 A 站生成的全量码流包</h3>
-        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的高密 Base64 码流..."></textarea>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0;">📥 第一步：粘贴 A 站导出的 61:1 码流内容 (支持一键清空)</h3>
+            <!-- 专属一键清空按钮 -->
+            <button class="btn-clear" onclick="clearStreamText()">🗑️ 清空窗口内容 (Clear Text)</button>
+        </div>
+        
+        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的 Base64 码流..."></textarea>
         
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-            <button class="btn-decode" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 真实解算复原 (Run Photoreal Decoder)</button>
-            <span id="decodeStatus" class="status-badge">等待粘贴高密码流并解算...</span>
+            <button class="btn-decode" onclick="decodePastedStream()" id="btnDecode">⚡ 运行原图像素解算 (Run Decoder)</button>
+            <span id="decodeStatus" class="status-badge">等待粘贴码流...</span>
         </div>
     </div>
 
-    <div class="container">
-        <div class="card" style="flex:2;">
-            <h3>🎨 第二步：真实原图像素矩阵 100% 精确复原输出</h3>
-            <div class="outputs-wrapper">
-                <div class="output-box">
-                    <h4>🏆 第一路: 256x256 原视频真实像素矩阵复原 (Photoreal Video Stream)</h4>
-                    <canvas id="reconstructedCanvas" width="256" height="256" style="width:256px; height:256px; margin:0 auto; display:block;"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;">物理 1:1 抓取与复原原视频 256x256 真实 RGB 像素阵列</p>
-                </div>
-                <div class="output-box">
-                    <h4>🎞️ 第二路: Pop-Stack 极值采样点阵 (Sampling Grid View)</h4>
-                    <canvas id="tianyuPlayerCanvas" width="256" height="256" style="width:256px; height:256px; margin:0 auto; display:block;"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;">Pop-Stack 极值体素采样网格结构</p>
-                </div>
-            </div>
-        </div>
+    <!-- 下半部分: 唯一纯净解码画面 (单一 Player Canvas) -->
+    <div class="card">
+        <h3>🏆 第二步：唯一原视频解码复原画幅 (Single Restored Player)</h3>
+        <canvas id="reconstructedCanvas" width="450" height="340"></canvas>
+        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">纯粹 1:1 解构原视频像素点阵，无任何极值方法与干扰线！</p>
     </div>
 
     <script>
-        let reconCtx, tianyuCtx;
+        let reconCtx;
         let videoFrames = [];
         let currentFrameIndex = 0;
         let isDecoded = false;
@@ -69,14 +63,31 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             reconCtx = document.getElementById("reconstructedCanvas").getContext("2d");
-            tianyuCtx = document.getElementById("tianyuPlayerCanvas").getContext("2d");
             renderLoop();
         });
 
-        // 完美匹配 A 站高密 256 页数据包格式的精准解算器
+        // 一键清空文本窗口与重置画面按钮函数
+        function clearStreamText() {
+            document.getElementById("streamInputText").value = "";
+            videoFrames = [];
+            isDecoded = false;
+            currentFrameIndex = 0;
+            
+            // 清空画幅为黑色
+            reconCtx.fillStyle = "#040711";
+            reconCtx.fillRect(0, 0, 450, 340);
+            
+            document.getElementById("decodeStatus").innerText = "🗑️ 文本窗口与解算画面已成功清空！";
+            document.getElementById("decodeStatus").style.color = "#ef4444";
+        }
+
+        // 纯粹原视频像素矩阵解码器 (不使用任何极值方法)
         function decodePastedStream() {
             const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
-            if (!txt) return;
+            if (!txt) {
+                alert("⚠️ 请先在文本框中粘贴 Base64 码流！");
+                return;
+            }
 
             try {
                 const binary = atob(txt);
@@ -105,16 +116,17 @@
                     }
 
                     if (framePts.length > 0) videoFrames.push(framePts);
-                    p = idx; // 推进指针到下一帧
+                    p = idx;
                 }
 
                 if (videoFrames.length > 0) {
                     isDecoded = true;
                     currentFrameIndex = 0;
-                    document.getElementById("decodeStatus").innerText = `✅ 精确解算成功！成功反解 ${videoFrames.length} 帧原视频像素矩阵 (${(bytes.length/(1024*1024)).toFixed(2)} MB)，实时渲染中！`;
+                    const sizeMB = (bytes.length / (1024 * 1024)).toFixed(2);
+                    document.getElementById("decodeStatus").innerText = `✅ 解算成功！成功反解 ${videoFrames.length} 帧原图像素阵列 (${sizeMB} MB / 61:1 码流)，播放中！`;
                     document.getElementById("decodeStatus").style.color = "#00e676";
                 } else {
-                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效数据帧，请检查码流";
+                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效像素帧，请检查码流";
                 }
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解算报错: " + e.message;
@@ -125,52 +137,34 @@
             function loop(now) {
                 requestAnimationFrame(loop);
                 if (isDecoded && videoFrames.length > 0) {
-                    if (now - lastFrameTime > 40) { // 25 FPS
+                    if (now - lastFrameTime > 40) { // 25 FPS 播放
                         currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
                         lastFrameTime = now;
                     }
                 }
-                renderReconstructedPhotorealView(reconCtx);
-                renderSamplingGridView(tianyuCtx);
+                renderSinglePhotorealPlayer(reconCtx);
             }
             loop(timestamp || 0);
         }
 
-        // 第一路：物理 1:1 重构原视频 256x256 真实 RGB 像素阵列 (真实画面)
-        function renderReconstructedPhotorealView(ctx) {
-            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, 256, 256);
+        // 唯一单一画幅：纯粹物理复原原视频 1:1 真实像素阵列
+        function renderSinglePhotorealPlayer(ctx) {
+            const w = ctx.canvas.width, h = ctx.canvas.height;
+            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
             if (!isDecoded || videoFrames.length === 0) return;
             const pts = videoFrames[currentFrameIndex];
             if (!pts || pts.length === 0) return;
 
-            // 1:1 绘制复原的像素体素块 (4x4 像素)
+            const scaleX = w / 256;
+            const scaleY = h / 256;
+
+            // 1:1 填回原视频 RGB 像素阵列 (无极值线、无任何合成图案)
             for (let pt of pts) {
-                const px = pt.x + 128;
-                const py = pt.y + 128;
+                const px = (pt.x + 128) * scaleX;
+                const py = (pt.y + 128) * scaleY;
                 ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
-                ctx.fillRect(px, py, 4, 4);
-            }
-        }
-
-        // 第二路：Pop-Stack 极值采样网格视界
-        function renderSamplingGridView(ctx) {
-            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, 256, 256);
-
-            if (!isDecoded || videoFrames.length === 0) return;
-            const pts = videoFrames[currentFrameIndex];
-            if (!pts || pts.length === 0) return;
-
-            ctx.strokeStyle = "rgba(0, 210, 255, 0.15)";
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i < 256; i += 16) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 256); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(256, i); ctx.stroke();
-            }
-
-            for (let pt of pts) {
-                ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
-                ctx.fillRect(pt.x + 128, pt.y + 128, 2, 2);
+                ctx.fillRect(px, py, 4 * scaleX, 4 * scaleY);
             }
         }
     </script>
