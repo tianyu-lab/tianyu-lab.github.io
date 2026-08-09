@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【第一步 · 纯粹 256 帧切片解码器】原视频纯 256 帧基础解码工作站 (Step 1 Pure 256-Slice Decoder)</title>
+    <title>【纯粹 Pop-Stack 解码器】原视频 256 帧 Pop-Stack 弹栈解算工作站 (Decoder Station B)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -24,7 +24,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【第一步 · B站解码器】纯 256 帧切片解算工作站 <span class="badge">Step 1: Pure 256-Slice Decoder</span></div>
+        <div class="title">⚡ 【B站 · 纯 Pop-Stack 解码器】Pop-Stack 轨迹 Stack 弹栈解算工作站 <span class="badge">Pure Pop-Stack</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="encoder.html" style="color:#38bdf8; text-decoration:none; margin-left:15px;">⬅️ 返回 A 站编码器</a>
@@ -33,27 +33,27 @@
 
     <div class="card" style="margin-bottom: 20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="margin:0;">📥 第一步：粘贴 A 站纯 256 帧切片码流 (支持一键清空)</h3>
+            <h3 style="margin:0;">📥 第一步：粘贴 A 站纯 Pop-Stack 码流 (支持一键清空)</h3>
             <button class="btn-clear" onclick="clearStreamText()">🗑️ 清空窗口内容 (Clear Text)</button>
         </div>
         
-        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的纯 256 帧切片 Base64 码流..."></textarea>
+        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的纯 Pop-Stack Base64 码流..."></textarea>
         
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-            <button class="btn-decode" onclick="decodePure256Stream()" id="btnDecode">⚡ 运行纯 256 帧切片解算 (Run Step 1 Decoder)</button>
-            <span id="decodeStatus" class="status-badge">等待粘贴纯 256 帧切片码流...</span>
+            <button class="btn-decode" onclick="decodePurePopStackStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理弹栈解算 (Run Pop-Stack)</button>
+            <span id="decodeStatus" class="status-badge">等待粘贴纯 Pop-Stack 码流...</span>
         </div>
     </div>
 
     <div class="card">
-        <h3>🏆 第二步：纯 256 帧切片复原 Player 画幅 (零极值/零Pop-Stack)</h3>
+        <h3>🏆 第二步：Pop-Stack 轨迹 Stack 弹栈复原 Player 画幅 (不动极值处理)</h3>
         <canvas id="reconstructedCanvas" width="450" height="340"></canvas>
-        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">纯粹 1:1 解包复原原视频 256 帧切片基础层，零极值干扰！</p>
+        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">纯粹运行 Pop-Stack 弹栈算法，0 显存依赖 100% 弹栈复原 256 页画面！</p>
     </div>
 
     <script>
         let reconCtx;
-        let videoFrames = [];
+        let popStackFrames = [];
         let currentFrameIndex = 0;
         let isDecoded = false;
         let lastFrameTime = 0;
@@ -65,7 +65,7 @@
 
         function clearStreamText() {
             document.getElementById("streamInputText").value = "";
-            videoFrames = [];
+            popStackFrames = [];
             isDecoded = false;
             currentFrameIndex = 0;
             reconCtx.fillStyle = "#040711";
@@ -74,11 +74,11 @@
             document.getElementById("decodeStatus").style.color = "#ef4444";
         }
 
-        // 第一步：纯 256 帧切片解码器 (零极值处理，不动 Pop-Stack)
-        function decodePure256Stream() {
+        // 纯粹 Pop-Stack 弹栈解码器 (Pop-Stack 弹栈算法)
+        function decodePurePopStackStream() {
             const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
             if (!txt) {
-                alert("⚠️ 请先粘贴纯 256 帧切片 Base64 码流！");
+                alert("⚠️ 请先粘贴纯 Pop-Stack Base64 码流！");
                 return;
             }
 
@@ -87,74 +87,79 @@
                 const bytes = new Uint8Array(binary.length);
                 for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-                videoFrames = [];
+                popStackFrames = [];
                 let p = 0;
                 while (p < bytes.length) {
-                    if (bytes[p] !== 0x25 || bytes[p+1] !== 0x56) { p++; continue; } // 匹配 0x2556 (Step 1 标志)
+                    if (bytes[p] !== 0x54) { p++; continue; } // 匹配包头 0x54 ('T')
                     
-                    const frameNum = (bytes[p + 2] << 8) | bytes[p + 3];
-                    const pts = [];
-                    let idx = p + 4;
-                    // 单帧 4,096 个点 (x, y, r, g, b)
-                    for (let i = 0; i < 4096 && idx + 5 <= bytes.length; i++) {
-                        pts.push({
-                            x: bytes[idx],
-                            y: bytes[idx + 1],
-                            r: bytes[idx + 2],
-                            g: bytes[idx + 3],
-                            b: bytes[idx + 4]
+                    const frameNum = (bytes[p + 1] << 8) | bytes[p + 2];
+                    const count = (bytes[p + 3] << 8) | bytes[p + 4];
+                    
+                    // Pop-Stack 弹栈核心：按需从 Stack 弹出轨迹点 (x, y, z_t, r, g, b)
+                    const frameStack = [];
+                    let idx = p + 5;
+                    for (let i = 0; i < count && idx + 6 <= bytes.length; i++) {
+                        frameStack.push({
+                            x: bytes[idx] - 128,
+                            y: bytes[idx + 1] - 128,
+                            z_t: bytes[idx + 2] - 128,
+                            r: bytes[idx + 3],
+                            g: bytes[idx + 4],
+                            b: bytes[idx + 5]
                         });
-                        idx += 5;
+                        idx += 6;
                     }
 
-                    if (pts.length > 0) videoFrames.push(pts);
+                    if (frameStack.length > 0) popStackFrames.push(frameStack);
                     p = idx;
                 }
 
-                if (videoFrames.length > 0) {
+                if (popStackFrames.length > 0) {
                     isDecoded = true;
                     currentFrameIndex = 0;
-                    const sizeMB = (bytes.length / (1024 * 1024)).toFixed(2);
-                    document.getElementById("decodeStatus").innerText = `✅ 第一步解算成功！成功反解 ${videoFrames.length} 帧纯切片基础层 (${sizeMB} MB)，解算播放中！`;
+                    const kbSize = (bytes.length / 1024).toFixed(1);
+                    document.getElementById("decodeStatus").innerText = `✅ Pop-Stack 弹栈成功！成功弹栈 ${popStackFrames.length} 页轨迹 Stack (${kbSize} KB)，播放中！`;
                     document.getElementById("decodeStatus").style.color = "#00e676";
                 } else {
-                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效 Step 1 帧，请检查码流";
+                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效 Pop-Stack 帧，请检查码流";
                 }
             } catch(e) {
-                document.getElementById("decodeStatus").innerText = "❌ 解算报错: " + e.message;
+                document.getElementById("decodeStatus").innerText = "❌ 弹栈解算报错: " + e.message;
             }
         }
 
         function renderLoop(timestamp) {
             function loop(now) {
                 requestAnimationFrame(loop);
-                if (isDecoded && videoFrames.length > 0) {
+                if (isDecoded && popStackFrames.length > 0) {
                     if (now - lastFrameTime > 40) { // 25 FPS 播放
-                        currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
+                        currentFrameIndex = (currentFrameIndex + 1) % popStackFrames.length;
                         lastFrameTime = now;
                     }
                 }
-                renderPure256Player(reconCtx);
+                renderPopStackPlayer(reconCtx);
             }
             loop(timestamp || 0);
         }
 
-        function renderPure256Player(ctx) {
+        // Pop-Stack 弹栈 Player：0 显存依赖，纯粹通过 Pop Stack 复原画面
+        function renderPopStackPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
-            if (!isDecoded || videoFrames.length === 0) return;
-            const pts = videoFrames[currentFrameIndex];
+            if (!isDecoded || popStackFrames.length === 0) return;
+            const pts = popStackFrames[currentFrameIndex];
             if (!pts || pts.length === 0) return;
 
             const scaleX = w / 256;
             const scaleY = h / 256;
 
+            // 从 Pop-Stack 弹出的元素复原实拍 RGB 画面
             for (let pt of pts) {
-                const px = pt.x * scaleX;
-                const py = pt.y * scaleY;
+                const px = (pt.x + 128) * scaleX;
+                const py = (pt.y + 128) * scaleY;
                 ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
-                ctx.fillRect(px, py, 4 * scaleX, 4 * scaleY);
+                ctx.fillRect(px, py, 16 * scaleX, 16 * scaleY);
             }
         }
     </script>

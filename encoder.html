@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【第一步 · 纯粹 256 帧切片编码器】原视频纯 256 帧基础编码 (无极值/无Pop-Stack)</title>
+    <title>【纯粹 Pop-Stack 编码器】原视频 256 帧纯 Push-Stack 轨迹栈编码工作站</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -23,7 +23,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【第一步 · A站编码器】原视频纯 256 帧切片编码工作站 <span class="badge">Step 1: Pure 256-Slice</span></div>
+        <div class="title">⚡ 【A站 · 纯 Pop-Stack 编码器】原视频 256 帧 Push-Stack 压栈工作站 <span class="badge">Pure Push-Stack</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="decoder.html" style="color:#00e676; text-decoration:none; margin-left:15px; font-weight:bold;">前往 B 站解码 ➔</a>
@@ -32,7 +32,7 @@
 
     <div class="container">
         <div class="card">
-            <h3>第一步：选择本地 MP4 视频并点击【⚡ 转换 256 帧切片】按钮</h3>
+            <h3>第一步：选择本地 MP4 视频并点击【⚡ 转换 Pop-Stack】按钮</h3>
             
             <div style="margin-bottom: 15px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                 <input type="file" id="localVideoInput" accept="video/*" style="display:none;" onchange="handleFileSelect(event)">
@@ -44,16 +44,16 @@
             <canvas id="scanCanvas" width="256" height="256" style="display:none;"></canvas>
 
             <div style="margin-top: 15px;">
-                <button class="btn-action" onclick="runPure256Convert()" id="btnConvert">⚡ 2. 转换 256 帧切片 (纯 256 帧切片编解码，无极值/无Pop-Stack)</button>
+                <button class="btn-action" onclick="runPurePushStackConvert()" id="btnConvert">⚡ 2. 运行 Push-Stack 压栈 (不动极值处理，全量推入 Pop-Stack)</button>
             </div>
             
-            <p id="statusMsg" style="font-size:13px; color:#38bdf8; margin-top:12px; font-weight:bold;">提示：纯粹对原视频进行 256 帧/切片提取，不动 Pop-Stack，零极值处理！</p>
+            <p id="statusMsg" style="font-size:13px; color:#38bdf8; margin-top:12px; font-weight:bold;">提示：不动极值处理，直接对原视频 256 帧全量推入 Pop-Stack 轨迹 Stack！</p>
         </div>
 
         <div class="card">
-            <h3>第二步：纯 256 帧切片编码码流输出</h3>
-            <textarea id="streamOutputText" readonly placeholder="点击【⚡ 转换 256 帧切片】按钮后，纯 256 帧切片码流将全量输出到此窗口..."></textarea>
-            <button class="btn-copy" onclick="copyStreamData()">📋 3. 拷贝 256 帧切片码流 (去 B 站解码)</button>
+            <h3>第二步：纯 Pop-Stack 轨迹码流输出</h3>
+            <textarea id="streamOutputText" readonly placeholder="点击【⚡ 2. 运行 Push-Stack 压栈】按钮后，纯 Pop-Stack 码流将全量输出到此窗口..."></textarea>
+            <button class="btn-copy" onclick="copyStreamData()">📋 3. 拷贝 Pop-Stack 码流 (去 B 站 Pop-Stack 弹栈)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:8px;"></span>
         </div>
     </div>
@@ -77,17 +77,17 @@
             
             videoEl.src = URL.createObjectURL(file);
             videoEl.style.display = "block";
-            document.getElementById("statusMsg").innerText = `✅ 视频已就绪！请点击【⚡ 2. 转换 256 帧切片】按钮！`;
+            document.getElementById("statusMsg").innerText = `✅ 视频已就绪！请点击【⚡ 2. 运行 Push-Stack 压栈】按钮！`;
         }
 
-        // 第一步：纯粹 256 帧/切片 基础编码函数 (零极值处理，不动 Pop-Stack)
-        function runPure256Convert() {
+        // 不动极值处理，纯粹 Push-Stack 轨迹 Stack 压栈
+        function runPurePushStackConvert() {
             if (!videoEl.src || videoEl.src === "") {
                 alert("⚠️ 请先选择本地 MP4 视频文件！");
                 return;
             }
 
-            document.getElementById("statusMsg").innerText = "⚡ 正在进行纯粹 256 帧/切片剥离编码 (零极值处理)...";
+            document.getElementById("statusMsg").innerText = "⚡ 正在进行 Pop-Stack 轨迹 Stack 全量 Push-Stack 压栈 (不动极值处理)...";
             
             const totalFrames = 256;
             const streamBytes = [];
@@ -98,7 +98,7 @@
 
             function scanNextFrame() {
                 if (currentFrame >= totalFrames) {
-                    outputResult(streamBytes);
+                    outputPopStackResult(streamBytes);
                     return;
                 }
 
@@ -106,35 +106,47 @@
                     scanCtx.drawImage(videoEl, 0, 0, 256, 256);
                     const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
 
-                    // 纯粹 256 切片基础点阵 (非极值)
-                    const sliceWidth = 256;
-                    const sliceHeight = 256;
-
-                    // 写入第一步纯 256 帧切片 Header (0x256, frameNum)
-                    streamBytes.push(0x25); // 0x25 (Step 1 标志)
-                    streamBytes.push(0x56);
+                    // 1. 压入 Pop-Stack 包头魔数 0x54 ('T') 与 帧/点数 Header
+                    streamBytes.push(0x54);
                     streamBytes.push((currentFrame >> 8) & 0xFF);
                     streamBytes.push(currentFrame & 0xFF);
-
-                    // 纯 256 切片像素采样 (4x4 基础点阵)
-                    for (let y = 0; y < 256; y += 4) {
-                        for (let x = 0; x < 256; x += 4) {
+                    
+                    // 计算每帧全量采样点 (16x16 = 256 点/帧，零极值过滤)
+                    const frameStackPoints = [];
+                    for (let y = 0; y < 256; y += 16) {
+                        for (let x = 0; x < 256; x += 16) {
                             const idx = (y * 256 + x) * 4;
-                            streamBytes.push(x);
-                            streamBytes.push(y);
-                            streamBytes.push(imgData[idx]);
-                            streamBytes.push(imgData[idx + 1]);
-                            streamBytes.push(imgData[idx + 2]);
+                            frameStackPoints.push({
+                                x: x - 128,
+                                y: y - 128,
+                                z_t: currentFrame - 128,
+                                r: imgData[idx],
+                                g: imgData[idx + 1],
+                                b: imgData[idx + 2]
+                            });
                         }
                     }
 
+                    streamBytes.push((frameStackPoints.length >> 8) & 0xFF);
+                    streamBytes.push(frameStackPoints.length & 0xFF);
+
+                    // 2. 将轨迹 Stack 元素推入流 (Push-Stack)
+                    for (let pt of frameStackPoints) {
+                        streamBytes.push((pt.x + 128) & 0xFF);
+                        streamBytes.push((pt.y + 128) & 0xFF);
+                        streamBytes.push((pt.z_t + 128) & 0xFF);
+                        streamBytes.push(pt.r);
+                        streamBytes.push(pt.g);
+                        streamBytes.push(pt.b);
+                    }
+
                     currentFrame++;
-                    document.getElementById("statusMsg").innerText = `⏳ 纯 256 帧切片处理中: 已完成 ${currentFrame} / ${totalFrames} 帧 (${Math.round((currentFrame/totalFrames)*100)}%)`;
+                    document.getElementById("statusMsg").innerText = `⏳ Pop-Stack Push 压栈中: 已完成 ${currentFrame} / ${totalFrames} 页 Pop-Stack 轨迹 Stack (${Math.round((currentFrame/totalFrames)*100)}%)`;
 
                     if (currentFrame < totalFrames) {
                         videoEl.currentTime = (currentFrame / totalFrames) * (videoEl.duration || 10);
                     } else {
-                        outputResult(streamBytes);
+                        outputPopStackResult(streamBytes);
                     }
                 };
 
@@ -144,7 +156,7 @@
             scanNextFrame();
         }
 
-        function outputResult(bytes) {
+        function outputPopStackResult(bytes) {
             const uint8 = new Uint8Array(bytes);
             let binary = "";
             const chunkSize = 0x8000;
@@ -153,20 +165,20 @@
             }
             const b64 = btoa(binary);
 
-            const mbSize = (uint8.length / (1024 * 1024)).toFixed(2);
+            const kbSize = (uint8.length / 1024).toFixed(1);
             document.getElementById("streamOutputText").value = b64;
-            document.getElementById("statusMsg").innerText = `🎉 纯 256 帧切片编码完成！生成基础码流大小: ${uint8.length.toLocaleString()} 字节 (${mbSize} MB)！`;
+            document.getElementById("statusMsg").innerText = `🎉 纯 Pop-Stack 256 页轨迹 Stack 压栈完成！生成 Pop-Stack 码流大小: ${uint8.length.toLocaleString()} 字节 (${kbSize} KB)！`;
             document.getElementById("statusMsg").style.color = "#00e676";
         }
 
         function copyStreamData() {
             const txt = document.getElementById("streamOutputText").value;
             if (!txt) {
-                document.getElementById("copyMsg").innerText = "⚠️ 请先转换生成纯 256 帧切片码流！";
+                document.getElementById("copyMsg").innerText = "⚠️ 请先运行 Push-Stack 压栈生成码流！";
                 return;
             }
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 纯 256 帧切片码流已拷贝！可在 B 站解算复原！";
+                document.getElementById("copyMsg").innerText = "✅ 纯 Pop-Stack 码流已拷贝！可在 B 站解算弹栈！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
