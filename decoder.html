@@ -24,7 +24,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【B站 · 解码器】天予 3T 物理隔离解算工作站 <span class="badge">Site B (Air-Gapped Decoder)</span></div>
+        <div class="title">⚡ 【B站 · 解码器】天予 3T 物理隔离 Pop-Stack 解算工作站 <span class="badge">Site B (Air-Gapped Decoder)</span></div>
         <div>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
@@ -36,7 +36,7 @@
     <div class="card" style="margin-bottom: 20px;">
         <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 512 字节 3T 编码码流</h3>
         <textarea id="streamInputText" placeholder="在此粘贴从 A 站 / 剪辑站复制的 Base64 编码字符串..."></textarea>
-        <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算</button>
+        <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算 (Pop-Stack Decoder)</button>
         <span id="decodeStatus" style="font-size:12px; color:#00e676; margin-left:10px;"></span>
     </div>
 
@@ -47,9 +47,9 @@
             <div class="outputs-wrapper">
                 <!-- 第一路: 天予极速矢量播放器 (Pop-Stack 实时渲染) -->
                 <div class="output-box">
-                    <h4 id="txtOutput1">🏆 第一路: 天予 3T 矢量播放器 (Tianyu Player)</h4>
+                    <h4 id="txtOutput1">🏆 第一路: 天予 3T 矢量播放器 (Pop-Stack Player)</h4>
                     <canvas id="tianyuPlayerCanvas" width="400" height="280"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% 复杂多极值矢量实时重构</p>
+                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% Pop-Stack 物理轨迹弹栈重构</p>
                 </div>
                 <!-- 第二路: MP4 全彩像素复原 Canvas -->
                 <div class="output-box">
@@ -61,10 +61,10 @@
         </div>
     </div>
 
+    <script src="tianyu_geometry_engine.js"></script>
     <script>
         let tianyuCtx, reconCtx;
         let currentExtrema = [];
-        let animTime = 0;
         let isDecoded = false;
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -85,21 +85,12 @@
                 const bytes = new Uint8Array(binary.length);
                 for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-                if (bytes[0] !== 0x54) throw new Error("魔数头校验失败");
-
-                const count = bytes[3];
-                currentExtrema = [];
-                for (let i = 0; i < count && (i * 8 + 12) < bytes.length; i++) {
-                    const x = bytes[i * 8 + 5] - 128;
-                    const y = bytes[i * 8 + 6] - 128;
-                    const r = bytes[i * 8 + 7];
-                    const g = bytes[i * 8 + 8];
-                    const b = bytes[i * 8 + 9];
-                    currentExtrema.push({ x, y, r, g, b });
-                }
+                // 使用 TianyuPopStackEngine 物理弹栈 Pop-Stack！
+                const engine = new window.TianyuPopStackEngine();
+                currentExtrema = engine.popExtremaStack(bytes);
 
                 isDecoded = true;
-                document.getElementById("decodeStatus").innerText = `✅ 复杂矢量码流解算成功！成功精准反解 ${currentExtrema.length} 个轨迹极值拐点，0 显存渲染中！`;
+                document.getElementById("decodeStatus").innerText = `✅ Pop-Stack 物理弹栈解算成功！成功弹栈 ${currentExtrema.length} 个轨迹极值拐点，0 显存渲染中！`;
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
             }
@@ -108,14 +99,13 @@
         function renderLoop() {
             function loop() {
                 requestAnimationFrame(loop);
-                animTime += 0.05;
                 renderTianyuPlayer(tianyuCtx);
                 renderReconstructedView(reconCtx);
             }
             loop();
         }
 
-        // 第一路：天予矢量播放器 (100% 精确渲染编码进码流里的复杂解剖/涡轮点阵)
+        // 第一路：天予 Pop-Stack 矢量播放器 (解算出复杂多瓣轮廓 + 动态血管/涡轮)
         function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
@@ -123,13 +113,13 @@
 
             if (!isDecoded || currentExtrema.length < 3) {
                 ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
-                ctx.fillText("等待输入 A 站/剪辑站 复杂 3T 码流...", w/2 - 95, h/2);
+                ctx.fillText("等待 Pop-Stack 弹栈解算...", w/2 - 75, h/2);
                 return;
             }
 
             const cx = w / 2, cy = h / 2;
 
-            // 1. 绘制绝对精确的 64-极值点阵多瓣拓扑外轮廓 (非圆！)
+            // 1. 绘制绝对精确的 Pop-Stack 极值点阵多瓣拓扑外轮廓
             ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
             ctx.fillStyle = "rgba(0, 230, 118, 0.15)";
             ctx.beginPath();
@@ -142,7 +132,7 @@
             }
             ctx.closePath(); ctx.stroke(); ctx.fill();
 
-            // 2. 绘制极值内节点交织网络
+            // 2. 绘制 Pop-Stack 极值内节点交织网络
             ctx.strokeStyle = "#ffeb3b"; ctx.lineWidth = 1.2;
             ctx.beginPath();
             for (let i = 0; i < currentExtrema.length; i += 2) {
@@ -153,7 +143,7 @@
             }
             ctx.closePath(); ctx.stroke();
 
-            // 3. 绘制 64 个白色极值控制节点 Marker
+            // 3. 绘制 Pop-Stack 极值控制节点 Marker
             ctx.fillStyle = "#ffffff";
             for (let i = 0; i < currentExtrema.length; i++) {
                 const pt = currentExtrema[i];
@@ -163,7 +153,7 @@
             }
         }
 
-        // 第二路：全彩像素重构 Canvas View (基于码流精准还原)
+        // 第二路：全彩像素重构 Canvas View (基于 Pop-Stack 弹栈结果)
         function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);

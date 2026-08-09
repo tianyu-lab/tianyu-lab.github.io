@@ -43,7 +43,7 @@
             <canvas id="editorCanvas" width="550" height="360"></canvas>
             
             <div class="hud-overlay" id="hudStatus">
-                [3T 矢量物理节点]: 64 个极值拐点 | [视频分辨率]: 100% 无限矢量无损 | [FPS]: 120 FPS
+                [Pop-Stack 压栈引擎]: 64 个极值压栈 (Push-Stack) | [视频分辨率]: 100% 无限矢量无损 | [FPS]: 120 FPS
             </div>
 
             <!-- 时间线拖拽轴 -->
@@ -85,13 +85,14 @@
                 <button class="tool-btn" onclick="setTintColor('#ff0055')">❤️ 血管红</button>
             </div>
 
-            <textarea id="projectExportText" readonly style="width:100%; height:90px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px;" placeholder="复杂 3T 码流生成中..."></textarea>
+            <textarea id="projectExportText" readonly style="width:100%; height:90px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px;" placeholder="Pop-Stack 512字节码流生成中..."></textarea>
             
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyProjectData()" id="btnExport">📋 导出复杂 3T 矢量剪辑工程码流 (复制到 B 站解算)</button>
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyProjectData()" id="btnExport">📋 导出 Pop-Stack 3T 矢量工程码流 (复制到 B 站解算)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:5px;"></span>
         </div>
     </div>
 
+    <script src="tianyu_geometry_engine.js"></script>
     <script>
         let canvas, ctx;
         let isPlaying = false;
@@ -236,12 +237,11 @@
             ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.stroke();
         }
 
-        // 精确编码 64 个复杂解剖/涡轮极值点入 512 字节码流 (非单圆！)
+        // 使用物理级 TianyuPopStackEngine 执行 Push-Stack 压栈编码！
         function generateProjectStream() {
-            const buf = new Uint8Array(512);
-            buf[0] = 0x54; buf[1] = 0x93; buf[2] = 0x3A; buf[3] = 64; buf[4] = 0x7E;
+            const engine = new window.TianyuPopStackEngine();
             const t = frameIndex / 10;
-            for (let i = 0; i < 64 && (i * 8 + 12) < 512; i++) {
+            for (let i = 0; i < 64; i++) {
                 const th = (i / 64) * Math.PI * 2;
                 let r = 90;
                 if (presetMode === "surgical") {
@@ -251,11 +251,10 @@
                 }
                 const x = Math.cos(th) * r;
                 const y = Math.sin(th) * r;
-
-                buf[i * 8 + 5] = (Math.round(x) + 128) & 0xFF;
-                buf[i * 8 + 6] = (Math.round(y) + 128) & 0xFF;
-                buf[i * 8 + 7] = 0; buf[i * 8 + 8] = 230; buf[i * 8 + 9] = 118;
+                // 执行 Push-Stack 压栈
+                engine.pushExtremaStack(x, y, t, th, 0, 230, 118);
             }
+            const buf = engine.encodeToBuffer512();
             let binary = '';
             for (let i = 0; i < buf.byteLength; i++) binary += String.fromCharCode(buf[i]);
             document.getElementById("projectExportText").value = btoa(binary);
@@ -279,7 +278,7 @@
         function copyProjectData() {
             const txt = document.getElementById("projectExportText").value;
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 复杂 3T 剪辑工程码流已复制！可在 B 站解算播放！";
+                document.getElementById("copyMsg").innerText = "✅ Pop-Stack 3T 剪辑工程码流已复制！可在 B 站解算播放！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
@@ -294,7 +293,7 @@
                 document.getElementById("txtTimelineTitle").innerText = "⏱️ 3T Ultra-Fast Scrubber Timeline";
                 document.getElementById("btnPlayPause").innerText = isPlaying ? "⏸️ Pause" : "▶️ Play";
                 document.getElementById("txtControlTitle").innerText = "✂️ Pro Vector Video Console & Export";
-                document.getElementById("btnExport").innerText = "📋 Export Complex 3T Vector Stream";
+                document.getElementById("btnExport").innerText = "📋 Export Pop-Stack 3T Vector Stream";
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
                 document.getElementById("navGoB").innerText = "前往 B 站解码 ➔";
@@ -304,7 +303,7 @@
                 document.getElementById("txtTimelineTitle").innerText = "⏱️ 3T 极速毫秒级时间线拖拽 (Scrubber)";
                 document.getElementById("btnPlayPause").innerText = "▶️ 播放 / 暂停";
                 document.getElementById("txtControlTitle").innerText = "✂️ 矢量剪辑控制台与工程导出";
-                document.getElementById("btnExport").innerText = "📋 导出复杂 3T 矢量剪辑工程码流 (复制到 B 站解算)";
+                document.getElementById("btnExport").innerText = "📋 导出 Pop-Stack 3T 矢量剪辑工程码流 (复制到 B 站解算)";
             }
         }
     </script>
