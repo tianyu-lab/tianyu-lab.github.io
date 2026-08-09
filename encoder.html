@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【A站 · 全量原视频 256 页 Pop-Stack 编码器】天予 3T 原视频完整 256 页编码工作站</title>
+    <title>【A站 · 全量 256 页高密原视频编码器】天予 3T 原视频完整 256 页高密编码工作站</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -15,7 +15,7 @@
         .card h3 { color: #38bdf8; font-size: 16px; margin-bottom: 15px; }
         canvas, video { background: #000; border-radius: 8px; width: 100%; height: 340px; object-fit: contain; }
         .btn { background: #38bdf8; color: #040711; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-right: 10px; }
-        textarea { width: 100%; height: 140px; background: #040711; border: 1px solid #334155; color: #00e676; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; word-break: break-all; spellcheck: false; }
+        textarea { width: 100%; height: 160px; background: #040711; border: 1px solid #334155; color: #00e676; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; word-break: break-all; spellcheck: false; }
         .file-label { background: rgba(0,230,118,0.2); color: #00e676; border: 1px solid #00e676; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block; }
         .progress-bar { width: 100%; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; margin-top: 10px; }
         .progress-fill { height: 100%; background: #00e676; width: 0%; transition: width 0.1s; }
@@ -23,7 +23,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【A站 · 256 页全量原视频 Pop-Stack 编码器】原视频全量 256 页极值编码 <span class="badge">Station A (Full 256-Slice)</span></div>
+        <div class="title">⚡ 【A站 · 256 页高密原视频 Pop-Stack 编码器】原视频 256 页高密全体素编码 <span class="badge">Station A (High-Density)</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="decoder.html" style="color:#00e676; text-decoration:none; margin-left:15px; font-weight:bold;">前往 B 站解码 ➔</a>
@@ -31,9 +31,8 @@
     </div>
 
     <div class="container">
-        <!-- 左侧: 256 页全量原视频扫描与播放 -->
         <div class="card">
-            <h3>🎞️ 原视频全体素视界 (全量扫描原视频前 256 帧/切片)</h3>
+            <h3>🎞️ 原视频全体素视界 (高密扫描原视频 256 帧/页全体素)</h3>
             <div style="margin-bottom: 15px; display:flex; gap:10px; align-items:center;">
                 <input type="file" id="localVideoInput" accept="video/*" style="display:none;" onchange="handleFileSelect(event)">
                 <label for="localVideoInput" class="file-label">📁 选择本地 MP4 视频文件 (如 200MB+ 大视频)</label>
@@ -47,11 +46,10 @@
             <p id="statusMsg" style="font-size:12px; color:#38bdf8; margin-top:8px;">等待选择视频...</p>
         </div>
 
-        <!-- 右侧: 全量 256 页 Pop-Stack 完整 Base64 码流输出 (可达数百 KB) -->
         <div class="card">
-            <h3>📤 全量 256 页 Pop-Stack 真实码流包 (数百 KB 完整流)</h3>
-            <textarea id="streamOutputText" readonly placeholder="选择 MP4 后，将在此逐帧全量扫描并导出包含 256 页全体素 Pop-Stack 信息的真实 Base64 码流..."></textarea>
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyStreamData()">📋 复制全量 256 页 Pop-Stack 码流 (去 B 站解码)</button>
+            <h3>📤 256 页高密 Pop-Stack 完整码流包 (数 MB 级别海量流)</h3>
+            <textarea id="streamOutputText" readonly placeholder="选择 MP4 后，将在此高密提取原视频 256 页全体素像素阵列，生成包含数 MB 信息的完整 Base64 码流..."></textarea>
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyStreamData()">📋 复制 256 页高密 Pop-Stack 码流 (去 B 站解码)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:8px;"></span>
         </div>
     </div>
@@ -76,13 +74,12 @@
             videoEl.src = URL.createObjectURL(file);
             videoEl.style.display = "block";
 
-            // 全量逐帧提取 256 页 Pop-Stack 极值
-            extractAll256Pages(videoEl);
+            extractHighDensity256Pages(videoEl);
         }
 
-        // 逐帧抓取原视频前 256 帧/页全量 Pop-Stack 数据 (保证包含完整 256 页全体素信息)
-        function extractAll256Pages(vEl) {
-            document.getElementById("statusMsg").innerText = "⏳ 正在全量扫描原视频前 256 页/帧 Pop-Stack 像素矩阵...";
+        // 高密全量抽取 256 页全体素 Pop-Stack 矩阵 (单帧不设上限，生成数 MB 级别海量码流)
+        function extractHighDensity256Pages(vEl) {
+            document.getElementById("statusMsg").innerText = "⏳ 正在高密全量抓取原视频 256 页全体素像素阵列...";
             
             const totalFrames = 256;
             const streamBytes = [];
@@ -95,25 +92,27 @@
                 scanCtx.drawImage(vEl, 0, 0, 256, 256);
                 const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
 
-                // 每页全量扫描 16x16 高密网格极值点
+                // 256x256 全量高密像素点阵采样 (步长 4px, 每页采样 4,096 个高密点)
                 const pts = [];
-                for (let y = 8; y < 248; y += 16) {
-                    for (let x = 8; x < 248; x += 16) {
+                for (let y = 0; y < 256; y += 4) {
+                    for (let x = 0; x < 256; x += 4) {
                         const idx = (y * 256 + x) * 4;
-                        const r = imgData[idx];
-                        const g = imgData[idx + 1];
-                        const b = imgData[idx + 2];
-                        
-                        // 采真实 RGB 颜色拐点
-                        pts.push({ x: x - 128, y: y - 128, r, g, b });
+                        pts.push({
+                            x: x - 128,
+                            y: y - 128,
+                            r: imgData[idx],
+                            g: imgData[idx + 1],
+                            b: imgData[idx + 2]
+                        });
                     }
                 }
 
-                // 写入包头与 Pop-Stack 极值数据
-                streamBytes.push(0x54); // 包头 0x54 ('T')
+                // 写入包头 (0x54) + 2 字节点数 (4,096 点)
+                streamBytes.push(0x54);
                 streamBytes.push((currentFrame >> 8) & 0xFF);
                 streamBytes.push(currentFrame & 0xFF);
-                streamBytes.push(pts.length); // 点数 (如 225 个点/页)
+                streamBytes.push((pts.length >> 8) & 0xFF);
+                streamBytes.push(pts.length & 0xFF);
 
                 for (let pt of pts) {
                     streamBytes.push((pt.x + 128) & 0xFF);
@@ -121,35 +120,34 @@
                     streamBytes.push(pt.r);
                     streamBytes.push(pt.g);
                     streamBytes.push(pt.b);
-                    streamBytes.push(currentFrame & 0xFF); // z/t 帧号
+                    streamBytes.push(currentFrame & 0xFF);
                 }
 
                 currentFrame++;
                 const progressPct = Math.round((currentFrame / totalFrames) * 100);
                 document.getElementById("progressFill").style.width = progressPct + "%";
-                document.getElementById("statusMsg").innerText = `⏳ 正在逐帧全量提取 Pop-Stack: 已完成 ${currentFrame} / ${totalFrames} 页 (${progressPct}%)`;
+                document.getElementById("statusMsg").innerText = `⏳ 正在高密全量提取原视频 Pop-Stack: 已完成 ${currentFrame} / ${totalFrames} 页 (${progressPct}%)，已生成 ${(streamBytes.length/1024).toFixed(0)} KB 数据...`;
 
-                if (currentFrame < totalFrames && currentFrame * 0.04 < vEl.duration) {
-                    vEl.currentTime = currentFrame * 0.04; // 25 FPS 步进
+                if (currentFrame < totalFrames) {
+                    // 使用 Canvas ImageData 模拟步进
+                    vEl.currentTime = (currentFrame / totalFrames) * vEl.duration;
                 } else {
-                    // 完成全量 256 页扫描，序列化生成包含数十/数百 KB 的真实码流包
-                    finishEncoding(streamBytes);
+                    finishHighDensityEncoding(streamBytes);
                 }
             }
 
-            vEl.onseeked = function() {
+            // 同步快速高密步进
+            function runFastLoop() {
                 if (currentFrame < totalFrames) {
                     processFrame();
+                    setTimeout(runFastLoop, 15);
                 }
-            };
-
-            // 触发第一帧
-            vEl.currentTime = 0.01;
+            }
+            runFastLoop();
         }
 
-        function finishEncoding(bytes) {
+        function finishHighDensityEncoding(bytes) {
             const uint8 = new Uint8Array(bytes);
-            // 分块 Base64 编码，防止超长 Buffer 溢出
             let binary = "";
             const chunkSize = 0x8000;
             for (let i = 0; i < uint8.length; i += chunkSize) {
@@ -157,20 +155,20 @@
             }
             const b64 = btoa(binary);
 
-            const kbSize = (uint8.length / 1024).toFixed(1);
+            const mbSize = (uint8.length / (1024 * 1024)).toFixed(2);
             document.getElementById("streamOutputText").value = b64;
-            document.getElementById("statusMsg").innerText = `✅ 256 页 Pop-Stack 全量扫描完成！生成全量码流大小: ${uint8.length.toLocaleString()} 字节 (${kbSize} KB)，可全量传输给 B 站！`;
+            document.getElementById("statusMsg").innerText = `✅ 256 页高密 Pop-Stack 编码完成！生成海量码流大小: ${uint8.length.toLocaleString()} 字节 (${mbSize} MB)， Base64 长度 ${b64.length.toLocaleString()} 字符！`;
             document.getElementById("statusMsg").style.color = "#00e676";
         }
 
         function copyStreamData() {
             const txt = document.getElementById("streamOutputText").value;
             if (!txt) {
-                document.getElementById("copyMsg").innerText = "⚠️ 请先导入 MP4 视频等待全量 256 页扫描完成！";
+                document.getElementById("copyMsg").innerText = "⚠️ 请先导入 MP4 视频等待高密全量编码完成！";
                 return;
             }
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 全量 256 页 Pop-Stack 码流已复制！可在 B 站精准解算全量 256 页！";
+                document.getElementById("copyMsg").innerText = "✅ 256 页高密 Pop-Stack 海量码流已复制！可在 B 站精准解算复原！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
