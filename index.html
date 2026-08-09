@@ -30,6 +30,13 @@
         .demo-bar { background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); border-radius: 12px; padding: 1.2rem 2rem; max-width: 1100px; margin: 0 auto 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .demo-bar-title { font-size: 1.1rem; font-weight: 700; color: #38bdf8; }
         
+        .invest-box { background: linear-gradient(135deg, rgba(2, 132, 199, 0.12) 0%, rgba(0, 230, 118, 0.08) 100%); border: 1px solid #0284c7; border-radius: 16px; padding: 2.5rem; max-width: 950px; margin: 3rem auto; text-align: left; }
+        .invest-box h2 { color: #38bdf8; font-size: 1.8rem; margin-bottom: 1rem; text-align: center; }
+        .invest-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 1.5rem; }
+        .invest-card { background: rgba(15, 23, 42, 0.85); border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; }
+        .invest-card h4 { color: #00e676; font-size: 1.1rem; margin-bottom: 0.6rem; }
+        .invest-card p { font-size: 0.9rem; color: #cbd5e1; line-height: 1.6; }
+
         .pricing-box { background: rgba(0, 230, 118, 0.05); border: 1px solid rgba(0, 230, 118, 0.4); border-radius: 16px; padding: 2.5rem; max-width: 950px; margin: 3rem auto; text-align: center; }
         .pricing-box h2 { color: #00e676; font-size: 1.8rem; margin-bottom: 1rem; }
         .pricing-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
@@ -62,8 +69,7 @@
             <a href="demo.html" style="color:#00e676; font-weight:bold;" id="navDemo">🎬 视频转换 Demo</a>
             <a href="capsule.html" style="color:#ffeb3b;" id="navCapsule">💊 具象智能 3D</a>
             <a href="mesh3d.html" style="color:#38bdf8;" id="nav3D">🧊 Three.js 3D站</a>
-            <a href="encoder.html" style="color:#38bdf8;" id="navEnc">⚡ A站编码器</a>
-            <a href="decoder.html" style="color:#00e676;" id="navDec">🎨 B站隔离解码器</a>
+            <a href="#invest" style="color:#00e676; font-weight:bold;" id="navInvest">🏛️ 战略投资竞标</a>
             <a href="#pricing" style="color:#ffeb3b;" id="navPricing">💰 定价权益</a>
             <a href="#contact" id="navContact">联系沟通</a>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
@@ -82,8 +88,8 @@
         </div>
 
         <div class="cta-group">
-            <a href="demo.html" class="cta-btn" id="btnMainDemo">🚀 在线 Demo (物理极值转换)</a>
-            <a href="#pricing" class="cta-btn-alt" style="border-color:#ffeb3b; color:#ffeb3b;" id="btnPricingCta">💰 查看透明 12.5% 硬件锚定定价</a>
+            <a href="#invest" class="cta-btn" id="btnInvestCta">🏛️ 查看战略投资与区域独家竞标方案</a>
+            <a href="#pricing" class="cta-btn-alt" style="border-color:#ffeb3b; color:#ffeb3b;" id="btnPricingCta">💰 查看 12.5% 软件授权</a>
         </div>
     </section>
 
@@ -96,6 +102,27 @@
             <a href="decoder.html" class="cta-btn-alt" style="padding:0.4rem 1rem; font-size:0.85rem; border-color:#00e676; color:#00e676;" id="btnGoB">【B站隔离解码器】➔</a>
         </div>
     </div>
+
+    <!-- 🏛️ 战略投资方与区域独家竞标通道 -->
+    <section class="invest-box" id="invest">
+        <h2 id="txtInvTitle">🏛️ 战略投资方与区域独家合伙人竞标机制</h2>
+        <p style="color:#94a3b8; text-align:center; max-width:800px; margin:0 auto;" id="txtInvSub">虚浮的流量皆为幻象，硬核的技术与商业闭环方为根本！天予具象智能 94 个专业模块面向全球战略投资方与独家合伙人开启限额竞标。</p>
+        
+        <div class="invest-grid">
+            <div class="invest-card">
+                <h4 id="txtInvCard1Title">🏆 前 3 / 前 10 名限额席位竞标</h4>
+                <p id="txtInvCard1Sub">面向全球/区域/行业合作伙伴，仅开放前 3 至 10 个独家战略竞标席位。锁定独家商业运营权与天予具象智能生态推广优先权。</p>
+            </div>
+            <div class="invest-card">
+                <h4 id="txtInvCard2Title">💳 10% 投标额预付定款直入</h4>
+                <p id="txtInvCard2Sub">竞标成功者需将投标承销额度的 <b>10% 预付款直接入账</b>，作为独家区域/行业保护保证金，锁定技术交付与项目底座。</p>
+            </div>
+            <div class="invest-card">
+                <h4 id="txtInvCard3Title">📈 营业额固定比例分红抽成</h4>
+                <p id="txtInvCard3Sub">不稀释创始人控制权与主权！其余权益严格按照实际落地商业营业额/销售额的固定比例（如 15%~25%）进行长期分红与共享！</p>
+            </div>
+        </div>
+    </section>
 
     <!-- 💰 明码标价与早期用户 VIP 权益区 -->
     <section class="pricing-box" id="pricing">
@@ -171,8 +198,8 @@
     </section>
 
     <section class="contact-box" id="contact">
-        <h2 id="txtContactTitle">📫 联系获取 P100 商业授权</h2>
-        <p id="txtContactSub">如需咨询《天予 P100 本地私有智力方舟》或获取专属《双席位会议隐私评估》：</p>
+        <h2 id="txtContactTitle">📫 联系获取 P100 商业授权与投资竞标</h2>
+        <p id="txtContactSub">如需咨询《天予 P100 本地私有智力方舟》或提交《前3/前10 独家战略投资竞标》：</p>
         <div class="email-badge">tianyu.lab@proton.me</div>
         <p style="font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;" id="txtContactFooter">支持 ProtonMail 端到端加密邮件沟通 · 接受自托管 BTC / USDT 离线结清</p>
     </section>
@@ -189,8 +216,7 @@
                 document.getElementById("navDemo").innerText = "🎬 Video Conversion Demo";
                 document.getElementById("navCapsule").innerText = "💊 Concrete AI 3D";
                 document.getElementById("nav3D").innerText = "🧊 Three.js 3D Station";
-                document.getElementById("navEnc").innerText = "⚡ Station A Encoder";
-                document.getElementById("navDec").innerText = "🎨 Station B Decoder";
+                document.getElementById("navInvest").innerText = "🏛️ Strategic Bidding";
                 document.getElementById("navPricing").innerText = "💰 Pricing & VIP";
                 document.getElementById("navContact").innerText = "Contact Us";
                 document.getElementById("txtHeroTitle").innerText = "Destiny Arrives Naturally, Heaven Bestows Grace";
@@ -199,12 +225,21 @@
                 document.getElementById("txtMotto1").innerText = "“Grounded creativity is the ultimate guarantee of quality.”";
                 document.getElementById("txtMotto2").innerText = "⚡ 16,000 : 1 Compression Ratio is the Strongest Footprint & Booster · Tianyu Concrete AI World Model";
 
-                document.getElementById("btnMainDemo").innerText = "🚀 Interactive Live Demo";
+                document.getElementById("btnInvestCta").innerText = "🏛️ Strategic Investor Bidding Scheme";
                 document.getElementById("btnPricingCta").innerText = "💰 View 12.5% Hardware Pricing";
                 document.getElementById("txtBarTitle").innerText = "🧪 Physical Isolation Verification Channel:";
                 document.getElementById("btnGoA").innerText = "【Station A】➔";
                 document.getElementById("btnGo3D").innerText = "【3D Station】➔";
                 document.getElementById("btnGoB").innerText = "【Station B Decoder】➔";
+
+                document.getElementById("txtInvTitle").innerText = "🏛️ Strategic Investors & Exclusive Bidding Partnership Scheme";
+                document.getElementById("txtInvSub").innerText = "Vanity metrics fade; hardtech and real business execution prevail! Tianyu 94-module ecosystem opens limited bidding seats for global strategic partners.";
+                document.getElementById("txtInvCard1Title").innerText = "🏆 Top 3 / Top 10 Bidding Seats";
+                document.getElementById("txtInvCard1Sub").innerText = "Limited to 3 to 10 exclusive global/regional strategic bidding seats, locking exclusive regional operation rights.";
+                document.getElementById("txtInvCard2Title").innerText = "💳 10% Upfront Bid Deposit Direct Deposit";
+                document.getElementById("txtInvCard2Sub").innerText = "Winning bidders deposit 10% of the bid commitment upfront into account as exclusive regional protection margin.";
+                document.getElementById("txtInvCard3Title").innerText = "📈 Revenue-Share Profit Model";
+                document.getElementById("txtInvCard3Sub").innerText = "Zero equity dilution! Remaining returns are structured strictly as a fixed percentage of actual commercial turnover (e.g. 15%~25%).";
 
                 document.getElementById("txtPTitle").innerText = "💎 Transparent Pricing · 12.5% (1/8) Hardware Baseline";
                 document.getElementById("txtPSub").innerText = "Say goodbye to overpriced software! P100 pricing strictly follows the 12.5% (1/8) hardware baseline formula, unlocking thousands of dollars in hardware potential.";
@@ -230,8 +265,8 @@
                 document.getElementById("txtS3Title").innerText = "Cryptographic Offline License";
                 document.getElementById("txtS3Sub").innerText = "Activated via asymmetric RSA offline signature files (.lic). No KYC, no phone numbers, complete sovereignty.";
 
-                document.getElementById("txtContactTitle").innerText = "📫 Contact for Commercial Licensing";
-                document.getElementById("txtContactSub").innerText = "For inquiries regarding Tianyu P100 Private AI Ark or Executive Meeting Privacy Assessment:";
+                document.getElementById("txtContactTitle").innerText = "📫 Contact for Commercial Licensing & Investment Bidding";
+                document.getElementById("txtContactSub").innerText = "For inquiries regarding Tianyu P100 Private AI Ark or submitting Top 3 / Top 10 Bidding Proposals:";
                 document.getElementById("txtContactFooter").innerText = "Supports ProtonMail end-to-end encrypted email · Accepts self-custodial BTC / USDT";
                 document.getElementById("txtCopyright").innerText = "© 2026 Tianyu Concrete AI Lab (Tianyu Lab) · All Rights Reserved · Tech for Good";
             } else {

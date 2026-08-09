@@ -16,6 +16,16 @@
 
 ---
 
+## 🏛️ Strategic Investor & Franchise Bidding Scheme
+
+We focus on real commercial execution rather than vanity metrics. Tianyu Concrete AI opens limited bidding seats for global strategic partners:
+
+- **🏆 Top 3 / Top 10 Bidding Seats**: Limited to 3 to 10 exclusive global/regional strategic bidding seats.
+- **💳 10% Upfront Bid Deposit**: Winning bidders deposit **10% of the bid commitment upfront** into account as exclusive regional protection margin.
+- **📈 Revenue-Share Profit Model**: Zero equity dilution! Remaining returns are structured strictly as a fixed percentage of actual commercial turnover (e.g. 15%~25%).
+
+---
+
 ## 🚀 Key Highlights & Selling Propositions
 
 ### 1. 27B MTP Ultra-Fast Local Inference (20+ tokens/s)
@@ -36,7 +46,7 @@ Includes Mechanism Layer, Math Camouflage ($1+1=\exp(\text{rand})+\int dx$), 3-B
 
 | Channel | URL | Function |
 | :--- | :--- | :--- |
-| 🌐 **Official Site** | [tianyu-lab.github.io](https://tianyu-lab.github.io/) | Full Landing Page & Pricing |
+| 🌐 **Official Site** | [tianyu-lab.github.io](https://tianyu-lab.github.io/) | Full Landing Page & Bidding |
 | 🎬 **Live Demo** | [tianyu-lab.github.io/demo.html](https://tianyu-lab.github.io/demo.html) | Interactive 3T Extremum Conversion |
 | 💊 **Concrete AI 3D** | [tianyu-lab.github.io/capsule.html](https://tianyu-lab.github.io/capsule.html) | Capsule Waterjet 3D Surgery |
 | 🧊 **3D Mesh Station** | [tianyu-lab.github.io/mesh3d.html](https://tianyu-lab.github.io/mesh3d.html) | Three.js Mesh Import & Capacity Stats |
@@ -58,7 +68,7 @@ P100 pricing strictly follows our transparent **12.5% (1/8) Hardware Baseline Fo
 
 ## 📫 Contact & Cryptographic Licensing
 
-- **ProtonMail**: `tianyu.lab@proton.me` (End-to-End Encrypted Communication)
+- **ProtonMail**: `tianyu.lab@proton.me` (End-to-End Encrypted Communication & Bidding Proposals)
 - **Payments**: Accepts Self-Custodial Bitcoin (BTC / Proton Wallet) & USDT (TRC20)
 - **Licensing**: Cryptographic Asymmetric Signed License Files (`.lic`)
 
