@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>天予具象智能 · 天予 3T & P100 本地私有智力方舟</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.6; }
+        header { background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding: 1.2rem 2rem; position: sticky; top: 0; backdrop-filter: blur(10px); z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.4rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
+        .badge { background: #0284c7; color: #fff; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; }
+        nav a { color: #94a3b8; text-decoration: none; margin-left: 1.5rem; font-weight: 500; transition: color 0.2s; }
+        nav a:hover { color: #38bdf8; }
+        
+        .hero { text-align: center; padding: 5rem 1.5rem 3rem; max-width: 900px; margin: 0 auto; }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.2rem; background: linear-gradient(135deg, #38bdf8 0%, #00e676 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.2rem; color: #94a3b8; margin-bottom: 2rem; }
+        .cta-btn { display: inline-block; background: linear-gradient(135deg, #0284c7 0%, #00e676 100%); color: #040711; font-weight: 700; padding: 0.9rem 2.2rem; border-radius: 8px; text-decoration: none; font-size: 1.1rem; transition: transform 0.2s; }
+        .cta-btn:hover { transform: translateY(-2px); }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 3rem auto; padding: 0 1.5rem; }
+        .card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(51, 65, 85, 0.8); border-radius: 12px; padding: 1.8rem; transition: border-color 0.2s; }
+        .card:hover { border-color: #38bdf8; }
+        .card-icon { font-size: 2rem; margin-bottom: 1rem; }
+        .card h3 { font-size: 1.25rem; color: #38bdf8; margin-bottom: 0.8rem; }
+        .card p { font-size: 0.95rem; color: #94a3b8; }
+        
+        .contact-box { background: rgba(2, 132, 199, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 16px; padding: 2.5rem; max-width: 800px; margin: 4rem auto; text-align: center; }
+        .contact-box h2 { font-size: 1.8rem; color: #38bdf8; margin-bottom: 1rem; }
+        .email-badge { display: inline-block; background: #0f172a; border: 1px solid #0284c7; color: #38bdf8; font-family: monospace; font-size: 1.2rem; padding: 0.75rem 1.5rem; border-radius: 8px; margin: 1rem 0; }
+        
+        footer { text-align: center; padding: 2rem; border-top: 1px solid #1e293b; color: #64748b; font-size: 0.9rem; margin-top: 4rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">⚡ 天予 3T · P100 <span class="badge">物理隐私智力方舟</span></div>
+        <nav>
+            <a href="#features">核心卖点</a>
+            <a href="#security">纵深防御</a>
+            <a href="#contact">联系购买</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1>塞在移动 SSD 里的私有智力方舟</h1>
+        <p>搭载 Qwen 3.6 27B MTP 极速物理推理引擎 (20+ tokens/s · 16K 上下文) · 最小双席位高级会议隐私防护 · 零第三方依赖点火</p>
+        <a href="#contact" class="cta-btn">获取离线商业授权 (Proton Mail)</a>
+    </section>
+
+    <section class="grid" id="features">
+        <div class="card">
+            <div class="card-icon">🚀</div>
+            <h3>27B MTP 极速推演</h3>
+            <p>挂载天予 C++ 融合算子 (libtianyu_fused_kernel.so)，在本地硬件跑出 20+ tokens/s 惊人吞吐率，16K 上下文商业决策秒级响应！</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🛡️</div>
+            <h3>最小双席位会议隐私保护</h3>
+            <p>基于 OmniRoute 与 Orca 智能脱敏路由，主控席与参会席商业机密本地物理切片。云端算力只做“失忆型工具人”，绝不出港！</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3>天予 3T 时空无界解算</h3>
+            <p>512 字节/帧 4D 矢量视频流，降维 99.94% (缩小 1,600 倍)，纯 CPU 120 FPS 流畅绘制，100% 矢量级无限放大零失真！</p>
+        </div>
+    </section>
+
+    <section class="grid" id="security">
+        <div class="card">
+            <div class="card-icon">🔒</div>
+            <h3>4 层纵深防御体系</h3>
+            <p>包含机制防护层、表面数学伪装层 (1+1=exp(rand)+∫dx)、3 字节传输混淆盐与动态反逻辑解算双核。逆向反编译不伤筋骨！</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔌</div>
+            <h3>硬件解耦与气隙隔离</h3>
+            <p>Plug-and-Ignite！插上任何宿主机即可点火。全自动智能自适应硬件旁路，零第三方依赖包，绝对物理隐私闭环。</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔑</div>
+            <h3>密码学离线授权</h3>
+            <p>采用非对称密钥离线签名文件 (.lic) 授权激活。无 KYC、无手机号绑定，主权隔离，保障绝密商业运行。</p>
+        </div>
+    </section>
+
+    <section class="contact-box" id="contact">
+        <h2>📫 联系获取 P100 商业授权</h2>
+        <p>如需咨询《天予 P100 本地私有智力方舟》或获取专属《双席位会议隐私评估》：</p>
+        <div class="email-badge">tianyu.lab@proton.me</div>
+        <p style="font-size: 0.9rem; color: #64748b; margin-top: 0.5rem;">支持 ProtonMail 端到端加密邮件沟通 · 接受自托管 BTC / USDT 离线结清</p>
+    </section>
+
+    <footer>
+        <p>© 2026 天予具象智能研究室 (Tianyu Lab) · 保留所有权利 · 科技向善 · 救死扶伤</p>
+    </footer>
+</body>
+</html>
