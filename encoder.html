@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【A站 · 25 FPS 时间轴 Coder 编码器】天予 3T 25 帧/秒 Pop-Stack 视频 Coder 工作站</title>
+    <title>【A站 · 25 FPS 时间轴 Coder】天予 3T 25 帧/秒 Pop-Stack 视频 Coder 工作站</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -80,7 +80,7 @@
             document.getElementById("statusMsg").innerText = `✅ 视频已就绪！请点击【⚡ 2. 运行 25 FPS Pop-Stack Coder】按钮！`;
         }
 
-        // 真正的 25 FPS Pop-Stack Coder 编码函数 (沿时间轴 T 抽取 25 帧)
+        // 真正的 25 FPS Pop-Stack Coder 编码函数 (沿时间轴 T 抽取 25 帧 256x256 全量像素矩阵)
         function run25FPSPopStackCoder() {
             if (!videoEl.src || videoEl.src === "") {
                 alert("⚠️ 请先选择本地 MP4 视频文件！");
@@ -89,7 +89,7 @@
 
             document.getElementById("statusMsg").innerText = "⚡ 正在沿时间轴 T 运行 25 FPS Pop-Stack Coder 编码器...";
             
-            const totalFrames = 25; // 严格对齐 25 帧/秒
+            const totalFrames = 25; // 严格对齐 25 帧/秒 (人眼标准)
             const streamBytes = [];
             let currentFrame = 0;
 
@@ -106,41 +106,36 @@
                     scanCtx.drawImage(videoEl, 0, 0, 256, 256);
                     const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
 
-                    // Pop-Stack 沿时间轴 T 精细轨迹 Coder 编码 (256x256 细粒度点阵，步长 2px)
+                    // 1:1 精确捕获 256x256 原图全体素像素阵列 (零遗漏，步长 1px)
                     const frameCoderPoints = [];
-                    for (let y = 0; y < 256; y += 2) {
-                        for (let x = 0; x < 256; x += 2) {
+                    for (let y = 0; y < 256; y++) {
+                        for (let x = 0; x < 256; x++) {
                             const idx = (y * 256 + x) * 4;
-                            const r = imgData[idx];
-                            const g = imgData[idx + 1];
-                            const b = imgData[idx + 2];
-                            
-                            // 极值与色彩变化拐点过滤 (Coder 核心：剔除平坦无色彩信息背景)
-                            const brightness = (r + g + b) / 3;
-                            if (brightness > 15) {
-                                frameCoderPoints.push({
-                                    x: x - 128,
-                                    y: y - 128,
-                                    r, g, b
-                                });
-                            }
+                            frameCoderPoints.push({
+                                x: x,
+                                y: y,
+                                r: imgData[idx],
+                                g: imgData[idx + 1],
+                                b: imgData[idx + 2]
+                            });
                         }
                     }
 
-                    // 写入 25 FPS Pop-Stack 包头与 2 字节 Coder 计数
+                    // 写入 25 FPS Pop-Stack 包头与 4 字节 Coder 计数 (65,536 点/帧)
                     streamBytes.push(0x54); // 魔数 0x54 ('T')
                     streamBytes.push(0x25); // 25 FPS 标识
                     streamBytes.push(currentFrame & 0xFF); // 帧号 (0 ~ 24)
+                    streamBytes.push((frameCoderPoints.length >> 16) & 0xFF);
                     streamBytes.push((frameCoderPoints.length >> 8) & 0xFF);
                     streamBytes.push(frameCoderPoints.length & 0xFF);
 
-                    // 编码压栈 (Coder Encoding)
+                    // 编码压栈 256x256 全量 1:1 RGB 像素
                     for (let pt of frameCoderPoints) {
-                        streamBytes.push((pt.x + 128) & 0xFF);
-                        streamBytes.push((pt.y + 128) & 0xFF);
-                        streamBytes.push(pt.r);
-                        streamBytes.push(pt.g);
-                        streamBytes.push(pt.b);
+                        streamBytes.push(pt.x & 0xFF);
+                        streamBytes.push(pt.y & 0xFF);
+                        streamBytes.push(pt.r & 0xFF);
+                        streamBytes.push(pt.g & 0xFF);
+                        streamBytes.push(pt.b & 0xFF);
                     }
 
                     currentFrame++;
@@ -168,9 +163,9 @@
             }
             const b64 = btoa(binary);
 
-            const kbSize = (uint8.length / 1024).toFixed(1);
+            const mbSize = (uint8.length / (1024 * 1024)).toFixed(2);
             document.getElementById("streamOutputText").value = b64;
-            document.getElementById("statusMsg").innerText = `🎉 25 FPS Pop-Stack Coder 编码完成！生成 Coder 码流大小: ${uint8.length.toLocaleString()} 字节 (${kbSize} KB)，已成功输出到右边窗口！`;
+            document.getElementById("statusMsg").innerText = `🎉 25 FPS Pop-Stack Coder 编码完成！生成 Coder 码流大小: ${uint8.length.toLocaleString()} 字节 (${mbSize} MB)，已成功输出到右边窗口！`;
             document.getElementById("statusMsg").style.color = "#00e676";
         }
 
@@ -181,7 +176,7 @@
                 return;
             }
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 25 FPS Coder 码流已拷贝！可在 B 站解算复原！";
+                document.getElementById("copyMsg").innerText = "✅ 25 FPS Coder 码流已拷贝！可在 B 站解码解算！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }

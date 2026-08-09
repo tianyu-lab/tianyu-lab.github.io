@@ -46,9 +46,9 @@
     </div>
 
     <div class="card">
-        <h3>🏆 第二步：25 FPS 时间轴 Pop-Stack 细粒度复原 Player 画幅 (人眼对齐 40ms/帧)</h3>
-        <canvas id="reconstructedCanvas" width="450" height="340"></canvas>
-        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">严格按照 25 FPS (40ms/帧) 人眼视觉标准，1:1 精细解算复原原视频真实全彩画面！</p>
+        <h3>🏆 第二步：25 FPS 时间轴 Pop-Stack 1:1 高清复原 Player 画幅 (人眼对齐 40ms/帧)</h3>
+        <canvas id="reconstructedCanvas" width="256" height="256" style="width:340px; height:340px; margin:0 auto; display:block;"></canvas>
+        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">严格按照 25 FPS (40ms/帧) 人眼视觉标准，1:1 像素物理画质完美无暇重构！</p>
     </div>
 
     <script>
@@ -69,12 +69,12 @@
             isDecoded = false;
             currentFrameIndex = 0;
             reconCtx.fillStyle = "#040711";
-            reconCtx.fillRect(0, 0, 450, 340);
+            reconCtx.fillRect(0, 0, 256, 256);
             document.getElementById("decodeStatus").innerText = "🗑️ 窗口内容与解算画面已成功清空！";
             document.getElementById("decodeStatus").style.color = "#ef4444";
         }
 
-        // 25 FPS 时间轴 Pop-Stack 万能解码器 (兼容各种 Header)
+        // 25 FPS 1:1 像素级高清 Pop-Stack Decoder
         function decode25FPSStream() {
             const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
             if (!txt) {
@@ -90,44 +90,46 @@
                 videoFrames = [];
                 let p = 0;
                 while (p < bytes.length) {
-                    if (bytes[p] !== 0x54) { p++; continue; } // 匹配魔数 0x54 ('T')
+                    if (bytes[p] !== 0x54) { p++; continue; }
                     
-                    let frameNum = 0, count = 0, idx = 0;
-
-                    // 兼容模式 A: 5 字节 Header (0x54, 0x25, frameNum, countHi, countLo)
+                    let count = 0, idx = 0;
                     if (bytes[p + 1] === 0x25) {
-                        frameNum = bytes[p + 2];
-                        count = (bytes[p + 3] << 8) | bytes[p + 4];
-                        idx = p + 5;
-                    } 
-                    // 兼容模式 B: 5 字节 Header (0x54, frameHi, frameLo, countHi, countLo)
-                    else {
-                        frameNum = (bytes[p + 1] << 8) | bytes[p + 2];
+                        count = (bytes[p + 3] << 16) | (bytes[p + 4] << 8) | bytes[p + 5];
+                        idx = p + 6;
+                    } else {
                         count = (bytes[p + 3] << 8) | bytes[p + 4];
                         idx = p + 5;
                     }
                     
-                    const pts = [];
+                    // 解包 256x256 图像像素矩阵
+                    const imgData = reconCtx.createImageData(256, 256);
+                    const data = imgData.data;
+
                     for (let i = 0; i < count && idx + 5 <= bytes.length; i++) {
-                        pts.push({
-                            x: bytes[idx] - 128,
-                            y: bytes[idx + 1] - 128,
-                            r: bytes[idx + 2],
-                            g: bytes[idx + 3],
-                            b: bytes[idx + 4]
-                        });
+                        const px = bytes[idx];
+                        const py = bytes[idx + 1];
+                        const r = bytes[idx + 2];
+                        const g = bytes[idx + 3];
+                        const b = bytes[idx + 4];
+                        
+                        const pixelIdx = (py * 256 + px) * 4;
+                        data[pixelIdx] = r;
+                        data[pixelIdx + 1] = g;
+                        data[pixelIdx + 2] = b;
+                        data[pixelIdx + 3] = 255;
+                        
                         idx += 5;
                     }
 
-                    if (pts.length > 0) videoFrames.push(pts);
+                    videoFrames.push(imgData);
                     p = idx;
                 }
 
                 if (videoFrames.length > 0) {
                     isDecoded = true;
                     currentFrameIndex = 0;
-                    const kbSize = (bytes.length / 1024).toFixed(1);
-                    document.getElementById("decodeStatus").innerText = `✅ 25 FPS Coder 解算成功！成功反解 ${videoFrames.length} 帧 256x256 细粒度 Pop-Stack 画面 (${kbSize} KB)，25 FPS 播放中！`;
+                    const mbSize = (bytes.length / (1024 * 1024)).toFixed(2);
+                    document.getElementById("decodeStatus").innerText = `✅ 25 FPS Coder 解算成功！成功反解 ${videoFrames.length} 帧 256x256 1:1 高清 Pop-Stack 画面 (${mbSize} MB)，25 FPS 播放中！`;
                     document.getElementById("decodeStatus").style.color = "#00e676";
                 } else {
                     document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效 25 FPS 帧，请检查码流";
@@ -151,23 +153,15 @@
             loop(timestamp || 0);
         }
 
-        // 25 FPS 1:1 精细解算复原
+        // 25 FPS 1:1 ImageData 高清原生重构
         function render25FPSPhotorealPlayer(ctx) {
-            const w = ctx.canvas.width, h = ctx.canvas.height;
-            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
-
-            if (!isDecoded || videoFrames.length === 0) return;
-            const pts = videoFrames[currentFrameIndex];
-            if (!pts || pts.length === 0) return;
-
-            const scaleX = w / 256;
-            const scaleY = h / 256;
-
-            for (let pt of pts) {
-                const px = (pt.x + 128) * scaleX;
-                const py = (pt.y + 128) * scaleY;
-                ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
-                ctx.fillRect(px, py, 2 * scaleX, 2 * scaleY);
+            if (!isDecoded || videoFrames.length === 0) {
+                ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, 256, 256);
+                return;
+            }
+            const imgData = videoFrames[currentFrameIndex];
+            if (imgData) {
+                ctx.putImageData(imgData, 0, 0);
             }
         }
     </script>
