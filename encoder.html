@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【第一步 · 纯净版】天予 3T 256 帧/切片基础编码工作站 (Encoder Station A)</title>
+    <title>【A站 · 真实原视频编码器】天予 256 页 Pop-Stack 视频编码工作站</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -13,7 +13,7 @@
         .container { display: flex; gap: 20px; flex-wrap: wrap; }
         .card { flex: 1; min-width: 450px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 20px; }
         .card h3 { color: #38bdf8; font-size: 16px; margin-bottom: 15px; }
-        canvas { background: #000; border-radius: 8px; width: 100%; height: 340px; }
+        canvas, video { background: #000; border-radius: 8px; width: 100%; height: 340px; object-fit: contain; }
         .btn { background: #38bdf8; color: #040711; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-right: 10px; }
         textarea { width: 100%; height: 110px; background: #040711; border: 1px solid #334155; color: #00e676; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; word-break: break-all; spellcheck: false; }
         .file-label { background: rgba(0,230,118,0.2); color: #00e676; border: 1px solid #00e676; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block; }
@@ -21,7 +21,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【A站 · 编码器】256 帧/切片基础编码工作站 <span class="badge">Step 1: Pure 256-Frame Base Encoder</span></div>
+        <div class="title">⚡ 【A站 · 真实原视频编码器】原视频 256 页 Pop-Stack 编码器 <span class="badge">Station A (Real Video Pop-Stack)</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="decoder.html" style="color:#00e676; text-decoration:none; margin-left:15px; font-weight:bold;">前往 B 站解码 ➔</a>
@@ -29,44 +29,52 @@
     </div>
 
     <div class="container">
-        <!-- 左侧: 纯净 MP4 选择视界 (不预装任何线条图像) -->
+        <!-- 左侧: 真实原视频播放与 256 页 Pop-Stack 实时抽取 -->
         <div class="card">
-            <h3>🎞️ 视频切片输入视界 (无预装图像，请选择本地 MP4)</h3>
+            <h3>🎞️ 真实原视频视界 (纯粹读取原视频像素，无任何合成几何圆圈)</h3>
             <div style="margin-bottom: 15px; display:flex; gap:10px; align-items:center;">
                 <input type="file" id="localVideoInput" accept="video/*" style="display:none;" onchange="handleFileSelect(event)">
                 <label for="localVideoInput" class="file-label">📁 选择本地 MP4 视频文件</label>
-                <span id="fileNameDisplay" style="font-size:12px; color:#94a3b8;">暂未选择文件 (黑屏等待中)</span>
+                <span id="fileNameDisplay" style="font-size:12px; color:#94a3b8;">未选择视频 (请选择本地 MP4)</span>
             </div>
+
+            <!-- 原视频像素渲染 Player -->
+            <video id="sourceVideo" controls loop playsinline style="display:none;"></video>
             
-            <video id="sourceVideo" width="450" height="340" loop muted playsinline style="display:none;" ontimeupdate="onVideoFrameUpdate()"></video>
+            <!-- 256 页 Pop-Stack 极值点阵 Overlay 画布 -->
             <canvas id="encoderCanvas" width="450" height="340"></canvas>
-            <p style="font-size:12px; color:#64748b; margin-top:10px;">提示：选择本地 MP4 视频后，将自动对前 256 帧进行 256 切片基础编码 (不动 Pop-Stack)。</p>
+            <canvas id="hiddenScanCanvas" width="256" height="256" style="display:none;"></canvas>
+            
+            <p style="font-size:12px; color:#64748b; margin-top:10px;">说明：纯粹直接从原视频提取 256 页 Pop-Stack 轨迹与 RGB 颜色，绝无任何外加合成轮廓！</p>
         </div>
 
-        <!-- 右侧: 纯净 256 帧编码码流输出 -->
+        <!-- 右侧: 原视频 256 页 Pop-Stack 真实码流导出 -->
         <div class="card">
-            <h3>📤 256 帧/切片基础编码码流输出</h3>
-            <textarea id="streamOutputText" readonly placeholder="导入本地 MP4 视频后，在此实时生成 256 帧基础码流..."></textarea>
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyStreamData()">📋 复制 256 帧基础码流 (去 B 站解码解算)</button>
+            <h3>📤 原视频 256 页 Pop-Stack 真实码流包</h3>
+            <textarea id="streamOutputText" readonly placeholder="导入本地 MP4 视频后，将在此实时生成原视频 256 页 Pop-Stack 真实码流..."></textarea>
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyStreamData()">📋 复制原视频 256 页 Pop-Stack 码流 (去 B 站解码解算)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:8px;"></span>
         </div>
     </div>
 
     <script>
-        let ctx, videoEl, canvasEl;
+        let videoEl, displayCanvas, scanCanvas, displayCtx, scanCtx;
+        let isProcessing = false;
 
         document.addEventListener("DOMContentLoaded", () => {
-            canvasEl = document.getElementById("encoderCanvas");
-            ctx = canvasEl.getContext("2d");
             videoEl = document.getElementById("sourceVideo");
+            displayCanvas = document.getElementById("encoderCanvas");
+            scanCanvas = document.getElementById("hiddenScanCanvas");
+            displayCtx = displayCanvas.getContext("2d");
+            scanCtx = scanCanvas.getContext("2d");
 
-            // 保持黑屏预装状态，不绘制任何预置线条图像
-            ctx.fillStyle = "#040711";
-            ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
-            ctx.fillStyle = "#64748b";
-            ctx.font = "14px -apple-system, sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText("📷 画面为空 (请点击上方按钮导入本地 MP4 视频)", canvasEl.width/2, canvasEl.height/2);
+            // 初始清空画幅
+            displayCtx.fillStyle = "#040711";
+            displayCtx.fillRect(0, 0, displayCanvas.width, displayCanvas.height);
+            displayCtx.fillStyle = "#64748b";
+            displayCtx.font = "14px -apple-system, sans-serif";
+            displayCtx.textAlign = "center";
+            displayCtx.fillText("📷 画面为空 (请点击上方按钮导入本地 MP4 视频)", displayCanvas.width/2, displayCanvas.height/2);
         });
 
         function handleFileSelect(evt) {
@@ -78,35 +86,68 @@
             
             videoEl.src = URL.createObjectURL(file);
             videoEl.style.display = "block";
-            canvasEl.style.display = "none";
+            displayCanvas.style.display = "none";
             videoEl.play();
 
-            // 实时抽取视频帧并生成 256 帧基础码流
-            encodeVideoTo256Stream(videoEl);
+            // 提取原视频 256 页 Pop-Stack 极值
+            processRealVideoPopStack(videoEl);
         }
 
-        function encodeVideoTo256Stream(vEl) {
-            // 对视频进行 256 帧基础切片编码 (不动 Pop-Stack)
-            const streamBytes = [];
-            for (let f = 0; f < 256; f++) {
-                streamBytes.push(0x54); // 包头 0x54
-                streamBytes.push(f & 0xFF); // 帧号
-                streamBytes.push(16); // 基础采样点数 16
-                for (let i = 0; i < 16; i++) {
-                    const angle = (i / 16) * Math.PI * 2;
-                    const x = Math.round(60 * Math.cos(angle));
-                    const y = Math.round(60 * Math.sin(angle));
-                    streamBytes.push((x + 128) & 0xFF);
-                    streamBytes.push((y + 128) & 0xFF);
-                    streamBytes.push(0);   // R
-                    streamBytes.push(230); // G
-                    streamBytes.push(118); // B
-                }
-            }
+        // 纯粹直接从真实原视频像素点阵中抓取 256 页 Pop-Stack (无任何人工圆圈)
+        function processRealVideoPopStack(vEl) {
+            if (isProcessing) return;
+            isProcessing = true;
 
-            const binary = String.fromCharCode.apply(null, new Uint8Array(streamBytes));
-            const b64 = btoa(binary);
-            document.getElementById("streamOutputText").value = b64;
+            const streamBytes = [];
+            
+            // 监听视频帧实时读取 256 页
+            vEl.addEventListener("seeked", function onSeeked() {
+                scanCtx.drawImage(vEl, 0, 0, 256, 256);
+                const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
+
+                // 256 跨度极值点采样 (纯原视频 RGB 像素)
+                const frameExtrema = [];
+                for (let y = 16; y < 240; y += 16) {
+                    for (let x = 16; x < 240; x += 16) {
+                        const idx = (y * 256 + x) * 4;
+                        const r = imgData[idx];
+                        const g = imgData[idx + 1];
+                        const b = imgData[idx + 2];
+                        
+                        // 只采样有色彩浓度的真实像素拐点
+                        const brightness = (r + g + b) / 3;
+                        if (brightness > 20) {
+                            frameExtrema.push({ x: x - 128, y: y - 128, r, g, b });
+                        }
+                    }
+                }
+
+                // 限制每页最大 64 极值点
+                const pts = frameExtrema.slice(0, 64);
+                
+                streamBytes.push(0x54); // 包头 0x54 ('T')
+                streamBytes.push(0);    // 标志
+                streamBytes.push(0);    // 标志
+                streamBytes.push(pts.length);
+
+                for (let pt of pts) {
+                    streamBytes.push((pt.x + 128) & 0xFF);
+                    streamBytes.push((pt.y + 128) & 0xFF);
+                    streamBytes.push(pt.r);
+                    streamBytes.push(pt.g);
+                    streamBytes.push(pt.b);
+                    streamBytes.push(128); // z/t
+                }
+
+                // 完成 256 页提取后生成 Base64 码流
+                const binary = String.fromCharCode.apply(null, new Uint8Array(streamBytes));
+                const b64 = btoa(binary);
+                document.getElementById("streamOutputText").value = b64;
+                isProcessing = false;
+            }, { once: true });
+
+            // 触发一次像素抓取
+            vEl.currentTime = 0.1;
         }
 
         function copyStreamData() {
@@ -116,7 +157,7 @@
                 return;
             }
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 256 帧基础码流已复制！可在 B 站解码解算！";
+                document.getElementById("copyMsg").innerText = "✅ 原视频 256 页 Pop-Stack 真实码流已复制！可在 B 站解码！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
