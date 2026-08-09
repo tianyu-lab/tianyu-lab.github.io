@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【A站 · 全量 256 页高密原视频编码器】天予 3T 原视频完整 256 页高密编码工作站</title>
+    <title>【A站 · 手动转换版】天予 256 页 Pop-Stack 原视频转换编码器</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -13,17 +13,17 @@
         .container { display: flex; gap: 20px; flex-wrap: wrap; }
         .card { flex: 1; min-width: 450px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 20px; }
         .card h3 { color: #38bdf8; font-size: 16px; margin-bottom: 15px; }
-        canvas, video { background: #000; border-radius: 8px; width: 100%; height: 340px; object-fit: contain; }
-        .btn { background: #38bdf8; color: #040711; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-right: 10px; }
-        textarea { width: 100%; height: 160px; background: #040711; border: 1px solid #334155; color: #00e676; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; word-break: break-all; spellcheck: false; }
+        video { background: #000; border-radius: 8px; width: 100%; height: 320px; object-fit: contain; }
+        .btn-action { background: linear-gradient(135deg, #00e676 0%, #0284c7 100%); color: #040711; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.2s; }
+        .btn-action:hover { transform: scale(1.02); }
+        .btn-copy { background: #38bdf8; color: #040711; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; width: 100%; margin-top: 10px; }
+        textarea { width: 100%; height: 260px; background: #040711; border: 1px solid #334155; color: #00e676; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; word-break: break-all; spellcheck: false; }
         .file-label { background: rgba(0,230,118,0.2); color: #00e676; border: 1px solid #00e676; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block; }
-        .progress-bar { width: 100%; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { height: 100%; background: #00e676; width: 0%; transition: width 0.1s; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【A站 · 256 页高密原视频 Pop-Stack 编码器】原视频 256 页高密全体素编码 <span class="badge">Station A (High-Density)</span></div>
+        <div class="title">⚡ 【A站 · 原视频转换编码器】256 页 Pop-Stack 手动转换工作站 <span class="badge">Station A (Manual Convert)</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="decoder.html" style="color:#00e676; text-decoration:none; margin-left:15px; font-weight:bold;">前往 B 站解码 ➔</a>
@@ -31,25 +31,36 @@
     </div>
 
     <div class="container">
+        <!-- 左侧: 本地视频选择与专属【⚡ 转换编码】按钮 -->
         <div class="card">
-            <h3>🎞️ 原视频全体素视界 (高密扫描原视频 256 帧/页全体素)</h3>
-            <div style="margin-bottom: 15px; display:flex; gap:10px; align-items:center;">
+            <h3>第一步：选择本地 MP4 视频并点击【⚡ 转换编码】按钮</h3>
+            
+            <div style="margin-bottom: 15px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                 <input type="file" id="localVideoInput" accept="video/*" style="display:none;" onchange="handleFileSelect(event)">
-                <label for="localVideoInput" class="file-label">📁 选择本地 MP4 视频文件 (如 200MB+ 大视频)</label>
-                <span id="fileNameDisplay" style="font-size:12px; color:#94a3b8;">未选择视频 (请选择本地 MP4)</span>
+                <label for="localVideoInput" class="file-label">📁 1. 选择本地 MP4 视频文件</label>
+                <span id="fileNameDisplay" style="font-size:12px; color:#94a3b8;">未选择视频</span>
             </div>
 
+            <!-- 原视频播放器 -->
             <video id="sourceVideo" controls loop playsinline style="display:none;"></video>
             <canvas id="scanCanvas" width="256" height="256" style="display:none;"></canvas>
+
+            <div style="margin-top: 15px;">
+                <!-- 专属转换编码按钮 -->
+                <button class="btn-action" onclick="runManualConvert()" id="btnConvert">⚡ 2. 转换编码 (运行 256 页 Pop-Stack 编码函数)</button>
+            </div>
             
-            <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
-            <p id="statusMsg" style="font-size:12px; color:#38bdf8; margin-top:8px;">等待选择视频...</p>
+            <p id="statusMsg" style="font-size:13px; color:#38bdf8; margin-top:12px; font-weight:bold;">提示：选择视频后，请点击上面的【⚡ 转换编码】按钮！</p>
         </div>
 
+        <!-- 右侧: 结果输出窗口与拷贝按钮 -->
         <div class="card">
-            <h3>📤 256 页高密 Pop-Stack 完整码流包 (数 MB 级别海量流)</h3>
-            <textarea id="streamOutputText" readonly placeholder="选择 MP4 后，将在此高密提取原视频 256 页全体素像素阵列，生成包含数 MB 信息的完整 Base64 码流..."></textarea>
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyStreamData()">📋 复制 256 页高密 Pop-Stack 码流 (去 B 站解码)</button>
+            <h3>第二步：编码结果输出窗口与拷贝码流内容</h3>
+            <!-- 右边输出窗口 -->
+            <textarea id="streamOutputText" readonly placeholder="点击【⚡ 转换编码】按钮后，编码函数将把全量 256 页 Pop-Stack 结果输出到此窗口..."></textarea>
+            
+            <!-- 下面拷贝内容按钮 -->
+            <button class="btn-copy" onclick="copyStreamData()">📋 3. 拷贝码流内容 (去 B 站解码解算)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:8px;"></span>
         </div>
     </div>
@@ -73,26 +84,30 @@
             
             videoEl.src = URL.createObjectURL(file);
             videoEl.style.display = "block";
-
-            extractHighDensity256Pages(videoEl);
+            document.getElementById("statusMsg").innerText = `✅ 视频已就绪！请点击【⚡ 2. 转换编码】按钮开始转换！`;
         }
 
-        // 高密全量抽取 256 页全体素 Pop-Stack 矩阵 (单帧不设上限，生成数 MB 级别海量码流)
-        function extractHighDensity256Pages(vEl) {
-            document.getElementById("statusMsg").innerText = "⏳ 正在高密全量抓取原视频 256 页全体素像素阵列...";
+        // 点击【⚡ 转换编码】按钮调用的专属编码函数
+        function runManualConvert() {
+            if (!videoEl.src || videoEl.src === "") {
+                alert("⚠️ 请先点击【📁 1. 选择本地 MP4 视频文件】选择视频！");
+                return;
+            }
+
+            document.getElementById("statusMsg").innerText = "⚡ 正在调用 Pop-Stack 编码函数，全量抓取 256 页全体素矩阵...";
             
             const totalFrames = 256;
             const streamBytes = [];
             let currentFrame = 0;
 
-            vEl.pause();
-            vEl.currentTime = 0;
+            videoEl.pause();
+            videoEl.currentTime = 0;
 
             function processFrame() {
-                scanCtx.drawImage(vEl, 0, 0, 256, 256);
+                scanCtx.drawImage(videoEl, 0, 0, 256, 256);
                 const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
 
-                // 256x256 全量高密像素点阵采样 (步长 4px, 每页采样 4,096 个高密点)
+                // 每页全量高密抓取 4,096 个真实 RGB 像素体素
                 const pts = [];
                 for (let y = 0; y < 256; y += 4) {
                     for (let x = 0; x < 256; x += 4) {
@@ -107,7 +122,7 @@
                     }
                 }
 
-                // 写入包头 (0x54) + 2 字节点数 (4,096 点)
+                // 写入 Pop-Stack 包头与全体素
                 streamBytes.push(0x54);
                 streamBytes.push((currentFrame >> 8) & 0xFF);
                 streamBytes.push(currentFrame & 0xFF);
@@ -124,29 +139,27 @@
                 }
 
                 currentFrame++;
-                const progressPct = Math.round((currentFrame / totalFrames) * 100);
-                document.getElementById("progressFill").style.width = progressPct + "%";
-                document.getElementById("statusMsg").innerText = `⏳ 正在高密全量提取原视频 Pop-Stack: 已完成 ${currentFrame} / ${totalFrames} 页 (${progressPct}%)，已生成 ${(streamBytes.length/1024).toFixed(0)} KB 数据...`;
+                document.getElementById("statusMsg").innerText = `⏳ 编码函数运行中: 已完成 ${currentFrame} / ${totalFrames} 页 (${Math.round((currentFrame/totalFrames)*100)}%)，已生成 ${(streamBytes.length/1024).toFixed(0)} KB 数据...`;
 
                 if (currentFrame < totalFrames) {
-                    // 使用 Canvas ImageData 模拟步进
-                    vEl.currentTime = (currentFrame / totalFrames) * vEl.duration;
+                    videoEl.currentTime = (currentFrame / totalFrames) * (videoEl.duration || 10);
                 } else {
-                    finishHighDensityEncoding(streamBytes);
+                    outputResultToRightWindow(streamBytes);
                 }
             }
 
-            // 同步快速高密步进
-            function runFastLoop() {
+            videoEl.onseeked = function() {
                 if (currentFrame < totalFrames) {
                     processFrame();
-                    setTimeout(runFastLoop, 15);
                 }
-            }
-            runFastLoop();
+            };
+
+            // 触发第一帧
+            videoEl.currentTime = 0.01;
         }
 
-        function finishHighDensityEncoding(bytes) {
+        // 把编码结果全量输出到右边文本框窗口
+        function outputResultToRightWindow(bytes) {
             const uint8 = new Uint8Array(bytes);
             let binary = "";
             const chunkSize = 0x8000;
@@ -157,18 +170,19 @@
 
             const mbSize = (uint8.length / (1024 * 1024)).toFixed(2);
             document.getElementById("streamOutputText").value = b64;
-            document.getElementById("statusMsg").innerText = `✅ 256 页高密 Pop-Stack 编码完成！生成海量码流大小: ${uint8.length.toLocaleString()} 字节 (${mbSize} MB)， Base64 长度 ${b64.length.toLocaleString()} 字符！`;
+            document.getElementById("statusMsg").innerText = `🎉 编码函数运行成功！已将 256 页 Pop-Stack 结果 (${uint8.length.toLocaleString()} 字节 / ${mbSize} MB) 输出到右边窗口！`;
             document.getElementById("statusMsg").style.color = "#00e676";
         }
 
+        // 下面按钮拷贝内容
         function copyStreamData() {
             const txt = document.getElementById("streamOutputText").value;
             if (!txt) {
-                document.getElementById("copyMsg").innerText = "⚠️ 请先导入 MP4 视频等待高密全量编码完成！";
+                document.getElementById("copyMsg").innerText = "⚠️ 右边窗口暂无内容，请先选择视频并点击【⚡ 2. 转换编码】按钮！";
                 return;
             }
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 256 页高密 Pop-Stack 海量码流已复制！可在 B 站精准解算复原！";
+                document.getElementById("copyMsg").innerText = "✅ 码流内容已成功拷贝！可在 B 站解算复原！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
