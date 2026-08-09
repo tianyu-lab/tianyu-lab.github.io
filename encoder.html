@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【纯粹 Pop-Stack 编码器】原视频 256 帧纯 Push-Stack 轨迹栈编码工作站</title>
+    <title>【A站 · 25 FPS 时间轴 Coder 编码器】天予 3T 25 帧/秒 Pop-Stack 视频 Coder 工作站</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -23,7 +23,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【A站 · 纯 Pop-Stack 编码器】原视频 256 帧 Push-Stack 压栈工作站 <span class="badge">Pure Push-Stack</span></div>
+        <div class="title">⚡ 【A站 · 25 FPS 时间轴 Coder】25 帧/秒 Pop-Stack 视频 Coder 编码工作站 <span class="badge">Station A (25 FPS Coder)</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="decoder.html" style="color:#00e676; text-decoration:none; margin-left:15px; font-weight:bold;">前往 B 站解码 ➔</a>
@@ -32,7 +32,7 @@
 
     <div class="container">
         <div class="card">
-            <h3>第一步：选择本地 MP4 视频并点击【⚡ 转换 Pop-Stack】按钮</h3>
+            <h3>第一步：选择本地 MP4 视频并运行 25 FPS Pop-Stack Coder 编码器</h3>
             
             <div style="margin-bottom: 15px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
                 <input type="file" id="localVideoInput" accept="video/*" style="display:none;" onchange="handleFileSelect(event)">
@@ -44,16 +44,16 @@
             <canvas id="scanCanvas" width="256" height="256" style="display:none;"></canvas>
 
             <div style="margin-top: 15px;">
-                <button class="btn-action" onclick="runPurePushStackConvert()" id="btnConvert">⚡ 2. 运行 Push-Stack 压栈 (不动极值处理，全量推入 Pop-Stack)</button>
+                <button class="btn-action" onclick="run25FPSPopStackCoder()" id="btnConvert">⚡ 2. 运行 25 FPS Pop-Stack Coder (沿时间轴 T 抽取 25 帧精细 Coder 编码)</button>
             </div>
             
-            <p id="statusMsg" style="font-size:13px; color:#38bdf8; margin-top:12px; font-weight:bold;">提示：不动极值处理，直接对原视频 256 帧全量推入 Pop-Stack 轨迹 Stack！</p>
+            <p id="statusMsg" style="font-size:13px; color:#38bdf8; margin-top:12px; font-weight:bold;">说明：对原视频 1 秒内的 25 帧 (256x256) 沿时间轴 T 进行 Pop-Stack 极值轨迹 Coder 编码！</p>
         </div>
 
         <div class="card">
-            <h3>第二步：纯 Pop-Stack 轨迹码流输出</h3>
-            <textarea id="streamOutputText" readonly placeholder="点击【⚡ 2. 运行 Push-Stack 压栈】按钮后，纯 Pop-Stack 码流将全量输出到此窗口..."></textarea>
-            <button class="btn-copy" onclick="copyStreamData()">📋 3. 拷贝 Pop-Stack 码流 (去 B 站 Pop-Stack 弹栈)</button>
+            <h3>第二步：25 FPS Pop-Stack Coder 编码码流输出</h3>
+            <textarea id="streamOutputText" readonly placeholder="点击【⚡ 2. 运行 25 FPS Pop-Stack Coder】按钮后，精细 Coder 码流将输出到此窗口..."></textarea>
+            <button class="btn-copy" onclick="copyStreamData()">📋 3. 拷贝 25 FPS Coder 码流 (去 B 站解码解算)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:8px;"></span>
         </div>
     </div>
@@ -77,19 +77,19 @@
             
             videoEl.src = URL.createObjectURL(file);
             videoEl.style.display = "block";
-            document.getElementById("statusMsg").innerText = `✅ 视频已就绪！请点击【⚡ 2. 运行 Push-Stack 压栈】按钮！`;
+            document.getElementById("statusMsg").innerText = `✅ 视频已就绪！请点击【⚡ 2. 运行 25 FPS Pop-Stack Coder】按钮！`;
         }
 
-        // 不动极值处理，纯粹 Push-Stack 轨迹 Stack 压栈
-        function runPurePushStackConvert() {
+        // 真正的 25 FPS Pop-Stack Coder 编码函数 (沿时间轴 T 抽取 25 帧)
+        function run25FPSPopStackCoder() {
             if (!videoEl.src || videoEl.src === "") {
                 alert("⚠️ 请先选择本地 MP4 视频文件！");
                 return;
             }
 
-            document.getElementById("statusMsg").innerText = "⚡ 正在进行 Pop-Stack 轨迹 Stack 全量 Push-Stack 压栈 (不动极值处理)...";
+            document.getElementById("statusMsg").innerText = "⚡ 正在沿时间轴 T 运行 25 FPS Pop-Stack Coder 编码器...";
             
-            const totalFrames = 256;
+            const totalFrames = 25; // 严格对齐 25 帧/秒
             const streamBytes = [];
             let currentFrame = 0;
 
@@ -98,7 +98,7 @@
 
             function scanNextFrame() {
                 if (currentFrame >= totalFrames) {
-                    outputPopStackResult(streamBytes);
+                    outputResult(streamBytes);
                     return;
                 }
 
@@ -106,57 +106,60 @@
                     scanCtx.drawImage(videoEl, 0, 0, 256, 256);
                     const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
 
-                    // 1. 压入 Pop-Stack 包头魔数 0x54 ('T') 与 帧/点数 Header
-                    streamBytes.push(0x54);
-                    streamBytes.push((currentFrame >> 8) & 0xFF);
-                    streamBytes.push(currentFrame & 0xFF);
-                    
-                    // 计算每帧全量采样点 (16x16 = 256 点/帧，零极值过滤)
-                    const frameStackPoints = [];
-                    for (let y = 0; y < 256; y += 16) {
-                        for (let x = 0; x < 256; x += 16) {
+                    // Pop-Stack 沿时间轴 T 精细轨迹 Coder 编码 (256x256 细粒度点阵，步长 2px)
+                    const frameCoderPoints = [];
+                    for (let y = 0; y < 256; y += 2) {
+                        for (let x = 0; x < 256; x += 2) {
                             const idx = (y * 256 + x) * 4;
-                            frameStackPoints.push({
-                                x: x - 128,
-                                y: y - 128,
-                                z_t: currentFrame - 128,
-                                r: imgData[idx],
-                                g: imgData[idx + 1],
-                                b: imgData[idx + 2]
-                            });
+                            const r = imgData[idx];
+                            const g = imgData[idx + 1];
+                            const b = imgData[idx + 2];
+                            
+                            // 极值与色彩变化拐点过滤 (Coder 核心：剔除平坦无色彩信息背景)
+                            const brightness = (r + g + b) / 3;
+                            if (brightness > 15) {
+                                frameCoderPoints.push({
+                                    x: x - 128,
+                                    y: y - 128,
+                                    r, g, b
+                                });
+                            }
                         }
                     }
 
-                    streamBytes.push((frameStackPoints.length >> 8) & 0xFF);
-                    streamBytes.push(frameStackPoints.length & 0xFF);
+                    // 写入 25 FPS Pop-Stack 包头与 2 字节 Coder 计数
+                    streamBytes.push(0x54); // 魔数 0x54 ('T')
+                    streamBytes.push(0x25); // 25 FPS 标识
+                    streamBytes.push(currentFrame & 0xFF); // 帧号 (0 ~ 24)
+                    streamBytes.push((frameCoderPoints.length >> 8) & 0xFF);
+                    streamBytes.push(frameCoderPoints.length & 0xFF);
 
-                    // 2. 将轨迹 Stack 元素推入流 (Push-Stack)
-                    for (let pt of frameStackPoints) {
+                    // 编码压栈 (Coder Encoding)
+                    for (let pt of frameCoderPoints) {
                         streamBytes.push((pt.x + 128) & 0xFF);
                         streamBytes.push((pt.y + 128) & 0xFF);
-                        streamBytes.push((pt.z_t + 128) & 0xFF);
                         streamBytes.push(pt.r);
                         streamBytes.push(pt.g);
                         streamBytes.push(pt.b);
                     }
 
                     currentFrame++;
-                    document.getElementById("statusMsg").innerText = `⏳ Pop-Stack Push 压栈中: 已完成 ${currentFrame} / ${totalFrames} 页 Pop-Stack 轨迹 Stack (${Math.round((currentFrame/totalFrames)*100)}%)`;
+                    document.getElementById("statusMsg").innerText = `⏳ 25 FPS Coder 编码中: 已完成 ${currentFrame} / ${totalFrames} 帧 (${Math.round((currentFrame/totalFrames)*100)}%)`;
 
                     if (currentFrame < totalFrames) {
-                        videoEl.currentTime = (currentFrame / totalFrames) * (videoEl.duration || 10);
+                        videoEl.currentTime = (currentFrame / totalFrames) * 1.0; // 严格抓取 1 秒内 25 帧
                     } else {
-                        outputPopStackResult(streamBytes);
+                        outputResult(streamBytes);
                     }
                 };
 
-                videoEl.currentTime = (currentFrame / totalFrames) * (videoEl.duration || 10);
+                videoEl.currentTime = (currentFrame / totalFrames) * 1.0;
             }
 
             scanNextFrame();
         }
 
-        function outputPopStackResult(bytes) {
+        function outputResult(bytes) {
             const uint8 = new Uint8Array(bytes);
             let binary = "";
             const chunkSize = 0x8000;
@@ -167,18 +170,18 @@
 
             const kbSize = (uint8.length / 1024).toFixed(1);
             document.getElementById("streamOutputText").value = b64;
-            document.getElementById("statusMsg").innerText = `🎉 纯 Pop-Stack 256 页轨迹 Stack 压栈完成！生成 Pop-Stack 码流大小: ${uint8.length.toLocaleString()} 字节 (${kbSize} KB)！`;
+            document.getElementById("statusMsg").innerText = `🎉 25 FPS Pop-Stack Coder 编码完成！生成 Coder 码流大小: ${uint8.length.toLocaleString()} 字节 (${kbSize} KB)，已成功输出到右边窗口！`;
             document.getElementById("statusMsg").style.color = "#00e676";
         }
 
         function copyStreamData() {
             const txt = document.getElementById("streamOutputText").value;
             if (!txt) {
-                document.getElementById("copyMsg").innerText = "⚠️ 请先运行 Push-Stack 压栈生成码流！";
+                document.getElementById("copyMsg").innerText = "⚠️ 请先运行 25 FPS Coder 编码！";
                 return;
             }
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 纯 Pop-Stack 码流已拷贝！可在 B 站解算弹栈！";
+                document.getElementById("copyMsg").innerText = "✅ 25 FPS Coder 码流已拷贝！可在 B 站解算复原！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
