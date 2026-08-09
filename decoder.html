@@ -16,7 +16,7 @@
         canvas { background: #000; border-radius: 8px; width: 100%; height: 340px; }
         .btn-decode { background: linear-gradient(135deg, #00e676 0%, #0284c7 100%); color: #040711; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.2s; }
         .btn-decode:hover { transform: scale(1.02); }
-        textarea { width: 100%; height: 90px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; }
+        textarea { width: 100%; height: 110px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; }
         .outputs-wrapper { display: flex; gap: 15px; margin-top: 15px; }
         .output-box { flex: 1; background: #040711; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center; }
         .output-box h4 { font-size: 13px; color: #38bdf8; margin-bottom: 8px; }
@@ -62,27 +62,34 @@
 
     <script src="tianyu_geometry_engine.js"></script>
     <script>
-        // 内联 Engine 类定义以防外部加载问题
-        if (typeof window.TianyuPopStackEngine !== "function") {
-            window.TianyuPopStackEngine = class TianyuPopStackEngine {
-                popExtremaStack(buf) {
-                    if (!buf || buf[0] !== 0x54) throw new Error("Invalid stream header");
-                    const count = buf[3];
-                    const popped = [];
-                    for (let i = 0; i < count && (i * 8 + 12) < buf.length; i++) {
-                        popped.push({
-                            x: buf[i * 8 + 5] - 128,
-                            y: buf[i * 8 + 6] - 128,
-                            r: buf[i * 8 + 7],
-                            g: buf[i * 8 + 8],
-                            b: buf[i * 8 + 9],
-                            z_t: buf[i * 8 + 10] - 128,
-                            theta: buf[i * 8 + 11] / 10
-                        });
+        // 万能通用 Pop-Stack 解码引擎 (兼容 Variable Length 与 Fixed 512B 码流)
+        class UniversalTianyuDecoder {
+            decodeStreamBytes(bytes) {
+                const frames = [];
+                let p = 0;
+                while (p < bytes.length) {
+                    if (bytes[p] !== 0x54) { p++; continue; } // 查找包头 0x54 ('T')
+                    if (p + 4 >= bytes.length) break;
+                    
+                    const count = bytes[p + 3];
+                    const pts = [];
+                    let idx = p + 5;
+                    for (let i = 0; i < count && idx + 6 <= bytes.length; i++) {
+                        pts.append ? pts.push({
+                            x: bytes[idx] - 128,
+                            y: bytes[idx + 1] - 128,
+                            r: bytes[idx + 2],
+                            g: bytes[idx + 3],
+                            b: bytes[idx + 4],
+                            z_t: bytes[idx + 5] - 128
+                        }) : null;
+                        idx += 8;
                     }
-                    return popped;
+                    frames.push(pts);
+                    p = (p + 512 < bytes.length && bytes[p + 512] === 0x54) ? p + 512 : idx + 1;
                 }
-            };
+                return frames;
+            }
         }
 
         let tianyuCtx, reconCtx;
@@ -107,7 +114,7 @@
         });
 
         function decodePastedStream() {
-            const txt = document.getElementById("streamInputText").value.trim();
+            const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
             if (!txt) return;
 
             try {
@@ -115,24 +122,44 @@
                 const bytes = new Uint8Array(binary.length);
                 for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-                const engine = new window.TianyuPopStackEngine();
                 videoFrames = [];
-
-                const frameCount = Math.floor(bytes.length / 512);
-                if (frameCount > 0) {
-                    for (let f = 0; f < frameCount; f++) {
-                        const frameBytes = bytes.subarray(f * 512, (f + 1) * 512);
-                        videoFrames.push(engine.popExtremaStack(frameBytes));
+                let p = 0;
+                while (p < bytes.length) {
+                    if (bytes[p] !== 0x54) { p++; continue; }
+                    const count = bytes[p + 3];
+                    const framePts = [];
+                    for (let i = 0; i < count; i++) {
+                        const idx = p + 5 + i * 8;
+                        if (idx + 6 > bytes.length) break;
+                        framePts.push({
+                            x: bytes[idx] - 128,
+                            y: bytes[idx + 1] - 128,
+                            r: bytes[idx + 2],
+                            g: bytes[idx + 3],
+                            b: bytes[idx + 4],
+                            z_t: bytes[idx + 5] - 128
+                        });
                     }
-                } else {
-                    videoFrames.push(engine.popExtremaStack(bytes));
+                    if (framePts.length > 0) videoFrames.push(framePts);
+                    
+                    // 跨帧推进 (兼容 512 字节定长帧与变长帧)
+                    if (p + 512 <= bytes.length && bytes[p + 512] === 0x54) {
+                        p += 512;
+                    } else {
+                        p += 5 + count * 8;
+                        while (p < bytes.length && bytes[p] !== 0x54) p++;
+                    }
                 }
 
-                isDecoded = true;
-                currentFrameIndex = 0;
-                document.getElementById("decodeStatus").innerText = `✅ 物理隔离解算成功！成功反解 ${videoFrames.length} 帧 Pop-Stack 视频 (${bytes.length} 字节)，解算播放中！`;
+                if (videoFrames.length > 0) {
+                    isDecoded = true;
+                    currentFrameIndex = 0;
+                    document.getElementById("decodeStatus").innerText = `✅ 物理隔离解算成功！成功反解 ${videoFrames.length} 帧 Pop-Stack 视频 (${bytes.length} 字节)，解算播放中！`;
+                } else {
+                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效 Pop-Stack 帧，请检查码流格式";
+                }
             } catch(e) {
-                document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
+                document.getElementById("decodeStatus").innerText = "❌ 解码报错: " + e.message;
             }
         }
 
