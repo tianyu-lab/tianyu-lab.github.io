@@ -37,14 +37,12 @@
         <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的 Base64 码流..."></textarea>
         
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-            <!-- 突出显示的物理隔离解算按钮 -->
             <button class="btn-decode" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算 (Run Pop-Stack Decoder)</button>
             <span id="decodeStatus" class="status-badge">已预载实拍 4K 码流包，点击解算！</span>
         </div>
     </div>
 
     <div class="container">
-        <!-- 两路视频解算输出 -->
         <div class="card" style="flex:2;">
             <h3>🎨 第二步：Pop-Stack 逐帧 30 FPS 两路动态视频解算输出</h3>
             <div class="outputs-wrapper">
@@ -64,6 +62,29 @@
 
     <script src="tianyu_geometry_engine.js"></script>
     <script>
+        // 内联 Engine 类定义以防外部加载问题
+        if (typeof window.TianyuPopStackEngine !== "function") {
+            window.TianyuPopStackEngine = class TianyuPopStackEngine {
+                popExtremaStack(buf) {
+                    if (!buf || buf[0] !== 0x54) throw new Error("Invalid stream header");
+                    const count = buf[3];
+                    const popped = [];
+                    for (let i = 0; i < count && (i * 8 + 12) < buf.length; i++) {
+                        popped.push({
+                            x: buf[i * 8 + 5] - 128,
+                            y: buf[i * 8 + 6] - 128,
+                            r: buf[i * 8 + 7],
+                            g: buf[i * 8 + 8],
+                            b: buf[i * 8 + 9],
+                            z_t: buf[i * 8 + 10] - 128,
+                            theta: buf[i * 8 + 11] / 10
+                        });
+                    }
+                    return popped;
+                }
+            };
+        }
+
         let tianyuCtx, reconCtx;
         let videoFrames = [];
         let currentFrameIndex = 0;
@@ -109,7 +130,7 @@
 
                 isDecoded = true;
                 currentFrameIndex = 0;
-                document.getElementById("decodeStatus").innerText = `✅ 物理隔离解算成功！成功反解 ${videoFrames.length} 帧 Pop-Stack 视频 (数据量 ${bytes.length} 字节)，播放中！`;
+                document.getElementById("decodeStatus").innerText = `✅ 物理隔离解算成功！成功反解 ${videoFrames.length} 帧 Pop-Stack 视频 (${bytes.length} 字节)，解算播放中！`;
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
             }
