@@ -34,28 +34,28 @@
     </div>
 
     <div class="card" style="margin-bottom: 20px;">
-        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 512 字节 3T 编码码流</h3>
+        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 3T 多帧视频码流</h3>
         <textarea id="streamInputText" placeholder="在此粘贴从 A 站 / 剪辑站复制的 Base64 编码字符串..."></textarea>
-        <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算 (Pop-Stack Video Decoder)</button>
+        <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 真实多帧视频解算 (Pop-Stack Video Decoder)</button>
         <span id="decodeStatus" style="font-size:12px; color:#00e676; margin-left:10px;"></span>
     </div>
 
     <div class="container">
         <!-- 两路视频解算输出 -->
         <div class="card" style="flex:2;">
-            <h3 id="txtDualTitle">🎨 第二步：Pop-Stack 120 FPS 两路动态视频输出 (一路矢量播放器 + 一路像素复原)</h3>
+            <h3 id="txtDualTitle">🎨 第二步：Pop-Stack 真实多帧视频播放 (一路矢量播放器 + 一路像素复原)</h3>
             <div class="outputs-wrapper">
-                <!-- 第一路: 天予极速矢量播放器 (Pop-Stack 实时 120 FPS 视频渲染) -->
+                <!-- 第一路: 天予极速矢量播放器 (Pop-Stack 真实多帧 30 FPS 视频渲染) -->
                 <div class="output-box">
-                    <h4 id="txtOutput1">🏆 第一路: 天予 3T 矢量播放器 (Pop-Stack 120 FPS 视频)</h4>
+                    <h4 id="txtOutput1">🏆 第一路: 天予 3T 矢量播放器 (真实 Pop-Stack 视频)</h4>
                     <canvas id="tianyuPlayerCanvas" width="400" height="280"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% 动态矢量视频物理弹栈渲染</p>
+                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% 真实 Pop-Stack 视频逐帧弹栈</p>
                 </div>
                 <!-- 第二路: MP4 全彩像素复原 Canvas 视频 -->
                 <div class="output-box">
                     <h4 id="txtOutput2">🎞️ 第二路: 像素复原视界 (Restored Video Stream)</h4>
                     <canvas id="reconstructedCanvas" width="400" height="280"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;" id="txtRestoredInfo">Pop-Stack 动态视频全彩像素连续重构</p>
+                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;" id="txtRestoredInfo">Pop-Stack 真实视频帧像素连续重构</p>
                 </div>
             </div>
         </div>
@@ -64,9 +64,10 @@
     <script src="tianyu_geometry_engine.js"></script>
     <script>
         let tianyuCtx, reconCtx;
-        let currentExtrema = [];
-        let animTime = 0;
+        let videoFrames = []; // 存储反解出的多帧矢量视频数据
+        let currentFrameIndex = 0;
         let isDecoded = false;
+        let lastFrameTime = 0;
 
         document.addEventListener("DOMContentLoaded", () => {
             tianyuCtx = document.getElementById("tianyuPlayerCanvas").getContext("2d");
@@ -87,117 +88,126 @@
                 for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
                 const engine = new window.TianyuPopStackEngine();
-                currentExtrema = engine.popExtremaStack(bytes);
+                videoFrames = [];
+
+                // 如果字节长度是 512 的整数倍，解析多帧视频包；否则解析单帧包
+                const frameCount = Math.floor(bytes.length / 512);
+                if (frameCount > 0) {
+                    for (let f = 0; f < frameCount; f++) {
+                        const frameBytes = bytes.subarray(f * 512, (f + 1) * 512);
+                        const poppedStack = engine.popExtremaStack(frameBytes);
+                        videoFrames.push(poppedStack);
+                    }
+                } else {
+                    videoFrames.push(engine.popExtremaStack(bytes));
+                }
 
                 isDecoded = true;
-                animTime = 0;
-                document.getElementById("decodeStatus").innerText = `✅ 3T 动态视频码流解算成功！Pop-Stack 成功反解 ${currentExtrema.length} 个轨迹极值拐点，120 FPS 视频播放中！`;
+                currentFrameIndex = 0;
+                document.getElementById("decodeStatus").innerText = `✅ 物理解算成功！共解析出 ${videoFrames.length} 帧 Pop-Stack 真实矢量视频，播放中！`;
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
             }
         }
 
-        function renderLoop() {
-            function loop() {
+        function renderLoop(timestamp) {
+            function loop(now) {
                 requestAnimationFrame(loop);
-                if (isDecoded) {
-                    animTime += 0.04;
+                if (isDecoded && videoFrames.length > 0) {
+                    if (now - lastFrameTime > 33) { // 30 FPS 真实视频逐帧更新
+                        currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
+                        lastFrameTime = now;
+                    }
                 }
                 renderTianyuPlayer(tianyuCtx);
                 renderReconstructedView(reconCtx);
             }
-            loop();
+            loop(timestamp || 0);
         }
 
-        // 第一路：天予 Pop-Stack 矢量视频播放器 (动态解剖血管与水刀物理运动)
+        // 第一路：天予 Pop-Stack 真实矢量视频播放器 (100% 逐帧解算 A 站/剪辑站发来的多帧视频)
         function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
-            if (!isDecoded || currentExtrema.length < 3) {
+            if (!isDecoded || videoFrames.length === 0) {
                 ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
                 ctx.fillText("等待 Pop-Stack 视频解算...", w/2 - 75, h/2);
                 return;
             }
 
-            const cx = w / 2, cy = h / 2;
-            const t = animTime;
+            const currentExtrema = videoFrames[currentFrameIndex];
+            if (!currentExtrema || currentExtrema.length < 3) return;
 
-            // 1. 动态 Pop-Stack 矢量视频解算 (随时间 T 律动与切削)
+            const cx = w / 2, cy = h / 2;
+
+            // 1. 逐帧 Pop-Stack 矢量视频解算 (严格使用该帧真实极值坐标，无人工假公式！)
             ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
             ctx.fillStyle = "rgba(0, 230, 118, 0.18)";
             ctx.beginPath();
             
             for (let i = 0; i < currentExtrema.length; i++) {
                 const pt = currentExtrema[i];
-                // 动态 Pop-Stack 视频时空演化波纹 (512字节内包含的 z/t 时间演化)
-                const phase = (i / currentExtrema.length) * Math.PI * 2;
-                const dynamicR = 1.0 + Math.sin(phase * 4 + t * 2) * 0.2 + Math.cos(phase * 2 - t) * 0.1;
-                
-                const px = cx + pt.x * dynamicR;
-                const py = cy + pt.y * dynamicR;
+                const px = cx + pt.x;
+                const py = cy + pt.y;
                 if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.stroke(); ctx.fill();
 
-            // 2. 动态内层血管网络流速 (动态视频效果)
+            // 2. 逐帧内层极值网络
             ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 1.8;
             ctx.beginPath();
             for (let i = 0; i < currentExtrema.length; i += 2) {
                 const pt = currentExtrema[i];
-                const phase = (i / currentExtrema.length) * Math.PI * 2;
-                const px = cx + (pt.x * 0.45 + Math.sin(t * 3 + phase) * 12);
-                const py = cy + (pt.y * 0.45 + Math.cos(t * 3 + phase) * 12);
+                const px = cx + pt.x * 0.45;
+                const py = cy + pt.y * 0.45;
                 if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.stroke();
 
-            // 3. 动态水刀极值切削点阵 Marker (视频动态播放)
+            // 3. 逐帧水刀极值 Marker
             ctx.fillStyle = "#ffeb3b";
-            for (let i = 0; i < currentExtrema.length; i += 3) {
+            for (let i = 0; i < currentExtrema.length; i += 2) {
                 const pt = currentExtrema[i];
-                const phase = (i / currentExtrema.length) * Math.PI * 2;
-                const px = cx + pt.x * (1.0 + Math.sin(phase * 4 + t * 2) * 0.2);
-                const py = cy + pt.y * (1.0 + Math.sin(phase * 4 + t * 2) * 0.2);
                 ctx.beginPath();
-                ctx.arc(px, py, 3.5, 0, Math.PI * 2);
+                ctx.arc(cx + pt.x, cy + pt.y, 3, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        // 第二路：动态 MP4 像素复原 Canvas 视频
+        // 第二路：动态 MP4 像素复原 Canvas 视频 (真实 30 FPS 逐帧解码)
         function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#090d16"; ctx.fillRect(0, 0, w, h);
 
-            if (!isDecoded || currentExtrema.length < 3) {
+            if (!isDecoded || videoFrames.length === 0) {
                 ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
                 ctx.fillText("等待 Pop-Stack 动态像素还原...", w/2 - 85, h/2);
                 return;
             }
 
-            const cx = w / 2, cy = h / 2;
-            const t = animTime;
+            const currentExtrema = videoFrames[currentFrameIndex];
+            if (!currentExtrema || currentExtrema.length < 3) return;
 
-            // 动态像素重构 (全彩 120 FPS 视频画面)
+            const cx = w / 2, cy = h / 2;
+
+            // 动态像素重构
             ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
             ctx.beginPath();
             for (let i = 0; i < currentExtrema.length; i++) {
                 const pt = currentExtrema[i];
-                const phase = (i / currentExtrema.length) * Math.PI * 2;
-                const dynamicR = 1.0 + Math.sin(phase * 4 + t * 2) * 0.2 + Math.cos(phase * 2 - t) * 0.1;
-                const px = cx + pt.x * dynamicR;
-                const py = cy + pt.y * dynamicR;
+                const px = cx + pt.x;
+                const py = cy + pt.y;
                 if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.fill();
 
-            // 动态中心物理极值核
+            // 核心 Marker
             ctx.fillStyle = "rgba(255, 235, 59, 0.85)";
             ctx.beginPath();
-            ctx.arc(cx, cy, 32 + Math.sin(t * 4) * 8, 0, Math.PI * 2);
+            ctx.arc(cx, cy, 28, 0, Math.PI * 2);
             ctx.fill();
         }
 
@@ -205,7 +215,7 @@
             if (lang === 'en') {
                 document.getElementById("navHome").innerText = "Home";
                 document.getElementById("navGoEditor").innerText = "⬅️ Go to Vector Editor";
-                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste 512-Byte 3T Encoded Stream copied from Station A or Editor";
+                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste 3T Multi-Frame Video Stream copied from Station A or Editor";
                 document.getElementById("btnDecode").innerText = "⚡ Run Pop-Stack Air-Gapped Decoding";
                 document.getElementById("txtDualTitle").innerText = "🎨 Step 2: Dual Output Video Streams (Tianyu Player + Restored Video)";
                 document.getElementById("txtOutput1").innerText = "🏆 Stream 1: Tianyu 3T Vector Video Player";
@@ -213,10 +223,10 @@
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
                 document.getElementById("navGoEditor").innerText = "⬅️ 前往矢量剪辑站";
-                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站/剪辑站复制的 512 字节 3T 编码码流";
+                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站/剪辑站复制的 3T 多帧视频码流";
                 document.getElementById("btnDecode").innerText = "⚡ 运行 Pop-Stack 物理隔离解算";
-                document.getElementById("txtDualTitle").innerText = "🎨 第二步：Pop-Stack 120 FPS 两路动态视频输出 (一路矢量播放器 + 一路像素复原)";
-                document.getElementById("txtOutput1").innerText = "🏆 第一路: 天予 3T 矢量播放器 (Pop-Stack 120 FPS 视频)";
+                document.getElementById("txtDualTitle").innerText = "🎨 第二步：Pop-Stack 真实多帧视频播放 (一路矢量播放器 + 一路像素复原)";
+                document.getElementById("txtOutput1").innerText = "🏆 第一路: 天予 3T 矢量播放器 (真实 Pop-Stack 视频)";
                 document.getElementById("txtOutput2").innerText = "🎞️ 第二路: 像素复原视界 (Restored Video Stream)";
             }
         }

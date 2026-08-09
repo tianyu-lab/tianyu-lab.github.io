@@ -27,7 +27,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【高阶矢量剪辑站】天予 3T 复杂拓扑矢量视频编辑器 <span class="badge">Tianyu 3T Pro Video Editor</span></div>
+        <div class="title">⚡ 【高阶矢量剪辑站】天予 3T 多帧矢量视频编辑器 <span class="badge">Tianyu 3T Pro Video Editor</span></div>
         <div>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
@@ -39,11 +39,11 @@
     <div class="container">
         <!-- 左侧: 复杂多层矢量画布与时间线轴 -->
         <div class="card" style="flex: 2;">
-            <h3 id="txtCanvasTitle">🎞️ 复杂多层矢量视频视界 (高精解剖/物理场极值 毫秒级拖拽)</h3>
+            <h3 id="txtCanvasTitle">🎞️ 真实多帧矢量视频视界 (高精解剖/物理场极值 毫秒级拖拽)</h3>
             <canvas id="editorCanvas" width="550" height="360"></canvas>
             
             <div class="hud-overlay" id="hudStatus">
-                [Pop-Stack 压栈引擎]: 64 个极值压栈 (Push-Stack) | [视频分辨率]: 100% 无限矢量无损 | [FPS]: 120 FPS
+                [Pop-Stack 视频编码器]: 30 帧连续多帧压栈 | [视频分辨率]: 100% 无限矢量无损 | [FPS]: 30 FPS
             </div>
 
             <!-- 时间线拖拽轴 -->
@@ -52,7 +52,7 @@
                     <span style="font-size:12px; color:#ffeb3b; font-weight:bold;" id="txtTimelineTitle">⏱️ 3T 极速毫秒级时间线拖拽 (Scrubber)</span>
                     <span style="font-size:12px; font-family:monospace; color:#38bdf8;" id="timeLabel">00:00.00 / Frame 0</span>
                 </div>
-                <input type="range" id="timeScrubber" min="0" max="100" value="0">
+                <input type="range" id="timeScrubber" min="0" max="29" value="0">
                 
                 <div class="tools-grid">
                     <button class="btn" id="btnPlayPause">▶️ 播放 / 暂停</button>
@@ -66,7 +66,7 @@
         <!-- 右侧: 剪辑控制与 3T 矢量工程文件导出 -->
         <div class="card">
             <h3 id="txtControlTitle">✂️ 矢量剪辑控制台与工程导出</h3>
-            <p style="font-size:12px; color:#94a3b8; margin-bottom: 12px;" id="txtDesc">基于天予 3T 512 字节/帧 复杂极值轨迹 Stack，可零显存占用平滑编辑复杂 3D/4D 矢量图形：</p>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom: 12px;" id="txtDesc">基于天予 3T 512 字节/帧 复杂极值轨迹 Stack，可导出完整 30 帧连续矢量视频码流：</p>
             
             <div style="margin-bottom: 15px;">
                 <label style="font-size:12px; color:#38bdf8; display:block; margin-bottom:5px;" id="lblZoom">🔍 矢量无限放大倍率: <span id="zoomVal">1.0x</span></label>
@@ -85,9 +85,9 @@
                 <button class="tool-btn" onclick="setTintColor('#ff0055')">❤️ 血管红</button>
             </div>
 
-            <textarea id="projectExportText" readonly style="width:100%; height:90px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px;" placeholder="Pop-Stack 512字节码流生成中..."></textarea>
+            <textarea id="projectExportText" readonly style="width:100%; height:90px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px;" placeholder="多帧 3T 视频码流生成中..."></textarea>
             
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyProjectData()" id="btnExport">📋 导出 Pop-Stack 3T 矢量工程码流 (复制到 B 站解算)</button>
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyProjectData()" id="btnExport">📋 导出 30帧 3T 矢量视频工程码流 (复制到 B 站解码播放)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:5px;"></span>
         </div>
     </div>
@@ -97,7 +97,7 @@
         let canvas, ctx;
         let isPlaying = false;
         let frameIndex = 0;
-        let totalFrames = 100;
+        let totalFrames = 30;
         let currentZoom = 1.0;
         let currentRotation = 0;
         let tintColor = "#00e676";
@@ -125,6 +125,7 @@
                 drawFrame();
             });
 
+            generateProjectStream();
             startAnimLoop();
         });
 
@@ -151,7 +152,6 @@
             const sec = (frameIndex / 30).toFixed(2);
             document.getElementById("timeLabel").innerText = `00:${sec < 10 ? '0'+sec : sec} / Frame ${frameIndex}`;
             drawFrame();
-            generateProjectStream();
         }
 
         function setPresetShape(mode) {
@@ -165,7 +165,7 @@
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
-            const t = frameIndex / 10;
+            const t = frameIndex / 5;
             const cx = w / 2, cy = h / 2;
 
             ctx.save();
@@ -237,26 +237,30 @@
             ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.stroke();
         }
 
-        // 使用物理级 TianyuPopStackEngine 执行 Push-Stack 压栈编码！
+        // 拼接生成 30 帧连续多帧 Pop-Stack 视频 Base64 码流包 (Uint8Array 512 * 30)
         function generateProjectStream() {
-            const engine = new window.TianyuPopStackEngine();
-            const t = frameIndex / 10;
-            for (let i = 0; i < 64; i++) {
-                const th = (i / 64) * Math.PI * 2;
-                let r = 90;
-                if (presetMode === "surgical") {
-                    r = 90 + Math.sin(th * 5 + t) * 25 + Math.cos(th * 3 - t * 1.5) * 15;
-                } else {
-                    r = 85 + Math.sin(th * 12 + t * 2) * 30;
+            const totalVideoBytes = new Uint8Array(512 * 30);
+            for (let f = 0; f < 30; f++) {
+                const engine = new window.TianyuPopStackEngine();
+                const t = f / 5;
+                for (let i = 0; i < 64; i++) {
+                    const th = (i / 64) * Math.PI * 2;
+                    let r = 90;
+                    if (presetMode === "surgical") {
+                        r = 90 + Math.sin(th * 5 + t) * 25 + Math.cos(th * 3 - t * 1.5) * 15;
+                    } else {
+                        r = 85 + Math.sin(th * 12 + t * 2) * 30;
+                    }
+                    const x = Math.cos(th) * r;
+                    const y = Math.sin(th) * r;
+                    engine.pushExtremaStack(x, y, f, th, 0, 230, 118);
                 }
-                const x = Math.cos(th) * r;
-                const y = Math.sin(th) * r;
-                // 执行 Push-Stack 压栈
-                engine.pushExtremaStack(x, y, t, th, 0, 230, 118);
+                const frameBuf = engine.encodeToBuffer512();
+                totalVideoBytes.set(frameBuf, f * 512);
             }
-            const buf = engine.encodeToBuffer512();
+
             let binary = '';
-            for (let i = 0; i < buf.byteLength; i++) binary += String.fromCharCode(buf[i]);
+            for (let i = 0; i < totalVideoBytes.byteLength; i++) binary += String.fromCharCode(totalVideoBytes[i]);
             document.getElementById("projectExportText").value = btoa(binary);
         }
 
@@ -278,7 +282,7 @@
         function copyProjectData() {
             const txt = document.getElementById("projectExportText").value;
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ Pop-Stack 3T 剪辑工程码流已复制！可在 B 站解算播放！";
+                document.getElementById("copyMsg").innerText = "✅ 30帧 3T 矢量视频码流已复制！在 B 站可真实播放该视频！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
@@ -287,23 +291,23 @@
             if (lang === 'en') {
                 document.getElementById("navHome").innerText = "Home";
                 document.getElementById("navGoB").innerText = "Go to Decoder B ➔";
-                document.getElementById("txtCanvasTitle").innerText = "🎞️ Complex Multi-Layer Vector Preview (Surgical/Mechanical)";
+                document.getElementById("txtCanvasTitle").innerText = "🎞️ Complex Multi-Frame Vector Video Preview";
                 document.getElementById("btnPresetSurgical").innerText = "🧠 Complex Anatomical Vessel";
                 document.getElementById("btnPresetTurbine").innerText = "⚙️ Precision Turbine Mesh";
                 document.getElementById("txtTimelineTitle").innerText = "⏱️ 3T Ultra-Fast Scrubber Timeline";
                 document.getElementById("btnPlayPause").innerText = isPlaying ? "⏸️ Pause" : "▶️ Play";
                 document.getElementById("txtControlTitle").innerText = "✂️ Pro Vector Video Console & Export";
-                document.getElementById("btnExport").innerText = "📋 Export Pop-Stack 3T Vector Stream";
+                document.getElementById("btnExport").innerText = "📋 Export 30-Frame 3T Video Stream";
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
                 document.getElementById("navGoB").innerText = "前往 B 站解码 ➔";
-                document.getElementById("txtCanvasTitle").innerText = "🎞️ 复杂多层矢量视频视界 (高精解剖/物理场极值 毫秒级拖拽)";
+                document.getElementById("txtCanvasTitle").innerText = "🎞️ 真实多帧矢量视频视界 (高精解剖/物理场极值 毫秒级拖拽)";
                 document.getElementById("btnPresetSurgical").innerText = "🧠 复杂解剖/血管拓扑";
                 document.getElementById("btnPresetTurbine").innerText = "⚙️ 高精涡轮/物理工程";
                 document.getElementById("txtTimelineTitle").innerText = "⏱️ 3T 极速毫秒级时间线拖拽 (Scrubber)";
                 document.getElementById("btnPlayPause").innerText = "▶️ 播放 / 暂停";
                 document.getElementById("txtControlTitle").innerText = "✂️ 矢量剪辑控制台与工程导出";
-                document.getElementById("btnExport").innerText = "📋 导出 Pop-Stack 3T 矢量剪辑工程码流 (复制到 B 站解算)";
+                document.getElementById("btnExport").innerText = "📋 导出 30帧 3T 矢量视频工程码流 (复制到 B 站解码播放)";
             }
         }
     </script>
