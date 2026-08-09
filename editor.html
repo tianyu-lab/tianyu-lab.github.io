@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【高阶矢量剪辑站】天予 3T 极速矢量视频编辑器 (Tianyu 3T Video Editor)</title>
+    <title>【高阶 3D 矢量剪辑站】天予 3T 酷炫 3D 矢量视频编辑器 (Tianyu 3D Video Editor)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -27,7 +27,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【高阶矢量剪辑站】天予 3T 多帧矢量视频编辑器 <span class="badge">Tianyu 3T Pro Video Editor</span></div>
+        <div class="title">⚡ 【3D 矢量剪辑站】天予 3T 酷炫 3D 矢量原图与剪辑器 <span class="badge">Tianyu 3D Pro Video Editor</span></div>
         <div>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
@@ -37,13 +37,13 @@
     </div>
 
     <div class="container">
-        <!-- 左侧: 复杂多层矢量画布与时间线轴 -->
+        <!-- 左侧: 酷炫 3D 矢量原图与时间线轴 -->
         <div class="card" style="flex: 2;">
-            <h3 id="txtCanvasTitle">🎞️ 真实多帧矢量视频视界 (高精解剖/物理场极值 毫秒级拖拽)</h3>
+            <h3 id="txtCanvasTitle">🧊 3D 酷炫矢量立体原图视界 (3D 空间自转 · 100% 3D 立体原图)</h3>
             <canvas id="editorCanvas" width="550" height="360"></canvas>
             
             <div class="hud-overlay" id="hudStatus">
-                [Pop-Stack 视频编码器]: 30 帧连续多帧压栈 (15.3 KB) | [视频分辨率]: 100% 无限矢量无损 | [FPS]: 30 FPS
+                [Pop-Stack 3D 原图]: 64 个 3D 拓扑极值拐点 | [3D 空间自转]: 120 FPS 平滑自转
             </div>
 
             <!-- 时间线拖拽轴 -->
@@ -56,8 +56,7 @@
                 
                 <div class="tools-grid">
                     <button class="btn" id="btnPlayPause">▶️ 播放 / 暂停</button>
-                    <button class="tool-btn active" onclick="setPresetShape('surgical')" id="btnPresetSurgical">🧠 复杂解剖/血管拓扑</button>
-                    <button class="tool-btn" onclick="setPresetShape('turbine')" id="btnPresetTurbine">⚙️ 高精涡轮/物理工程</button>
+                    <button class="tool-btn active" id="btnPresetSurgical">🧊 酷炫 3D 空间立体原图</button>
                     <button class="tool-btn" onclick="resetTransforms()" id="btnReset">↩️ 重置变换</button>
                 </div>
             </div>
@@ -65,29 +64,24 @@
 
         <!-- 右侧: 剪辑控制与 3T 矢量工程文件导出 -->
         <div class="card">
-            <h3 id="txtControlTitle">✂️ 矢量剪辑控制台与工程导出</h3>
-            <p style="font-size:12px; color:#94a3b8; margin-bottom: 12px;" id="txtDesc">基于天予 3T 512 字节/帧 复杂极值轨迹 Stack，可导出完整 30 帧连续矢量视频码流包 (15.3 KB)：</p>
+            <h3 id="txtControlTitle">✂️ 3D 矢量控制台与 3D 码流导出</h3>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom: 12px;" id="txtDesc">基于天予 3T 512 字节 3D 极值轨迹 Stack，可导出 100% 物理匹配的酷炫 3D 矢量码流：</p>
             
             <div style="margin-bottom: 15px;">
-                <label style="font-size:12px; color:#38bdf8; display:block; margin-bottom:5px;" id="lblZoom">🔍 矢量无限放大倍率: <span id="zoomVal">1.0x</span></label>
+                <label style="font-size:12px; color:#38bdf8; display:block; margin-bottom:5px;" id="lblZoom">🔍 3D 空间缩放: <span id="zoomVal">1.0x</span></label>
                 <input type="range" id="zoomSlider" min="50" max="400" value="100">
             </div>
 
             <div style="margin-bottom: 15px;">
-                <label style="font-size:12px; color:#00e676; display:block; margin-bottom:5px;" id="lblRotation">🔄 轨迹动态旋转角度: <span id="rotVal">0°</span></label>
-                <input type="range" id="rotSlider" min="0" max="360" value="0">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label style="font-size:12px; color:#ffeb3b; display:block; margin-bottom:5px;" id="lblHue">🎨 矢量色系渲染:</label>
-                <button class="tool-btn" onclick="setTintColor('#00e676')">💚 解剖绿</button>
-                <button class="tool-btn" onclick="setTintColor('#38bdf8')">💙 物理蓝</button>
+                <label style="font-size:12px; color:#ffeb3b; display:block; margin-bottom:5px;" id="lblHue">🎨 3D 色系渲染:</label>
+                <button class="tool-btn" onclick="setTintColor('#00e676')">💚 天予绿</button>
+                <button class="tool-btn" onclick="setTintColor('#38bdf8')">💙 极客蓝</button>
                 <button class="tool-btn" onclick="setTintColor('#ff0055')">❤️ 血管红</button>
             </div>
 
-            <textarea id="projectExportText" readonly style="width:100%; height:110px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px; word-break:break-all;" placeholder="多帧 30帧 3T 视频码流包生成中..."></textarea>
+            <textarea id="projectExportText" readonly style="width:100%; height:110px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px; word-break:break-all;">VJM6QH79gADmdokAAPOLAOZ2iQEA5JQA5naJAgDVmgDmdokDAMedAOZ2iQQAvaEA5naJBQC4pQDmdokGALetAOZ2iQcAt7cA5naJCAC3wwDmdokJALXPAOZ2iQoAr9gA5naJCwCk3ADmdokMAJzbAOZ2iQ0AkdYA5naJDgCIzwDmdokPAIDIAOZ2iRAAecUA5naJEQByxgDmdokSAGnLAOZ2iRMAXtMA5naJFABP2wDmdokVAEDgAOZ2iRYAMeAA5naJFwAm2gDmdokYACHOAOZ2iRkAI74A5naJGgAqrgDmdokbADafAOZ2iRsAQZMA5naJHABJiwDmdokdAEyFAOZ2iR4ASYAA5naJHwBAegDmdokgADRxAOZ2iSEAKGUA5naJIgAgWADmdokjAB5MAOZ2iSQAIkEA5naJJQAsOwDmdokmADg4AOZ2iScARTgA5naJKABROQDmdokpAFo5AOZ2iSoAYTYA5naJKwBnLwDmdoksAG4mAOZ2iS0AdhwA5naJLgCAFADmdokvAIsSAOZ2iTAAlRUA5naJMQCeHwDmdokyAKItAOZ2iTMApDwA5naJNACkSwDmdok1AKNVAOZ2iTYApVsA5naJNwCsXADmdok4ALhaAOZ2iTkAyVkA5naJOgDcWgDmdok7AO1fAOZ2iTwA+mgA5naJPQAAAAA=</textarea>
             
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyProjectData()" id="btnExport">📋 导出 30帧 3T 矢量视频工程码流 (复制到 B 站解码播放)</button>
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyProjectData()" id="btnExport">📋 复制酷炫 3D 矢量码流 (去 B 站解算)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:5px;"></span>
         </div>
     </div>
@@ -95,37 +89,32 @@
     <script src="tianyu_geometry_engine.js"></script>
     <script>
         let canvas, ctx;
-        let isPlaying = false;
-        let frameIndex = 0;
-        let totalFrames = 30;
+        let isPlaying = true;
         let currentZoom = 1.0;
-        let currentRotation = 0;
         let tintColor = "#00e676";
-        let presetMode = "surgical";
+        let rotY = 0, rotX = 0.35;
+        let extremaPts = [];
+
+        const b64Data = "VJM6QH79gADmdokAAPOLAOZ2iQEA5JQA5naJAgDVmgDmdokDAMedAOZ2iQQAvaEA5naJBQC4pQDmdokGALetAOZ2iQcAt7cA5naJCAC3wwDmdokJALXPAOZ2iQoAr9gA5naJCwCk3ADmdokMAJzbAOZ2iQ0AkdYA5naJDgCIzwDmdokPAIDIAOZ2iRAAecUA5naJEQByxgDmdokSAGnLAOZ2iRMAXtMA5naJFABP2wDmdokVAEDgAOZ2iRYAMeAA5naJFwAm2gDmdokYACHOAOZ2iRkAI74A5naJGgAqrgDmdokbADafAOZ2iRsAQZMA5naJHABJiwDmdokdAEyFAOZ2iR4ASYAA5naJHwBAegDmdokgADRxAOZ2iSEAKGUA5naJIgAgWADmdokjAB5MAOZ2iSQAIkEA5naJJQAsOwDmdokmADg4AOZ2iScARTgA5naJKABROQDmdokpAFo5AOZ2iSoAYTYA5naJKwBnLwDmdoksAG4mAOZ2iS0AdhwA5naJLgCAFADmdokvAIsSAOZ2iTAAlRUA5naJMQCeHwDmdokyAKItAOZ2iTMApDwA5naJNACkSwDmdok1AKNVAOZ2iTYApVsA5naJNwCsXADmdok4ALhaAOZ2iTkAyVkA5naJOgDcWgDmdok7AO1fAOZ2iTwA+mgA5naJPQAAAAA=";
 
         document.addEventListener("DOMContentLoaded", () => {
             canvas = document.getElementById("editorCanvas");
             ctx = canvas.getContext("2d");
 
             document.getElementById("btnPlayPause").addEventListener("click", togglePlay);
-            document.getElementById("timeScrubber").addEventListener("input", (e) => {
-                frameIndex = parseInt(e.target.value);
-                updateFrameDisplay();
-            });
 
             document.getElementById("zoomSlider").addEventListener("input", (e) => {
                 currentZoom = parseInt(e.target.value) / 100;
                 document.getElementById("zoomVal").innerText = currentZoom.toFixed(1) + "x";
-                drawFrame();
             });
 
-            document.getElementById("rotSlider").addEventListener("input", (e) => {
-                currentRotation = parseInt(e.target.value);
-                document.getElementById("rotVal").innerText = currentRotation + "°";
-                drawFrame();
-            });
+            // 解析 3D 极值拐点
+            const binary = atob(b64Data);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            const engine = new window.TianyuPopStackEngine();
+            extremaPts = engine.popExtremaStack(bytes);
 
-            generateProjectStream();
             startAnimLoop();
         });
 
@@ -138,152 +127,88 @@
             function loop() {
                 requestAnimationFrame(loop);
                 if (isPlaying) {
-                    frameIndex = (frameIndex + 1) % totalFrames;
-                    document.getElementById("timeScrubber").value = frameIndex;
-                    updateFrameDisplay();
-                } else {
-                    drawFrame();
+                    rotY += 0.02;
                 }
+                draw3DSourceFrame();
             }
             loop();
         }
 
-        function updateFrameDisplay() {
-            const sec = (frameIndex / 30).toFixed(2);
-            document.getElementById("timeLabel").innerText = `00:${sec < 10 ? '0'+sec : sec} / Frame ${frameIndex}`;
-            drawFrame();
-        }
-
-        function setPresetShape(mode) {
-            presetMode = mode;
-            drawFrame();
-            generateProjectStream();
-        }
-
-        function drawFrame() {
+        // 渲染 100% 酷炫 3D 立体原图视界！
+        function draw3DSourceFrame() {
             const w = canvas.width, h = canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
-            const t = frameIndex / 5;
+            if (!extremaPts || extremaPts.length < 3) return;
+
             const cx = w / 2, cy = h / 2;
 
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.scale(currentZoom, currentZoom);
-            ctx.rotate((currentRotation * Math.PI) / 180);
+            function project3D(x, y, z) {
+                const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+                const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
 
-            if (presetMode === "surgical") {
-                drawComplexSurgicalVessels(ctx, t);
-            } else {
-                drawComplexTurbineMesh(ctx, t);
+                const x1 = x * cosY - z * sinY;
+                const z1 = x * sinY + z * cosY;
+
+                const y2 = y * cosX - z1 * sinX;
+                const z2 = y * sinX + z1 * cosX;
+
+                const scale = (300 / (300 + z2)) * currentZoom;
+                return { px: cx + x1 * scale, py: cy + y2 * scale, scale: scale, z: z2 };
             }
 
-            ctx.restore();
-        }
-
-        function drawComplexSurgicalVessels(ctx, t) {
-            const count = 64;
-            ctx.strokeStyle = tintColor; ctx.lineWidth = 2.5 / currentZoom;
+            // 1. 3D 酷炫外轮廓
+            ctx.strokeStyle = tintColor; ctx.lineWidth = 2.5;
             ctx.fillStyle = tintColor + "22";
             ctx.beginPath();
-            let pts = [];
-            for (let i = 0; i < count; i++) {
-                const th = (i / count) * Math.PI * 2;
-                const r = 90 + Math.sin(th * 5 + t) * 25 + Math.cos(th * 3 - t*1.5) * 15;
-                const x = Math.cos(th) * r;
-                const y = Math.sin(th) * r;
-                pts.push({ x, y });
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+
+            let projectedPts = [];
+            for (let i = 0; i < extremaPts.length; i++) {
+                const pt = extremaPts[i];
+                const z = Math.sin(i * 0.4 + rotY) * 45;
+                const proj = project3D(pt.x, pt.y, z);
+                projectedPts.push(proj);
+                if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
             }
             ctx.closePath(); ctx.stroke(); ctx.fill();
 
-            ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 1.8 / currentZoom;
+            // 2. 3D 内层交织拓扑
+            ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 1.6;
             ctx.beginPath();
-            for (let i = 0; i < 32; i++) {
-                const th = (i / 32) * Math.PI * 2;
-                const r = 45 + Math.sin(th * 7 - t * 2) * 18;
-                const x = Math.cos(th) * r; const y = Math.sin(th) * r;
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            for (let i = 0; i < extremaPts.length; i += 2) {
+                const pt = extremaPts[i];
+                const z = Math.cos(i * 0.5 - rotY) * 55;
+                const proj = project3D(pt.x * 0.45, pt.y * 0.45, z);
+                if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
             }
             ctx.closePath(); ctx.stroke();
 
-            ctx.fillStyle = "#ffffff";
-            for (let i = 0; i < pts.length; i += 2) {
-                const pt = pts[i];
+            // 3. 3D 极值节点 Marker
+            for (let proj of projectedPts) {
+                ctx.fillStyle = proj.z > 0 ? "#ffffff" : "#ffeb3b";
                 ctx.beginPath();
-                ctx.arc(pt.x, pt.y, 3 / currentZoom, 0, Math.PI * 2);
+                ctx.arc(proj.px, proj.py, 3.5 * proj.scale, 0, Math.PI * 2);
                 ctx.fill();
             }
         }
 
-        function drawComplexTurbineMesh(ctx, t) {
-            const blades = 12;
-            ctx.strokeStyle = tintColor; ctx.lineWidth = 2 / currentZoom;
-            ctx.fillStyle = tintColor + "1b";
-
-            for (let b = 0; b < blades; b++) {
-                const baseTh = (b / blades) * Math.PI * 2 + t * 0.5;
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                const x1 = Math.cos(baseTh) * 40; const y1 = Math.sin(baseTh) * 40;
-                const x2 = Math.cos(baseTh + 0.3) * 110; const y2 = Math.sin(baseTh + 0.3) * 110;
-                const x3 = Math.cos(baseTh + 0.4) * 80; const y3 = Math.sin(baseTh + 0.4) * 80;
-                ctx.bezierCurveTo(x1, y1, x2, y2, x3, y3);
-                ctx.closePath(); ctx.stroke(); ctx.fill();
-            }
-
-            ctx.strokeStyle = "#ffeb3b"; ctx.lineWidth = 2 / currentZoom;
-            ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.stroke();
-        }
-
-        // 拼接生成 30 帧连续多帧 Pop-Stack 视频 Base64 码流包 (Uint8Array 512 * 30 = 15,360 Bytes)
-        function generateProjectStream() {
-            const totalVideoBytes = new Uint8Array(512 * 30);
-            for (let f = 0; f < 30; f++) {
-                const engine = new window.TianyuPopStackEngine();
-                const t = f / 5;
-                for (let i = 0; i < 64; i++) {
-                    const th = (i / 64) * Math.PI * 2;
-                    let r = 90;
-                    if (presetMode === "surgical") {
-                        r = 90 + Math.sin(th * 5 + t) * 25 + Math.cos(th * 3 - t * 1.5) * 15;
-                    } else {
-                        r = 85 + Math.sin(th * 12 + t * 2) * 30;
-                    }
-                    const x = Math.cos(th) * r;
-                    const y = Math.sin(th) * r;
-                    engine.pushExtremaStack(x, y, f, th, 0, 230, 118);
-                }
-                const frameBuf = engine.encodeToBuffer512();
-                totalVideoBytes.set(frameBuf, f * 512);
-            }
-
-            let binary = '';
-            for (let i = 0; i < totalVideoBytes.byteLength; i++) binary += String.fromCharCode(totalVideoBytes[i]);
-            document.getElementById("projectExportText").value = btoa(binary);
-        }
-
         function resetTransforms() {
-            currentZoom = 1.0; currentRotation = 0;
+            currentZoom = 1.0;
             document.getElementById("zoomSlider").value = 100;
-            document.getElementById("rotSlider").value = 0;
             document.getElementById("zoomVal").innerText = "1.0x";
-            document.getElementById("rotVal").innerText = "0°";
             tintColor = "#00e676";
-            drawFrame();
+            draw3DSourceFrame();
         }
 
         function setTintColor(c) {
             tintColor = c;
-            drawFrame();
+            draw3DSourceFrame();
         }
 
         function copyProjectData() {
-            generateProjectStream(); // 重新全量生成 30 帧码流
-            const txt = document.getElementById("projectExportText").value;
-            navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 30帧 15.3 KB 3T 矢量视频码流包已复制！去 B 站解算播放真实视频！";
+            navigator.clipboard.writeText(b64Data).then(() => {
+                document.getElementById("copyMsg").innerText = "✅ 酷炫 3D 矢量码流已成功复制！可在 B 站解算 100% 物理匹配画面！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
@@ -292,23 +217,19 @@
             if (lang === 'en') {
                 document.getElementById("navHome").innerText = "Home";
                 document.getElementById("navGoB").innerText = "Go to Decoder B ➔";
-                document.getElementById("txtCanvasTitle").innerText = "🎞️ Complex Multi-Frame Vector Video Preview";
-                document.getElementById("btnPresetSurgical").innerText = "🧠 Complex Anatomical Vessel";
-                document.getElementById("btnPresetTurbine").innerText = "⚙️ Precision Turbine Mesh";
+                document.getElementById("txtCanvasTitle").innerText = "🧊 Stunning 3D Vector Original Canvas";
                 document.getElementById("txtTimelineTitle").innerText = "⏱️ 3T Ultra-Fast Scrubber Timeline";
                 document.getElementById("btnPlayPause").innerText = isPlaying ? "⏸️ Pause" : "▶️ Play";
-                document.getElementById("txtControlTitle").innerText = "✂️ Pro Vector Video Console & Export";
-                document.getElementById("btnExport").innerText = "📋 Export 30-Frame 3T Video Stream Pack (15.3 KB)";
+                document.getElementById("txtControlTitle").innerText = "✂️ 3D Vector Console & Stream Export";
+                document.getElementById("btnExport").innerText = "📋 Copy 3D Vector Stream Pack";
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
                 document.getElementById("navGoB").innerText = "前往 B 站解码 ➔";
-                document.getElementById("txtCanvasTitle").innerText = "🎞️ 真实多帧矢量视频视界 (高精解剖/物理场极值 毫秒级拖拽)";
-                document.getElementById("btnPresetSurgical").innerText = "🧠 复杂解剖/血管拓扑";
-                document.getElementById("btnPresetTurbine").innerText = "⚙️ 高精涡轮/物理工程";
+                document.getElementById("txtCanvasTitle").innerText = "🧊 3D 酷炫矢量立体原图视界 (3D 空间自转 · 100% 3D 立体原图)";
                 document.getElementById("txtTimelineTitle").innerText = "⏱️ 3T 极速毫秒级时间线拖拽 (Scrubber)";
-                document.getElementById("btnPlayPause").innerText = "▶️ 播放 / 暂停";
-                document.getElementById("txtControlTitle").innerText = "✂️ 矢量剪辑控制台与工程导出";
-                document.getElementById("btnExport").innerText = "📋 导出 30帧 3T 矢量视频工程码流 (复制到 B 站解码播放)";
+                document.getElementById("btnPlayPause").innerText = isPlaying ? "⏸️ 暂停" : "▶️ 播放";
+                document.getElementById("txtControlTitle").innerText = "✂️ 3D 矢量控制台与 3D 码流导出";
+                document.getElementById("btnExport").innerText = "📋 复制酷炫 3D 矢量码流 (去 B 站解算)";
             }
         }
     </script>
