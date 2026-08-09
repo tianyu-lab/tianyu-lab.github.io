@@ -10,9 +10,9 @@
         header { background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding: 1.2rem 2rem; position: sticky; top: 0; backdrop-filter: blur(10px); z-index: 100; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.4rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
         .badge { background: #0284c7; color: #fff; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; }
-        nav a { color: #94a3b8; text-decoration: none; margin-left: 1rem; font-weight: 500; transition: color 0.2s; font-size: 0.95rem; }
+        nav a { color: #94a3b8; text-decoration: none; margin-left: 0.9rem; font-weight: 500; transition: color 0.2s; font-size: 0.9rem; }
         nav a:hover { color: #38bdf8; }
-        .flag-btn { cursor: pointer; font-size: 20px; background: none; border: none; margin-left: 10px; vertical-align: middle; }
+        .flag-btn { cursor: pointer; font-size: 20px; background: none; border: none; margin-left: 8px; vertical-align: middle; }
         
         .hero { text-align: center; padding: 4.5rem 1.5rem 2.5rem; max-width: 900px; margin: 0 auto; }
         .hero h1 { font-size: 3.2rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.2rem; background: linear-gradient(135deg, #38bdf8 0%, #00e676 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
@@ -67,11 +67,12 @@
         <div class="logo">⚡ 天予具象智能 · P100 <span class="badge" id="txtBadge">有缘自来 · 天予其利</span></div>
         <nav>
             <a href="demo.html" style="color:#00e676; font-weight:bold;" id="navDemo">🎬 视频转换 Demo</a>
-            <a href="capsule.html" style="color:#ffeb3b;" id="navCapsule">💊 具象智能 3D</a>
-            <a href="mesh3d.html" style="color:#38bdf8;" id="nav3D">🧊 Three.js 3D站</a>
-            <a href="#invest" style="color:#00e676; font-weight:bold;" id="navInvest">🏛️ 战略投资竞标</a>
-            <a href="#pricing" style="color:#ffeb3b;" id="navPricing">💰 定价权益</a>
-            <a href="#contact" id="navContact">联系沟通</a>
+            <a href="editor.html" style="color:#ffeb3b; font-weight:bold;" id="navEditor">✂️ 3T 矢量视频剪辑 Demo</a>
+            <a href="capsule.html" style="color:#ffeb3b;" id="navCapsule">💊 具象 3D</a>
+            <a href="mesh3d.html" style="color:#38bdf8;" id="nav3D">🧊 3D站</a>
+            <a href="#invest" style="color:#00e676;" id="navInvest">🏛️ 竞标</a>
+            <a href="#pricing" style="color:#ffeb3b;" id="navPricing">💰 定价</a>
+            <a href="#contact" id="navContact">联系</a>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
         </nav>
@@ -88,8 +89,8 @@
         </div>
 
         <div class="cta-group">
-            <a href="#invest" class="cta-btn" id="btnInvestCta">🏛️ 查看战略投资与区域独家竞标方案</a>
-            <a href="#pricing" class="cta-btn-alt" style="border-color:#ffeb3b; color:#ffeb3b;" id="btnPricingCta">💰 查看 12.5% 软件授权</a>
+            <a href="editor.html" class="cta-btn" style="background:linear-gradient(135deg, #ffeb3b 0%, #00e676 100%); color:#040711;" id="btnEditorCta">✂️ 体验天予 3T 矢量视频剪辑 Demo</a>
+            <a href="#invest" class="cta-btn-alt" id="btnInvestCta">🏛️ 战略投资与独家竞标</a>
         </div>
     </section>
 
@@ -97,9 +98,10 @@
     <div class="demo-bar">
         <div class="demo-bar-title" id="txtBarTitle">🧪 物理隔离可验证演示通道：</div>
         <div>
-            <a href="encoder.html" class="cta-btn-alt" style="padding:0.4rem 1rem; font-size:0.85rem;" id="btnGoA">【A站编码器】➔</a>
-            <a href="mesh3d.html" class="cta-btn-alt" style="padding:0.4rem 1rem; font-size:0.85rem; border-color:#38bdf8; color:#38bdf8;" id="btnGo3D">【3D立体站】➔</a>
-            <a href="decoder.html" class="cta-btn-alt" style="padding:0.4rem 1rem; font-size:0.85rem; border-color:#00e676; color:#00e676;" id="btnGoB">【B站隔离解码器】➔</a>
+            <a href="editor.html" class="cta-btn-alt" style="padding:0.4rem 0.9rem; font-size:0.85rem; border-color:#ffeb3b; color:#ffeb3b;" id="btnGoEditor">【3T矢量剪辑站】➔</a>
+            <a href="encoder.html" class="cta-btn-alt" style="padding:0.4rem 0.9rem; font-size:0.85rem;" id="btnGoA">【A站编码】➔</a>
+            <a href="mesh3d.html" class="cta-btn-alt" style="padding:0.4rem 0.9rem; font-size:0.85rem; border-color:#38bdf8; color:#38bdf8;" id="btnGo3D">【3D立体站】➔</a>
+            <a href="decoder.html" class="cta-btn-alt" style="padding:0.4rem 0.9rem; font-size:0.85rem; border-color:#00e676; color:#00e676;" id="btnGoB">【B站隔离解码】➔</a>
         </div>
     </div>
 
@@ -163,6 +165,11 @@
 
     <section class="grid" id="features">
         <div class="card">
+            <div class="card-icon">✂️</div>
+            <h3 id="txtFEditTitle">天予 3T 矢量视频剪辑引擎</h3>
+            <p id="txtFEditSub">基于 512 字节/帧 极速 Stack，实现毫秒级拖拽、零显存占用、矢量级无限放大不模糊与矢量轨迹节点自由编辑！</p>
+        </div>
+        <div class="card">
             <div class="card-icon">💊</div>
             <h3 id="txtF0Title">具象智能 (Concrete AI) & 胶囊水刀</h3>
             <p id="txtF0Sub">超越传统“具身智能 (Embodied AI)”！天予首创【具象智能 (Concrete AI)】，将人体解剖、物理场与水刀机器人降维【具象化】为 512 字节世界模型。</p>
@@ -171,11 +178,6 @@
             <div class="card-icon">🚀</div>
             <h3 id="txtF1Title">27B MTP 极速推演</h3>
             <p id="txtF1Sub">挂载天予 C++ 融合算子 (libtianyu_fused_kernel.so)，在本地硬件跑出 20+ tokens/s 惊人吞吐率，16K 上下文商业决策秒级响应！</p>
-        </div>
-        <div class="card">
-            <div class="card-icon">🛡️</div>
-            <h3 id="txtF2Title">最小双席位会议隐私保护</h3>
-            <p id="txtF2Sub">基于 OmniRoute 与 Orca 智能脱敏路由，主控席与参会席商业机密本地物理切片。云端算力只做“失忆型工具人”，绝不出港！</p>
         </div>
     </section>
 
@@ -214,20 +216,22 @@
                 document.getElementById("pageTitle").innerText = "Destiny Arrives Naturally · Tianyu Concrete AI & P100 Private Ark";
                 document.getElementById("txtBadge").innerText = "Destiny Arrives · Tianyu Grace";
                 document.getElementById("navDemo").innerText = "🎬 Video Conversion Demo";
-                document.getElementById("navCapsule").innerText = "💊 Concrete AI 3D";
-                document.getElementById("nav3D").innerText = "🧊 Three.js 3D Station";
-                document.getElementById("navInvest").innerText = "🏛️ Strategic Bidding";
-                document.getElementById("navPricing").innerText = "💰 Pricing & VIP";
-                document.getElementById("navContact").innerText = "Contact Us";
+                document.getElementById("navEditor").innerText = "✂️ 3T Vector Video Editor Demo";
+                document.getElementById("navCapsule").innerText = "💊 Concrete 3D";
+                document.getElementById("nav3D").innerText = "🧊 3D Station";
+                document.getElementById("navInvest").innerText = "🏛️ Bidding";
+                document.getElementById("navPricing").innerText = "💰 Pricing";
+                document.getElementById("navContact").innerText = "Contact";
                 document.getElementById("txtHeroTitle").innerText = "Destiny Arrives Naturally, Heaven Bestows Grace";
                 document.getElementById("txtHeroSub").innerText = "Beyond Embodied AI! Pioneering Tianyu Concrete AI & World Model Paradigm · Private AI Ark in Portable SSD · Powered by Qwen 3.6 27B MTP Engine (20+ tokens/s · 16K Context)";
                 
                 document.getElementById("txtMotto1").innerText = "“Grounded creativity is the ultimate guarantee of quality.”";
                 document.getElementById("txtMotto2").innerText = "⚡ 16,000 : 1 Compression Ratio is the Strongest Footprint & Booster · Tianyu Concrete AI World Model";
 
+                document.getElementById("btnEditorCta").innerText = "✂️ Try Tianyu 3T Vector Video Editor Demo";
                 document.getElementById("btnInvestCta").innerText = "🏛️ Strategic Investor Bidding Scheme";
-                document.getElementById("btnPricingCta").innerText = "💰 View 12.5% Hardware Pricing";
                 document.getElementById("txtBarTitle").innerText = "🧪 Physical Isolation Verification Channel:";
+                document.getElementById("btnGoEditor").innerText = "【3T Vector Editor】➔";
                 document.getElementById("btnGoA").innerText = "【Station A】➔";
                 document.getElementById("btnGo3D").innerText = "【3D Station】➔";
                 document.getElementById("btnGoB").innerText = "【Station B Decoder】➔";
@@ -251,12 +255,12 @@
                 document.getElementById("txtVipTitle").innerText = "🎁 Early Adopter Benefit: Get a 15% Lifetime Discount Passport for All Future Tianyu Products!";
                 document.getElementById("txtVipSub").innerText = "Tianyu 3T/3D Concrete AI spatial engines are key milestone experimental achievements in the broader Tianyu AI ecosystem. Every P100 early adopter automatically receives a 15% Lifetime Discount Passport for all future product releases!";
 
+                document.getElementById("txtFEditTitle").innerText = "Tianyu 3T Vector Video Editing Engine";
+                document.getElementById("txtFEditSub").innerText = "Powered by 512B/frame Stack, achieving zero VRAM timeline scrubbing, lossless infinite vector zoom, and direct node editing!";
                 document.getElementById("txtF0Title").innerText = "Concrete AI & Capsule Waterjet";
                 document.getElementById("txtF0Sub").innerText = "Transcending Embodied AI! Pioneering Tianyu Concrete AI, concretizing anatomical 3D fields and waterjet robots into 512-byte world models.";
                 document.getElementById("txtF1Title").innerText = "27B MTP Ultra-Fast Inference";
                 document.getElementById("txtF1Sub").innerText = "Mounted with Tianyu Fused C++ Kernel, delivering 20+ tokens/s throughput on local hardware with instant 16K context responses!";
-                document.getElementById("txtF2Title").innerText = "Minimal 2-Seat Meeting Privacy";
-                document.getElementById("txtF2Sub").innerText = "Powered by OmniRoute & Orca, executive meeting data is physically sliced locally. Cloud AI acts strictly as a memoryless tool!";
 
                 document.getElementById("txtS1Title").innerText = "4-Tier Defense Architecture";
                 document.getElementById("txtS1Sub").innerText = "Includes Mechanism Layer, Math Camouflage (1+1=exp(rand)+∫dx), 3-Byte Transport Salt, and Adaptive Non-Linear Engine. Resilient against reverse engineering!";
