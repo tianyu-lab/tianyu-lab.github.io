@@ -16,7 +16,7 @@
         canvas { background: #000; border-radius: 8px; width: 100%; height: 340px; }
         .btn-decode { background: linear-gradient(135deg, #00e676 0%, #0284c7 100%); color: #040711; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.2s; }
         .btn-decode:hover { transform: scale(1.02); }
-        textarea { width: 100%; height: 110px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; }
+        textarea { width: 100%; height: 110px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; spellcheck: false; }
         .outputs-wrapper { display: flex; gap: 15px; margin-top: 15px; }
         .output-box { flex: 1; background: #040711; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center; }
         .output-box h4 { font-size: 13px; color: #38bdf8; margin-bottom: 8px; }
@@ -34,7 +34,7 @@
 
     <div class="card" style="margin-bottom: 20px;">
         <h3>📥 第一步：粘贴从 A 站/剪辑站复制的 3T 视频码流包 (已预载 4K 《老人散步》码流)</h3>
-        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的 Base64 码流..."></textarea>
+        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的 Base64 码流..." spellcheck="false"></textarea>
         
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
             <button class="btn-decode" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算 (Run Pop-Stack Decoder)</button>
@@ -47,14 +47,14 @@
             <h3>🎨 第二步：Pop-Stack 逐帧 30 FPS 两路动态视频解算输出</h3>
             <div class="outputs-wrapper">
                 <div class="output-box">
-                    <h4>🏆 第一路: 天予 3T 矢量播放器 (Pop-Stack 120 FPS 视频)</h4>
+                    <h4>🏆 第一路: 轨迹骨架与极值点阵 (Pop-Stack Trajectory & RGB Extrema)</h4>
                     <canvas id="tianyuPlayerCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;">0 依赖 GPU · 100% 动态物理矢量逐帧弹栈</p>
+                    <p style="font-size:11px; color:#00e676; margin-top:5px;">0 依赖 GPU · 绿色轨迹骨架与 RGB 实拍色彩点阵</p>
                 </div>
                 <div class="output-box">
-                    <h4>🎞️ 第二路: 像素复原视界 (Restored Video Stream)</h4>
+                    <h4>🎞️ 第二路: 真实色彩多边形充填 (RGB Photoreal Reconstructed View)</h4>
                     <canvas id="reconstructedCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;">Pop-Stack 全彩动态像素逐帧重构</p>
+                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;">Pop-Stack RGB 渐变色场与全彩画面渐进重构</p>
                 </div>
             </div>
         </div>
@@ -62,36 +62,6 @@
 
     <script src="tianyu_geometry_engine.js"></script>
     <script>
-        // 万能通用 Pop-Stack 解码引擎 (兼容 Variable Length 与 Fixed 512B 码流)
-        class UniversalTianyuDecoder {
-            decodeStreamBytes(bytes) {
-                const frames = [];
-                let p = 0;
-                while (p < bytes.length) {
-                    if (bytes[p] !== 0x54) { p++; continue; } // 查找包头 0x54 ('T')
-                    if (p + 4 >= bytes.length) break;
-                    
-                    const count = bytes[p + 3];
-                    const pts = [];
-                    let idx = p + 5;
-                    for (let i = 0; i < count && idx + 6 <= bytes.length; i++) {
-                        pts.append ? pts.push({
-                            x: bytes[idx] - 128,
-                            y: bytes[idx + 1] - 128,
-                            r: bytes[idx + 2],
-                            g: bytes[idx + 3],
-                            b: bytes[idx + 4],
-                            z_t: bytes[idx + 5] - 128
-                        }) : null;
-                        idx += 8;
-                    }
-                    frames.push(pts);
-                    p = (p + 512 < bytes.length && bytes[p + 512] === 0x54) ? p + 512 : idx + 1;
-                }
-                return frames;
-            }
-        }
-
         let tianyuCtx, reconCtx;
         let videoFrames = [];
         let currentFrameIndex = 0;
@@ -142,7 +112,6 @@
                     }
                     if (framePts.length > 0) videoFrames.push(framePts);
                     
-                    // 跨帧推进 (兼容 512 字节定长帧与变长帧)
                     if (p + 512 <= bytes.length && bytes[p + 512] === 0x54) {
                         p += 512;
                     } else {
@@ -178,6 +147,7 @@
             loop(timestamp || 0);
         }
 
+        // 第一路：轨迹骨架与 RGB 极值点阵
         function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
@@ -191,7 +161,7 @@
             const cx = w / 2, cy = h / 2;
 
             ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.2;
-            ctx.fillStyle = "rgba(0, 230, 118, 0.15)";
+            ctx.fillStyle = "rgba(0, 230, 118, 0.12)";
             ctx.beginPath();
             for (let i = 0; i < extrema.length; i++) {
                 const pt = extrema[i];
@@ -205,10 +175,11 @@
             }
         }
 
+        // 第二路：真实 RGB 渐变色场与像素画面重构 (取代单色蓝底)
         function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
-            ctx.fillStyle = "#090d16"; ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
             if (!isDecoded || videoFrames.length === 0) return;
 
@@ -217,13 +188,33 @@
 
             const cx = w / 2, cy = h / 2;
 
-            ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
+            // 计算多边形质心 RGB 均值
+            let sumR = 0, sumG = 0, sumB = 0;
+            for (let pt of extrema) {
+                sumR += pt.r; sumG += pt.g; sumB += pt.b;
+            }
+            const avgR = Math.round(sumR / extrema.length);
+            const avgG = Math.round(sumG / extrema.length);
+            const avgB = Math.round(sumB / extrema.length);
+
+            // 绘制真实 RGB 多边形色场
+            const gradient = ctx.createRadialGradient(cx, cy, 10, cx, cy, 180);
+            gradient.addColorStop(0, `rgba(${avgR}, ${avgG}, ${avgB}, 0.85)`);
+            gradient.addColorStop(1, `rgba(${avgR*0.5}, ${avgG*0.5}, ${avgB*0.5}, 0.3)`);
+
+            ctx.fillStyle = gradient;
             ctx.beginPath();
             for (let i = 0; i < extrema.length; i++) {
                 const pt = extrema[i];
                 if (i === 0) ctx.moveTo(cx + pt.x, cy + pt.y); else ctx.lineTo(cx + pt.x, cy + pt.y);
             }
             ctx.closePath(); ctx.fill();
+
+            // 逐点恢复实拍 RGB 色彩矩阵
+            for (let pt of extrema) {
+                ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
+                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 4.5, 0, Math.PI * 2); ctx.fill();
+            }
         }
     </script>
 </body>
