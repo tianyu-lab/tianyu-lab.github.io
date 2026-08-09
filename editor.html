@@ -43,7 +43,7 @@
             <canvas id="editorCanvas" width="550" height="360"></canvas>
             
             <div class="hud-overlay" id="hudStatus">
-                [Pop-Stack 视频编码器]: 30 帧连续多帧压栈 | [视频分辨率]: 100% 无限矢量无损 | [FPS]: 30 FPS
+                [Pop-Stack 视频编码器]: 30 帧连续多帧压栈 (15.3 KB) | [视频分辨率]: 100% 无限矢量无损 | [FPS]: 30 FPS
             </div>
 
             <!-- 时间线拖拽轴 -->
@@ -66,7 +66,7 @@
         <!-- 右侧: 剪辑控制与 3T 矢量工程文件导出 -->
         <div class="card">
             <h3 id="txtControlTitle">✂️ 矢量剪辑控制台与工程导出</h3>
-            <p style="font-size:12px; color:#94a3b8; margin-bottom: 12px;" id="txtDesc">基于天予 3T 512 字节/帧 复杂极值轨迹 Stack，可导出完整 30 帧连续矢量视频码流：</p>
+            <p style="font-size:12px; color:#94a3b8; margin-bottom: 12px;" id="txtDesc">基于天予 3T 512 字节/帧 复杂极值轨迹 Stack，可导出完整 30 帧连续矢量视频码流包 (15.3 KB)：</p>
             
             <div style="margin-bottom: 15px;">
                 <label style="font-size:12px; color:#38bdf8; display:block; margin-bottom:5px;" id="lblZoom">🔍 矢量无限放大倍率: <span id="zoomVal">1.0x</span></label>
@@ -85,7 +85,7 @@
                 <button class="tool-btn" onclick="setTintColor('#ff0055')">❤️ 血管红</button>
             </div>
 
-            <textarea id="projectExportText" readonly style="width:100%; height:90px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px;" placeholder="多帧 3T 视频码流生成中..."></textarea>
+            <textarea id="projectExportText" readonly style="width:100%; height:110px; background:#040711; border:1px solid #334155; color:#00e676; font-family:monospace; font-size:11px; padding:8px; border-radius:6px; word-break:break-all;" placeholder="多帧 30帧 3T 视频码流包生成中..."></textarea>
             
             <button class="btn" style="width:100%; margin-top:10px;" onclick="copyProjectData()" id="btnExport">📋 导出 30帧 3T 矢量视频工程码流 (复制到 B 站解码播放)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:5px;"></span>
@@ -237,7 +237,7 @@
             ctx.beginPath(); ctx.arc(0, 0, 30, 0, Math.PI * 2); ctx.stroke();
         }
 
-        // 拼接生成 30 帧连续多帧 Pop-Stack 视频 Base64 码流包 (Uint8Array 512 * 30)
+        // 拼接生成 30 帧连续多帧 Pop-Stack 视频 Base64 码流包 (Uint8Array 512 * 30 = 15,360 Bytes)
         function generateProjectStream() {
             const totalVideoBytes = new Uint8Array(512 * 30);
             for (let f = 0; f < 30; f++) {
@@ -280,9 +280,10 @@
         }
 
         function copyProjectData() {
+            generateProjectStream(); // 重新全量生成 30 帧码流
             const txt = document.getElementById("projectExportText").value;
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 30帧 3T 矢量视频码流已复制！在 B 站可真实播放该视频！";
+                document.getElementById("copyMsg").innerText = "✅ 30帧 15.3 KB 3T 矢量视频码流包已复制！去 B 站解算播放真实视频！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
@@ -297,7 +298,7 @@
                 document.getElementById("txtTimelineTitle").innerText = "⏱️ 3T Ultra-Fast Scrubber Timeline";
                 document.getElementById("btnPlayPause").innerText = isPlaying ? "⏸️ Pause" : "▶️ Play";
                 document.getElementById("txtControlTitle").innerText = "✂️ Pro Vector Video Console & Export";
-                document.getElementById("btnExport").innerText = "📋 Export 30-Frame 3T Video Stream";
+                document.getElementById("btnExport").innerText = "📋 Export 30-Frame 3T Video Stream Pack (15.3 KB)";
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
                 document.getElementById("navGoB").innerText = "前往 B 站解码 ➔";
