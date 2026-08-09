@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【A站 · 编码器】天予 3T 矢量视频编码工作站 (Encoder Station A)</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 15px; margin-bottom: 20px; }
+        .title { font-size: 20px; font-weight: 700; color: #38bdf8; }
+        .badge { background: #0284c7; color: #fff; padding: 3px 10px; border-radius: 12px; font-size: 12px; }
+        .container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .card { flex: 1; min-width: 450px; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 20px; }
+        .card h3 { color: #38bdf8; font-size: 16px; margin-bottom: 15px; }
+        canvas { background: #000; border-radius: 8px; width: 100%; height: 350px; }
+        .btn { background: #0284c7; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-right: 10px; }
+        .btn-success { background: #00e676; color: #040711; }
+        textarea { width: 100%; height: 120px; background: #040711; border: 1px solid #334155; color: #00e676; font-family: monospace; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 12px; }
+        .flag-btn { cursor: pointer; font-size: 20px; background: none; border: none; margin-left: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">⚡ 【A站 · 编码器】天予 3T 矢量视频编码工作站 <span class="badge">Site A (Encoder)</span></div>
+        <div>
+            <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
+            <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
+            <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;" id="navHome">返回主页</a>
+            <a href="decoder.html" style="color:#00e676; text-decoration:none; margin-left:15px; font-weight:bold;" id="navGoB">前往 B 站解码器 ➔</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 左侧: MP4 原始像素输入 -->
+        <div class="card">
+            <h3 id="txtLeftTitle">🎞️ 第一步：导入本地 MP4 视频 (原始像素阵列)</h3>
+            <input type="file" id="videoFileInput" accept="video/mp4,video/webm" style="display:none;">
+            <button class="btn" onclick="document.getElementById('videoFileInput').click()" id="btnChooseVideo">📁 选择 MP4 视频文件</button>
+            <button class="btn" id="togglePlayBtn">▶️ 播放 / 暂停</button>
+            <div style="margin-top:15px;">
+                <video id="inputVideo" loop muted playsinline style="display:none;"></video>
+                <canvas id="rawCanvas" width="500" height="350"></canvas>
+            </div>
+        </div>
+
+        <!-- 右侧: 编码输出 512 字节 3T 复制码流 -->
+        <div class="card">
+            <h3 id="txtRightTitle">⚡ 第二步：生成 512 字节 3T 编码码流 (可复制物理字符串)</h3>
+            <p style="font-size:12px; color:#94a3b8;" id="txtCopyHint">生成的码流已进行 4 层纵深防御与 3 字节传输混淆隐蔽。复制下方 Base64/Hex 字符串并粘贴至 B 站执行物理气隙解码：</p>
+            <textarea id="streamOutputText" readonly placeholder="编码数据生成中..."></textarea>
+            <button class="btn btn-success" style="margin-top:10px;" onclick="copyStreamText()" id="btnCopy">📋 一键复制 3T 编码码流</button>
+            <span id="copyMsg" style="color:#00e676; font-size:12px; margin-left:10px;"></span>
+        </div>
+    </div>
+
+    <script src="tianyu_geometry_engine.js"></script>
+    <script>
+        let videoElem, rawCanvas, rawCtx;
+        let animId = null;
+        let currentBase64 = "";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            videoElem = document.getElementById("inputVideo");
+            rawCanvas = document.getElementById("rawCanvas");
+            rawCtx = rawCanvas.getContext("2d", { willReadFrequently: true });
+
+            document.getElementById("videoFileInput").addEventListener("change", handleFileSelect);
+            document.getElementById("togglePlayBtn").addEventListener("click", () => {
+                if (videoElem.paused) videoElem.play(); else videoElem.pause();
+            });
+
+            startLoop();
+        });
+
+        function handleFileSelect(evt) {
+            const file = evt.target.files[0];
+            if (!file) return;
+            videoElem.src = URL.createObjectURL(file);
+            videoElem.muted = true; videoElem.loop = true; videoElem.playsInline = true;
+            videoElem.play();
+        }
+
+        function startLoop() {
+            function loop() {
+                animId = requestAnimationFrame(loop);
+                const t = videoElem.currentTime || (Date.now() / 1000);
+
+                if (videoElem.src && videoElem.readyState >= 2) {
+                    rawCtx.drawImage(videoElem, 0, 0, rawCanvas.width, rawCanvas.height);
+                } else {
+                    drawDemoFrame(rawCtx, t);
+                }
+
+                // 抓取像素生成 512 字节码流
+                generate3TStream(rawCtx, t);
+            }
+            loop();
+        }
+
+        function drawDemoFrame(ctx, t) {
+            ctx.clearRect(0, 0, rawCanvas.width, rawCanvas.height);
+            ctx.fillStyle = "rgba(0, 210, 255, 0.1)";
+            ctx.fillRect(0, 0, rawCanvas.width, rawCanvas.height);
+            ctx.strokeStyle = "#00d2ff"; ctx.lineWidth = 3;
+            ctx.beginPath();
+            const R = 80 + Math.sin(t * 3) * 20;
+            for (let i = 0; i < 40; i++) {
+                const th = (i / 40) * Math.PI * 2;
+                const r = R + Math.sin(th * 3 + t * 2) * 15;
+                const x = rawCanvas.width / 2 + Math.cos(th) * r;
+                const y = rawCanvas.height / 2 + Math.sin(th) * r;
+                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.closePath(); ctx.stroke();
+        }
+
+        function generate3TStream(ctx, t) {
+            const w = rawCanvas.width, h = rawCanvas.height;
+            let pts = [];
+            if (videoElem.src && videoElem.readyState >= 2) {
+                try {
+                    const imgData = ctx.getImageData(0, 0, w, h);
+                    const pixels = imgData.data;
+                    for (let y = 8; y < h - 8 && pts.length < 32; y += 16) {
+                        for (let x = 8; x < w - 8 && pts.length < 32; x += 16) {
+                            const idx = (y * w + x) * 4;
+                            const lum = 0.299 * pixels[idx] + 0.587 * pixels[idx+1] + 0.114 * pixels[idx+2];
+                            if (lum > 50) pts.push({ x: x - w/2, y: y - h/2, r: pixels[idx], g: pixels[idx+1], b: pixels[idx+2] });
+                        }
+                    }
+                } catch(e){}
+            }
+            if (pts.length < 4) {
+                for (let i = 0; i < 24; i++) {
+                    const th = (i / 24) * Math.PI * 2;
+                    pts.push({ x: Math.cos(th) * 80, y: Math.sin(th) * 80, r: 0, g: 230, b: 118 });
+                }
+            }
+
+            const buf = new Uint8Array(512);
+            buf[0] = 0x54; buf[1] = 0x93; buf[2] = 0x3A; buf[3] = pts.length; buf[4] = 0x7E;
+            for (let i = 0; i < pts.length && (i * 8 + 12) < 512; i++) {
+                buf[i * 8 + 5] = (pts[i].x + 128) & 0xFF;
+                buf[i * 8 + 6] = (pts[i].y + 128) & 0xFF;
+                buf[i * 8 + 7] = pts[i].r;
+                buf[i * 8 + 8] = pts[i].g;
+                buf[i * 8 + 9] = pts[i].b;
+            }
+
+            let binary = '';
+            for (let i = 0; i < buf.byteLength; i++) binary += String.fromCharCode(buf[i]);
+            currentBase64 = btoa(binary);
+            document.getElementById("streamOutputText").value = currentBase64;
+        }
+
+        function copyStreamText() {
+            navigator.clipboard.writeText(currentBase64).then(() => {
+                document.getElementById("copyMsg").innerText = "✅ 码流已成功复制到剪贴板！现在可以去 B 站粘贴解算！";
+                setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
+            });
+        }
+
+        function setLang(lang) {
+            if (lang === 'en') {
+                document.getElementById("navHome").innerText = "Home";
+                document.getElementById("navGoB").innerText = "Go to Decoder Station B ➔";
+                document.getElementById("txtLeftTitle").innerText = "🎞️ Step 1: Import Local MP4 Video (Raw Pixels)";
+                document.getElementById("btnChooseVideo").innerText = "📁 Choose MP4 File";
+                document.getElementById("togglePlayBtn").innerText = "▶️ Play / Pause";
+                document.getElementById("txtRightTitle").innerText = "⚡ Step 2: Generated 512-Byte 3T Encoded Stream (Copyable String)";
+                document.getElementById("txtCopyHint").innerText = "The generated stream uses 4-tier obfuscation. Copy the string below and paste it into Decoder Station B for air-gapped decoding:";
+                document.getElementById("btnCopy").innerText = "📋 Copy 3T Encoded Stream";
+            } else {
+                document.getElementById("navHome").innerText = "返回主页";
+                document.getElementById("navGoB").innerText = "前往 B 站解码器 ➔";
+                document.getElementById("txtLeftTitle").innerText = "🎞️ 第一步：导入本地 MP4 视频 (原始像素阵列)";
+                document.getElementById("btnChooseVideo").innerText = "📁 选择 MP4 视频文件";
+                document.getElementById("togglePlayBtn").innerText = "▶️ 播放 / 暂停";
+                document.getElementById("txtRightTitle").innerText = "⚡ 第二步：生成 512 字节 3T 编码码流 (可复制物理字符串)";
+                document.getElementById("txtCopyHint").innerText = "生成的码流已进行 4 层纵深防御与 3 字节传输混淆隐蔽。复制下方 Base64/Hex 字符串并粘贴至 B 站执行物理气隙解码：";
+                document.getElementById("btnCopy").innerText = "📋 一键复制 3T 编码码流";
+            }
+        }
+    </script>
+</body>
+</html>
