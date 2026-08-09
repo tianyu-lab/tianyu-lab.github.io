@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【B站 · 纯净解码器】天予 3T 原视频像素解码工作站 (Decoder Station B)</title>
+    <title>【第一步 · 纯粹 256 帧切片解码器】原视频纯 256 帧基础解码工作站 (Step 1 Pure 256-Slice Decoder)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -24,34 +24,31 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【B站 · 纯净解码器】原视频像素复原解算工作站 <span class="badge">Station B (Single Player)</span></div>
+        <div class="title">⚡ 【第一步 · B站解码器】纯 256 帧切片解算工作站 <span class="badge">Step 1: Pure 256-Slice Decoder</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="encoder.html" style="color:#38bdf8; text-decoration:none; margin-left:15px;">⬅️ 返回 A 站编码器</a>
         </div>
     </div>
 
-    <!-- 上半部分: 码流输入、专属【🗑️ 清空文本】按钮与解算按钮 -->
     <div class="card" style="margin-bottom: 20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="margin:0;">📥 第一步：粘贴 A 站导出的 61:1 码流内容 (支持一键清空)</h3>
-            <!-- 专属一键清空按钮 -->
+            <h3 style="margin:0;">📥 第一步：粘贴 A 站纯 256 帧切片码流 (支持一键清空)</h3>
             <button class="btn-clear" onclick="clearStreamText()">🗑️ 清空窗口内容 (Clear Text)</button>
         </div>
         
-        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的 Base64 码流..."></textarea>
+        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的纯 256 帧切片 Base64 码流..."></textarea>
         
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-            <button class="btn-decode" onclick="decodePastedStream()" id="btnDecode">⚡ 运行原图像素解算 (Run Decoder)</button>
-            <span id="decodeStatus" class="status-badge">等待粘贴码流...</span>
+            <button class="btn-decode" onclick="decodePure256Stream()" id="btnDecode">⚡ 运行纯 256 帧切片解算 (Run Step 1 Decoder)</button>
+            <span id="decodeStatus" class="status-badge">等待粘贴纯 256 帧切片码流...</span>
         </div>
     </div>
 
-    <!-- 下半部分: 唯一纯净解码画面 (单一 Player Canvas) -->
     <div class="card">
-        <h3>🏆 第二步：唯一原视频解码复原画幅 (Single Restored Player)</h3>
+        <h3>🏆 第二步：纯 256 帧切片复原 Player 画幅 (零极值/零Pop-Stack)</h3>
         <canvas id="reconstructedCanvas" width="450" height="340"></canvas>
-        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">纯粹 1:1 解构原视频像素点阵，无任何极值方法与干扰线！</p>
+        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">纯粹 1:1 解包复原原视频 256 帧切片基础层，零极值干扰！</p>
     </div>
 
     <script>
@@ -66,26 +63,22 @@
             renderLoop();
         });
 
-        // 一键清空文本窗口与重置画面按钮函数
         function clearStreamText() {
             document.getElementById("streamInputText").value = "";
             videoFrames = [];
             isDecoded = false;
             currentFrameIndex = 0;
-            
-            // 清空画幅为黑色
             reconCtx.fillStyle = "#040711";
             reconCtx.fillRect(0, 0, 450, 340);
-            
-            document.getElementById("decodeStatus").innerText = "🗑️ 文本窗口与解算画面已成功清空！";
+            document.getElementById("decodeStatus").innerText = "🗑️ 窗口内容与解算画面已成功清空！";
             document.getElementById("decodeStatus").style.color = "#ef4444";
         }
 
-        // 纯粹原视频像素矩阵解码器 (不使用任何极值方法)
-        function decodePastedStream() {
+        // 第一步：纯 256 帧切片解码器 (零极值处理，不动 Pop-Stack)
+        function decodePure256Stream() {
             const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
             if (!txt) {
-                alert("⚠️ 请先在文本框中粘贴 Base64 码流！");
+                alert("⚠️ 请先粘贴纯 256 帧切片 Base64 码流！");
                 return;
             }
 
@@ -97,25 +90,24 @@
                 videoFrames = [];
                 let p = 0;
                 while (p < bytes.length) {
-                    if (bytes[p] !== 0x54) { p++; continue; }
+                    if (bytes[p] !== 0x25 || bytes[p+1] !== 0x56) { p++; continue; } // 匹配 0x2556 (Step 1 标志)
                     
-                    const frameNum = (bytes[p + 1] << 8) | bytes[p + 2];
-                    const count = (bytes[p + 3] << 8) | bytes[p + 4];
-                    
-                    const framePts = [];
-                    let idx = p + 5;
-                    for (let i = 0; i < count && idx + 6 <= bytes.length; i++) {
-                        framePts.push({
-                            x: bytes[idx] - 128,
-                            y: bytes[idx + 1] - 128,
+                    const frameNum = (bytes[p + 2] << 8) | bytes[p + 3];
+                    const pts = [];
+                    let idx = p + 4;
+                    // 单帧 4,096 个点 (x, y, r, g, b)
+                    for (let i = 0; i < 4096 && idx + 5 <= bytes.length; i++) {
+                        pts.push({
+                            x: bytes[idx],
+                            y: bytes[idx + 1],
                             r: bytes[idx + 2],
                             g: bytes[idx + 3],
                             b: bytes[idx + 4]
                         });
-                        idx += 6;
+                        idx += 5;
                     }
 
-                    if (framePts.length > 0) videoFrames.push(framePts);
+                    if (pts.length > 0) videoFrames.push(pts);
                     p = idx;
                 }
 
@@ -123,10 +115,10 @@
                     isDecoded = true;
                     currentFrameIndex = 0;
                     const sizeMB = (bytes.length / (1024 * 1024)).toFixed(2);
-                    document.getElementById("decodeStatus").innerText = `✅ 解算成功！成功反解 ${videoFrames.length} 帧原图像素阵列 (${sizeMB} MB / 61:1 码流)，播放中！`;
+                    document.getElementById("decodeStatus").innerText = `✅ 第一步解算成功！成功反解 ${videoFrames.length} 帧纯切片基础层 (${sizeMB} MB)，解算播放中！`;
                     document.getElementById("decodeStatus").style.color = "#00e676";
                 } else {
-                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效像素帧，请检查码流";
+                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效 Step 1 帧，请检查码流";
                 }
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解算报错: " + e.message;
@@ -142,13 +134,12 @@
                         lastFrameTime = now;
                     }
                 }
-                renderSinglePhotorealPlayer(reconCtx);
+                renderPure256Player(reconCtx);
             }
             loop(timestamp || 0);
         }
 
-        // 唯一单一画幅：纯粹物理复原原视频 1:1 真实像素阵列
-        function renderSinglePhotorealPlayer(ctx) {
+        function renderPure256Player(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
@@ -159,10 +150,9 @@
             const scaleX = w / 256;
             const scaleY = h / 256;
 
-            // 1:1 填回原视频 RGB 像素阵列 (无极值线、无任何合成图案)
             for (let pt of pts) {
-                const px = (pt.x + 128) * scaleX;
-                const py = (pt.y + 128) * scaleY;
+                const px = pt.x * scaleX;
+                const py = pt.y * scaleY;
                 ctx.fillStyle = `rgb(${pt.r}, ${pt.g}, ${pt.b})`;
                 ctx.fillRect(px, py, 4 * scaleX, 4 * scaleY);
             }
