@@ -25,6 +25,17 @@
         .demo-bar { background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); border-radius: 12px; padding: 1.2rem 2rem; max-width: 1100px; margin: 0 auto 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .demo-bar-title { font-size: 1.1rem; font-weight: 700; color: #38bdf8; }
         
+        .pricing-box { background: rgba(0, 230, 118, 0.05); border: 1px solid rgba(0, 230, 118, 0.4); border-radius: 16px; padding: 2.5rem; max-width: 950px; margin: 3rem auto; text-align: center; }
+        .pricing-box h2 { color: #00e676; font-size: 1.8rem; margin-bottom: 1rem; }
+        .pricing-grid { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem; }
+        .price-card { flex: 1; min-width: 280px; background: rgba(15, 23, 42, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 1.8rem; text-align: left; }
+        .price-card.popular { border-color: #00e676; }
+        .price-num { font-size: 2rem; font-weight: bold; color: #38bdf8; margin: 0.5rem 0; }
+        
+        .vip-banner { background: linear-gradient(135deg, rgba(255, 235, 59, 0.15) 0%, rgba(0, 230, 118, 0.15) 100%); border: 1px solid #ffeb3b; border-radius: 12px; padding: 1.2rem 1.8rem; margin-top: 2rem; text-align: left; }
+        .vip-banner h4 { color: #ffeb3b; font-size: 1.1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .vip-banner p { font-size: 0.95rem; color: #cbd5e1; }
+
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
         .card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(51, 65, 85, 0.8); border-radius: 12px; padding: 1.8rem; transition: border-color 0.2s; }
         .card:hover { border-color: #38bdf8; }
@@ -48,6 +59,7 @@
             <a href="mesh3d.html" style="color:#38bdf8;" id="nav3D">🧊 Three.js 3D站</a>
             <a href="encoder.html" style="color:#38bdf8;" id="navEnc">⚡ A站编码器</a>
             <a href="decoder.html" style="color:#00e676;" id="navDec">🎨 B站隔离解码器</a>
+            <a href="#pricing" style="color:#ffeb3b;" id="navPricing">💰 定价权益</a>
             <a href="#contact" id="navContact">联系沟通</a>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
@@ -59,8 +71,7 @@
         <p id="txtHeroSub">塞在移动 SSD 里的私有智力方舟 · 搭载 Qwen 3.6 27B MTP 极速物理推理引擎 (20+ tokens/s · 16K 上下文) · 最小双席位高级会议隐私防护 · 零第三方依赖点火</p>
         <div class="cta-group">
             <a href="demo.html" class="cta-btn" id="btnMainDemo">🚀 在线 Demo (物理极值转换)</a>
-            <a href="capsule.html" class="cta-btn-alt" style="border-color:#ffeb3b; color:#ffeb3b;" id="btnCapsule">💊 胶囊水刀 3D 手术模拟器</a>
-            <a href="mesh3d.html" class="cta-btn-alt" id="btn3DStation">🧊 Three.js 3D 几何工作站</a>
+            <a href="#pricing" class="cta-btn-alt" style="border-color:#ffeb3b; color:#ffeb3b;" id="btnPricingCta">💰 查看透明 12.5% 硬件锚定定价</a>
         </div>
     </section>
 
@@ -73,6 +84,43 @@
             <a href="decoder.html" class="cta-btn-alt" style="padding:0.4rem 1rem; font-size:0.85rem; border-color:#00e676; color:#00e676;" id="btnGoB">【B站隔离解码器】➔</a>
         </div>
     </div>
+
+    <!-- 💰 明码标价与早期用户 VIP 权益区 -->
+    <section class="pricing-box" id="pricing">
+        <h2 id="txtPTitle">💎 明码标价 · 12.5% (1/8) 硬件均价锚定计费</h2>
+        <p style="color:#94a3b8; max-width:800px; margin:0 auto;" id="txtPSub">告别虚高软件定价！P100 价格严格遵循【主流 16G 硬件均价的 12.5% (1/8)】透明公式，用最小的软件投入，释放几万元硬件投资的全部潜力。</p>
+        
+        <div class="pricing-grid">
+            <div class="price-card popular">
+                <div style="font-size:0.85rem; color:#00e676; font-weight:bold;" id="txtP1Badge">普及爆款 · 极客版</div>
+                <div class="price-num">$59 USD <span style="font-size:1.1rem; color:#94a3b8;">(~ $89 AUD)</span></div>
+                <div style="font-size:0.85rem; color:#64748b; margin-bottom:1rem;" id="txtP1Formula">锚定: RTX 4060Ti 16G / Mac Mini 16G 均价的 1/8</div>
+                <ul style="font-size:0.9rem; color:#cbd5e1; line-height:1.8; list-style:none; padding:0;">
+                    <li>✓ 原生 8K 物理扩展至 16K 上下文</li>
+                    <li>✓ Qwen 3.6 27B MTP GGUF (20+ tokens/s)</li>
+                    <li>✓ C++ 融合算子 (libtianyu_fused_kernel.so)</li>
+                    <li>✓ 离线签名 .lic 密码学授权文件</li>
+                </ul>
+            </div>
+            <div class="price-card">
+                <div style="font-size:0.85rem; color:#38bdf8; font-weight:bold;" id="txtP2Badge">商业高级 · 尊享版</div>
+                <div class="price-num">$199 USD <span style="font-size:1.1rem; color:#94a3b8;">(~ $299 AUD)</span></div>
+                <div style="font-size:0.85rem; color:#64748b; margin-bottom:1rem;" id="txtP2Formula">锚定: 高阶 RTX 3090/4090 均价的 1/8</div>
+                <ul style="font-size:0.9rem; color:#cbd5e1; line-height:1.8; list-style:none; padding:0;">
+                    <li>✓ 包含极客版全部物理功能</li>
+                    <li>✓ 最小双席位高级会议隐私防护 (OmniRoute+Orca)</li>
+                    <li>✓ 商业会议机密本地物理切片不泄密</li>
+                    <li>✓ 优先专属技术沟通服务</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 🌟 创世早期用户 VIP 权益折扣通行证 -->
+        <div class="vip-banner">
+            <h4 id="txtVipTitle">🎁 创世早期用户专属权益：买 P100 送【天予全系产品 15% 终身折扣通行证】</h4>
+            <p id="txtVipSub">天予 3T / 3D 时空矢量引擎是天予庞大具象智能生态中的里程碑实验成果。凡是购买 P100 的早期用户，均自动获得一张<b>【15% 终身折扣通行证】</b>，未来购买天予系列任何后续重磅新产品，均可凭授权序列号直接享受 85 折 (15% OFF) 终身优惠！</p>
+        </div>
+    </section>
 
     <section class="grid" id="features">
         <div class="card">
@@ -131,16 +179,26 @@
                 document.getElementById("nav3D").innerText = "🧊 Three.js 3D Station";
                 document.getElementById("navEnc").innerText = "⚡ Station A Encoder";
                 document.getElementById("navDec").innerText = "🎨 Station B Decoder";
+                document.getElementById("navPricing").innerText = "💰 Pricing & VIP";
                 document.getElementById("navContact").innerText = "Contact Us";
                 document.getElementById("txtHeroTitle").innerText = "Destiny Arrives Naturally, Heaven Bestows Grace";
                 document.getElementById("txtHeroSub").innerText = "Private AI Ark in a Portable SSD · Powered by Qwen 3.6 27B MTP Engine (20+ tokens/s · 16K Context) · Minimal 2-Seat Executive Meeting Privacy";
                 document.getElementById("btnMainDemo").innerText = "🚀 Interactive Live Demo";
-                document.getElementById("btnCapsule").innerText = "💊 Capsule Waterjet 3D Surgery";
-                document.getElementById("btn3DStation").innerText = "🧊 Three.js 3D Station";
+                document.getElementById("btnPricingCta").innerText = "💰 View 12.5% Hardware Pricing";
                 document.getElementById("txtBarTitle").innerText = "🧪 Physical Isolation Verification Channel:";
                 document.getElementById("btnGoA").innerText = "【Station A】➔";
                 document.getElementById("btnGo3D").innerText = "【3D Station】➔";
                 document.getElementById("btnGoB").innerText = "【Station B Decoder】➔";
+
+                document.getElementById("txtPTitle").innerText = "💎 Transparent Pricing · 12.5% (1/8) Hardware Baseline";
+                document.getElementById("txtPSub").innerText = "Say goodbye to overpriced software! P100 pricing strictly follows the 12.5% (1/8) hardware baseline formula, unlocking thousands of dollars in hardware potential.";
+                document.getElementById("txtP1Badge").innerText = "POPULAR · GEEK EDITION";
+                document.getElementById("txtP1Formula").innerText = "Anchored: 1/8 average price of 4060Ti 16G / Mac Mini 16G";
+                document.getElementById("txtP2Badge").innerText = "EXECUTIVE · PRO EDITION";
+                document.getElementById("txtP2Formula").innerText = "Anchored: 1/8 average price of RTX 3090/4090";
+
+                document.getElementById("txtVipTitle").innerText = "🎁 Early Adopter Benefit: Get a 15% Lifetime Discount Passport for All Future Tianyu Products!";
+                document.getElementById("txtVipSub").innerText = "Tianyu 3T/3D spatial engines are key milestone experimental achievements in the broader Tianyu AI ecosystem. Every P100 early adopter automatically receives a 15% Lifetime Discount Passport for all future product releases!";
 
                 document.getElementById("txtF0Title").innerText = "Capsule Waterjet Surgical Robot";
                 document.getElementById("txtF0Sub").innerText = "Adhering to Tech for Good & Life-Saving Principles! Supports 3D anatomical simulation for capsule waterjet surgical robots.";
