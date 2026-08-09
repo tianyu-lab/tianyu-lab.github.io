@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【B站 · 真实宽高比 Decoder】天予 3T 25 帧/秒 原视频宽高比 Decoder 工作站</title>
+    <title>【B站 · 10~25 FPS 帧率滑块 Decoder】天予 3T 动态 FPS 滑块 0 显存 Decoder</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -18,13 +18,16 @@
         .btn-decode:hover { transform: scale(1.02); }
         .btn-clear { background: #ef4444; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
         .btn-clear:hover { background: #dc2626; }
-        textarea { width: 100%; height: 180px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; spellcheck: false; }
+        textarea { width: 100%; height: 160px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 12px; word-break: break-all; spellcheck: false; }
         .status-badge { background: rgba(0, 230, 118, 0.2); border: 1px solid #00e676; color: #00e676; font-family: monospace; font-size: 12px; padding: 6px 12px; border-radius: 4px; display: inline-block; }
+        .slider-box { background: #040711; border: 1px solid #334155; padding: 12px 18px; border-radius: 8px; margin-top: 15px; display: flex; align-items: center; gap: 15px; }
+        .slider-box label { font-size: 13px; font-weight: bold; color: #38bdf8; min-width: 150px; }
+        .slider-box input[type=range] { flex: 1; cursor: pointer; accent-color: #00e676; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【B站 · 真实宽高比 Decoder】25 帧/秒 原视频宽高比 Pop-Stack 解算工作站 <span class="badge">Station B (Aspect Sync)</span></div>
+        <div class="title">⚡ 【B站 · 动态 FPS 滑块 Decoder】10 ~ 25 FPS 帧率自由调节解算工作站 <span class="badge">Station B (FPS Slider)</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="encoder.html" style="color:#38bdf8; text-decoration:none; margin-left:15px;">⬅️ 返回 A 站编码器</a>
@@ -33,22 +36,28 @@
 
     <div class="card" style="margin-bottom: 20px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <h3 style="margin:0;">📥 第一步：粘贴 A 站真实宽高比 Coder 码流 (支持一键清空)</h3>
+            <h3 style="margin:0;">📥 第一步：粘贴码流与拖动 10~25 FPS 播放帧率滑块</h3>
             <button class="btn-clear" onclick="clearStreamText()">🗑️ 清空窗口内容 (Clear Text)</button>
         </div>
         
-        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的真实宽高比 Coder 码流..."></textarea>
+        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的码流..."></textarea>
         
         <div style="display:flex; align-items:center; gap:15px; flex-wrap:wrap;">
-            <button class="btn-decode" onclick="decodeAspectStream()" id="btnDecode">⚡ 运行原图宽高比解算 (Run Aspect Decoder)</button>
-            <span id="decodeStatus" class="status-badge">等待粘贴真实宽高比例码流...</span>
+            <button class="btn-decode" onclick="decodeExp2Stream()" id="btnDecode">⚡ 运行 Pop-Stack 解算</button>
+            <span id="decodeStatus" class="status-badge">等待粘贴码流...</span>
+        </div>
+
+        <!-- 10~25 FPS 可调滑块控件 -->
+        <div class="slider-box">
+            <label for="fpsSlider">🎛️ 播放帧率 (FPS): <span id="fpsVal" style="color:#00e676; font-size:16px;">25</span> FPS</label>
+            <input type="range" id="fpsSlider" min="10" max="25" value="25" step="1" oninput="updateFPS(this.value)">
         </div>
     </div>
 
     <div class="card">
-        <h3>🏆 第二步：原视频真实宽高比例复原 Player 画幅 (零长方块变形失真)</h3>
+        <h3>🏆 第二步：Pop-Stack 动态 FPS 滑块解算 Player 画幅</h3>
         <canvas id="reconstructedCanvas" width="320" height="240"></canvas>
-        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">物理 1:1 动态还原原视频的 4:3 / 16:9 真实比例，彻底告别长方块拉伸！</p>
+        <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:10px;">可自由拖动滑块切换 10 ~ 25 FPS 观察抽帧与极值弹栈解算效果！</p>
     </div>
 
     <script>
@@ -57,12 +66,21 @@
         let currentFrameIndex = 0;
         let isDecoded = false;
         let lastFrameTime = 0;
+        let targetFPS = 25;
+        let frameInterval = 40; // 1000 / 25
 
         document.addEventListener("DOMContentLoaded", () => {
             reconCanvas = document.getElementById("reconstructedCanvas");
             reconCtx = reconCanvas.getContext("2d");
             renderLoop();
         });
+
+        // 动态滑块调节帧率
+        function updateFPS(val) {
+            targetFPS = parseInt(val);
+            frameInterval = 1000 / targetFPS;
+            document.getElementById("fpsVal").innerText = targetFPS;
+        }
 
         function clearStreamText() {
             document.getElementById("streamInputText").value = "";
@@ -75,11 +93,10 @@
             document.getElementById("decodeStatus").style.color = "#ef4444";
         }
 
-        // 智能自适应视频真实宽高比的 Pop-Stack Decoder
-        function decodeAspectStream() {
+        function decodeExp2Stream() {
             const txt = document.getElementById("streamInputText").value.replace(/\s+/g, '');
             if (!txt) {
-                alert("⚠️ 请先粘贴 25 FPS Coder 码流！");
+                alert("⚠️ 请先粘贴码流！");
                 return;
             }
 
@@ -91,57 +108,64 @@
                 videoFrames = [];
                 let p = 0;
                 let targetW = 320, targetH = 240;
+                let runningPixelBuffer = null;
 
                 while (p < bytes.length) {
                     if (bytes[p] !== 0x54) { p++; continue; }
                     
-                    if (bytes[p + 1] === 0x25) {
-                        targetW = (bytes[p + 2] << 8) | bytes[p + 3];
-                        targetH = (bytes[p + 4] << 8) | bytes[p + 5];
-                        const count = (bytes[p + 6] << 16) | (bytes[p + 7] << 8) | bytes[p + 8];
-                        
-                        // 动态调整 Canvas 为原视频真实比例
-                        reconCanvas.width = targetW;
-                        reconCanvas.height = targetH;
+                    const tag = bytes[p + 1];
+                    targetW = (bytes[p + 2] << 8) | bytes[p + 3];
+                    targetH = (bytes[p + 4] << 8) | bytes[p + 5];
+                    const frameNum = bytes[p + 6];
+                    const isKeyFrame = (bytes[p + 7] === 1);
+                    const count = (bytes[p + 8] << 16) | (bytes[p + 9] << 8) | bytes[p + 10];
+                    
+                    reconCanvas.width = targetW;
+                    reconCanvas.height = targetH;
 
-                        const imgData = reconCtx.createImageData(targetW, targetH);
-                        const data = imgData.data;
-                        let idx = p + 9;
-
-                        for (let i = 0; i < count && idx + 7 <= bytes.length; i++) {
-                            const px = (bytes[idx] << 8) | bytes[idx + 1];
-                            const py = (bytes[idx + 2] << 8) | bytes[idx + 3];
-                            const r = bytes[idx + 4];
-                            const g = bytes[idx + 5];
-                            const b = bytes[idx + 6];
-
-                            if (px < targetW && py < targetH) {
-                                const pixelIdx = (py * targetW + px) * 4;
-                                data[pixelIdx] = r;
-                                data[pixelIdx + 1] = g;
-                                data[pixelIdx + 2] = b;
-                                data[pixelIdx + 3] = 255;
-                            }
-                            idx += 7;
-                        }
-                        videoFrames.push(imgData);
-                        p = idx;
-                    } else {
-                        p++;
+                    if (frameNum === 0 || !runningPixelBuffer) {
+                        runningPixelBuffer = new Uint8ClampedArray(targetW * targetH * 4);
                     }
+
+                    let idx = p + 11;
+
+                    for (let i = 0; i < count && idx + 7 <= bytes.length; i++) {
+                        const px = (bytes[idx] << 8) | bytes[idx + 1];
+                        const py = (bytes[idx + 2] << 8) | bytes[idx + 3];
+                        const r = bytes[idx + 4];
+                        const g = bytes[idx + 5];
+                        const b = bytes[idx + 6];
+
+                        for (let dy = 0; dy < 2 && py + dy < targetH; dy++) {
+                            for (let dx = 0; dx < 2 && px + dx < targetW; dx++) {
+                                const pixelIdx = ((py + dy) * targetW + (px + dx)) * 4;
+                                runningPixelBuffer[pixelIdx] = r;
+                                runningPixelBuffer[pixelIdx + 1] = g;
+                                runningPixelBuffer[pixelIdx + 2] = b;
+                                runningPixelBuffer[pixelIdx + 3] = 255;
+                            }
+                        }
+                        idx += 7;
+                    }
+
+                    const frameImageData = reconCtx.createImageData(targetW, targetH);
+                    frameImageData.data.set(runningPixelBuffer);
+                    videoFrames.push(frameImageData);
+
+                    p = idx;
                 }
 
                 if (videoFrames.length > 0) {
                     isDecoded = true;
                     currentFrameIndex = 0;
                     const mbSize = (bytes.length / (1024 * 1024)).toFixed(2);
-                    document.getElementById("decodeStatus").innerText = `✅ 精确解算成功！自动识别原视频真实比例 (${targetW}x${targetH})，解算 ${videoFrames.length} 帧全彩画面 (${mbSize} MB)，25 FPS 播放中！`;
+                    document.getElementById("decodeStatus").innerText = `✅ 解算成功！解算 ${videoFrames.length} 帧 (${mbSize} MB)，正在以 ${targetFPS} FPS 播放中！`;
                     document.getElementById("decodeStatus").style.color = "#00e676";
                 } else {
-                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效真实比例帧，请检查码流";
+                    document.getElementById("decodeStatus").innerText = "⚠️ 未解析到有效帧，请检查码流";
                 }
             } catch(e) {
-                document.getElementById("decodeStatus").innerText = "❌ 解算报错: " + e.message;
+                document.getElementById("decodeStatus").innerText = "❌ 弹栈解算报错: " + e.message;
             }
         }
 
@@ -149,17 +173,17 @@
             function loop(now) {
                 requestAnimationFrame(loop);
                 if (isDecoded && videoFrames.length > 0) {
-                    if (now - lastFrameTime > 40) { // 25 FPS
+                    if (now - lastFrameTime > frameInterval) { // 动态依据 slider 设置的 frameInterval 播放
                         currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
                         lastFrameTime = now;
                     }
                 }
-                renderPhotorealAspectPlayer(reconCtx);
+                renderExp2Player(reconCtx);
             }
             loop(timestamp || 0);
         }
 
-        function renderPhotorealAspectPlayer(ctx) {
+        function renderExp2Player(ctx) {
             if (!isDecoded || videoFrames.length === 0) return;
             const imgData = videoFrames[currentFrameIndex];
             if (imgData) {
