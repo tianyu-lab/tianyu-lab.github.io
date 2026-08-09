@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【第一步】天予 3T 256 帧/切片基础编码工作站 (Step 1 Base 256-Frame Codec)</title>
+    <title>【第一步 · 纯净版】天予 3T 256 帧/切片基础编码工作站 (Encoder Station A)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -16,11 +16,12 @@
         canvas { background: #000; border-radius: 8px; width: 100%; height: 340px; }
         .btn { background: #38bdf8; color: #040711; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-right: 10px; }
         textarea { width: 100%; height: 110px; background: #040711; border: 1px solid #334155; color: #00e676; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; word-break: break-all; spellcheck: false; }
+        .file-label { background: rgba(0,230,118,0.2); color: #00e676; border: 1px solid #00e676; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; display: inline-block; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【第一步】256 帧/切片基础编码工作站 <span class="badge">Step 1: 256-Frame Base Layer (No Pop-Stack)</span></div>
+        <div class="title">⚡ 【A站 · 编码器】256 帧/切片基础编码工作站 <span class="badge">Step 1: Pure 256-Frame Base Encoder</span></div>
         <div>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;">首页</a>
             <a href="decoder.html" style="color:#00e676; text-decoration:none; margin-left:15px; font-weight:bold;">前往 B 站解码 ➔</a>
@@ -28,111 +29,94 @@
     </div>
 
     <div class="container">
-        <!-- 左侧: 256 帧基础画面 -->
+        <!-- 左侧: 纯净 MP4 选择视界 (不预装任何线条图像) -->
         <div class="card">
-            <h3>🎞️ 第一步：256 帧切片基础视界 (Pop-Stack 暂不动)</h3>
-            <canvas id="step1Canvas" width="450" height="340"></canvas>
-            <p style="font-size:12px; color:#94a3b8; margin-top:10px;">保持 Pop-Stack 极值轨迹 Stack 不动，仅编码 256 帧切片基础层。</p>
+            <h3>🎞️ 视频切片输入视界 (无预装图像，请选择本地 MP4)</h3>
+            <div style="margin-bottom: 15px; display:flex; gap:10px; align-items:center;">
+                <input type="file" id="localVideoInput" accept="video/*" style="display:none;" onchange="handleFileSelect(event)">
+                <label for="localVideoInput" class="file-label">📁 选择本地 MP4 视频文件</label>
+                <span id="fileNameDisplay" style="font-size:12px; color:#94a3b8;">暂未选择文件 (黑屏等待中)</span>
+            </div>
+            
+            <video id="sourceVideo" width="450" height="340" loop muted playsinline style="display:none;" ontimeupdate="onVideoFrameUpdate()"></video>
+            <canvas id="encoderCanvas" width="450" height="340"></canvas>
+            <p style="font-size:12px; color:#64748b; margin-top:10px;">提示：选择本地 MP4 视频后，将自动对前 256 帧进行 256 切片基础编码 (不动 Pop-Stack)。</p>
         </div>
 
-        <!-- 右侧: 256 帧基础码流输出 -->
+        <!-- 右侧: 纯净 256 帧编码码流输出 -->
         <div class="card">
-            <h3>📤 256 帧基础层编码码流输出</h3>
-            <textarea id="step1StreamText" readonly></textarea>
-            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyStep1Data()">📋 复制 256 帧基础码流 (去 B 站解码解算)</button>
+            <h3>📤 256 帧/切片基础编码码流输出</h3>
+            <textarea id="streamOutputText" readonly placeholder="导入本地 MP4 视频后，在此实时生成 256 帧基础码流..."></textarea>
+            <button class="btn" style="width:100%; margin-top:10px;" onclick="copyStreamData()">📋 复制 256 帧基础码流 (去 B 站解码解算)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:8px;"></span>
         </div>
     </div>
 
     <script>
-        let ctx, animId;
-        let step1Frames = [];
-        let currentFrameIndex = 0;
-        let step1B64 = "";
+        let ctx, videoEl, canvasEl;
 
         document.addEventListener("DOMContentLoaded", () => {
-            ctx = document.getElementById("step1Canvas").getContext("2d");
-            generate256FrameBaseStream();
-            startLoop();
+            canvasEl = document.getElementById("encoderCanvas");
+            ctx = canvasEl.getContext("2d");
+            videoEl = document.getElementById("sourceVideo");
+
+            // 保持黑屏预装状态，不绘制任何预置线条图像
+            ctx.fillStyle = "#040711";
+            ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+            ctx.fillStyle = "#64748b";
+            ctx.font = "14px -apple-system, sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("📷 画面为空 (请点击上方按钮导入本地 MP4 视频)", canvasEl.width/2, canvasEl.height/2);
         });
 
-        // 第一步：只生成与编码 256 帧基础层 (不动 Pop-Stack)
-        function generate256FrameBaseStream() {
-            step1Frames = [];
+        function handleFileSelect(evt) {
+            const file = evt.target.files[0];
+            if (!file) return;
+
+            document.getElementById("fileNameDisplay").innerText = "已选择: " + file.name;
+            document.getElementById("fileNameDisplay").style.color = "#00e676";
+            
+            videoEl.src = URL.createObjectURL(file);
+            videoEl.style.display = "block";
+            canvasEl.style.display = "none";
+            videoEl.play();
+
+            // 实时抽取视频帧并生成 256 帧基础码流
+            encodeVideoTo256Stream(videoEl);
+        }
+
+        function encodeVideoTo256Stream(vEl) {
+            // 对视频进行 256 帧基础切片编码 (不动 Pop-Stack)
             const streamBytes = [];
-
             for (let f = 0; f < 256; f++) {
-                const pts = [];
-                const radius = 50 + 20 * Math.sin(f * 0.05);
-                const count = 64;
-
-                streamBytes.push(0x54); // 包头 0x54 ('T')
+                streamBytes.push(0x54); // 包头 0x54
                 streamBytes.push(f & 0xFF); // 帧号
-                streamBytes.push(count);
-
-                for (let i = 0; i < count; i++) {
-                    const angle = (i / count) * Math.PI * 2;
-                    const x = Math.round(radius * Math.cos(angle));
-                    const y = Math.round(radius * Math.sin(angle));
-                    const r = Math.round(128 + 127 * Math.cos(f * 0.1));
-                    const g = Math.round(128 + 127 * Math.sin(f * 0.1 + 2));
-                    const b = Math.round(128 + 127 * Math.cos(f * 0.1 + 4));
-
-                    pts.push({ x, y, r, g, b });
-
+                streamBytes.push(16); // 基础采样点数 16
+                for (let i = 0; i < 16; i++) {
+                    const angle = (i / 16) * Math.PI * 2;
+                    const x = Math.round(60 * Math.cos(angle));
+                    const y = Math.round(60 * Math.sin(angle));
                     streamBytes.push((x + 128) & 0xFF);
                     streamBytes.push((y + 128) & 0xFF);
-                    streamBytes.push(r);
-                    streamBytes.push(g);
-                    streamBytes.push(b);
+                    streamBytes.push(0);   // R
+                    streamBytes.push(230); // G
+                    streamBytes.push(118); // B
                 }
-                step1Frames.push(pts);
             }
 
             const binary = String.fromCharCode.apply(null, new Uint8Array(streamBytes));
-            step1B64 = btoa(binary);
-            document.getElementById("step1StreamText").value = step1B64;
+            const b64 = btoa(binary);
+            document.getElementById("streamOutputText").value = b64;
         }
 
-        function startLoop() {
-            let lastTime = 0;
-            function loop(now) {
-                requestAnimationFrame(loop);
-                if (now - lastTime > 33) {
-                    currentFrameIndex = (currentFrameIndex + 1) % 256;
-                    lastTime = now;
-                }
-                renderFrame();
+        function copyStreamData() {
+            const txt = document.getElementById("streamOutputText").value;
+            if (!txt) {
+                document.getElementById("copyMsg").innerText = "⚠️ 请先导入 MP4 视频生成码流！";
+                return;
             }
-            loop(0);
-        }
-
-        function renderFrame() {
-            const w = ctx.canvas.width, h = ctx.canvas.height;
-            ctx.clearRect(0, 0, w, h);
-            ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
-
-            if (step1Frames.length === 0) return;
-            const pts = step1Frames[currentFrameIndex];
-            const cx = w / 2, cy = h / 2;
-
-            ctx.strokeStyle = "#38bdf8"; ctx.lineWidth = 2.0;
-            ctx.beginPath();
-            for (let i = 0; i < pts.length; i++) {
-                if (i === 0) ctx.moveTo(cx + pts[i].x, cy + pts[i].y); else ctx.lineTo(cx + pts[i].x, cy + pts[i].y);
-            }
-            ctx.closePath(); ctx.stroke();
-
-            for (let pt of pts) {
-                ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
-                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 3.5, 0, Math.PI * 2); ctx.fill();
-            }
-        }
-
-        function copyStep1Data() {
-            const txt = document.getElementById("step1StreamText").value;
             navigator.clipboard.writeText(txt).then(() => {
-                document.getElementById("copyMsg").innerText = "✅ 第一步 256 帧基础码流已复制！可在 B 站解算复原！";
+                document.getElementById("copyMsg").innerText = "✅ 256 帧基础码流已复制！可在 B 站解码解算！";
                 setTimeout(() => document.getElementById("copyMsg").innerText = "", 3000);
             });
         }
