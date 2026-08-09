@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💊 天予具象智能 · 胶囊水刀机器人 3D 具象空间感知与分流闭环</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- 100% 本地离线 Three.js & OrbitControls -->
+    <script src="vendor/three.min.js"></script>
+    <script src="vendor/OrbitControls.js"></script>
+    <style>
+        body { background-color: #040711; color: #f8fafc; font-family: 'Inter', system-ui, sans-serif; margin: 0; padding: 20px; }
+        .test-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,210,255,0.3); padding-bottom: 15px; margin-bottom: 20px; }
+        .test-title { font-size: 20px; font-weight: 700; color: #00d2ff; display: flex; align-items: center; gap: 10px; }
+        .test-tabs { display: flex; gap: 12px; margin-bottom: 20px; }
+        .test-tab-btn { background: #0f172a; border: 1px solid #334155; color: #94a3b8; padding: 12px 24px; font-size: 15px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; }
+        .test-tab-btn.active { background: linear-gradient(135deg, #00d2ff, #0077ff); color: #000; border-color: #00d2ff; box-shadow: 0 0 15px rgba(0,210,255,0.4); }
+        .test-view { display: none; background: #080d1a; border: 1px solid rgba(0,210,255,0.2); border-radius: 12px; padding: 20px; min-height: 680px; position: relative; }
+        .test-view.active { display: block; }
+        #capsule3dCanvasContainer { width: 100%; height: 640px; border-radius: 8px; overflow: hidden; background: #060913; position: relative; }
+        #capsule2dCanvas { background: #060913; border-radius: 8px; width: 100%; height: 640px; }
+        
+        /* 🤖 天予具象智能 6-DOF 空间遥测与感知浮窗 */
+        .capsule-hud { position: absolute; top: 20px; left: 20px; background: rgba(6,9,19,0.88); backdrop-filter: blur(10px); border: 1px solid rgba(0,210,255,0.4); padding: 16px 22px; border-radius: 10px; min-width: 360px; z-index: 10; }
+        .capsule-hud h4 { margin: 0 0 12px 0; color: #00d2ff; font-size: 14px; display: flex; justify-content: space-between; border-bottom: 1px solid rgba(0,210,255,0.3); padding-bottom: 6px; }
+        .hud-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+        .hud-val { font-family: 'Fira Code', monospace; color: #00e676; font-weight: 600; }
+        .hud-val.orange { color: #ff9100; }
+        .hud-val.danger { color: #ff5252; }
+
+        /* 🎛️ 具象智能 3D 空间坐标与动力学调谐面板 */
+        .embodied-coord-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            border-radius: 10px;
+            padding: 14px 18px;
+            width: 280px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0,210,255,0.2);
+        }
+        .embodied-coord-panel h5 { margin: 0 0 10px 0; color: #00d2ff; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .slider-group { margin-bottom: 10px; font-size: 12px; }
+        .slider-group label { display: flex; justify-content: space-between; margin-bottom: 4px; color: #cbd5e1; }
+        .slider-group input[type=range] { width: 100%; accent-color: #00d2ff; cursor: pointer; }
+
+        /* 🎮 具象智能动作控制面板 */
+        .capsule-control-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 210, 255, 0.4);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.25);
+            z-index: 10;
+        }
+        .ctrl-btn {
+            background: #1e293b;
+            border: 1px solid #00d2ff;
+            color: #ffffff;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+        .ctrl-btn:hover {
+            background: #00d2ff;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 210, 255, 0.4);
+        }
+        .ctrl-btn.active-action {
+            background: #00e676;
+            color: #000;
+            border-color: #00e676;
+        }
+        .ctrl-btn.boost {
+            border-color: #ff5252;
+            color: #ff5252;
+        }
+        .ctrl-btn.boost:hover {
+            background: #ff5252;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="test-header">
+        <div class="test-title">
+            <span>🧠 天予具象智能 · 胶囊机器人 6-DOF 具象空间感知与对称分流流体闭环</span>
+        </div>
+        <a href="/" style="color: #00d2ff; text-decoration: none; font-size: 14px;">← 返回主控台</a>
+    </div>
+
+    <div class="test-tabs">
+        <button class="test-tab-btn active" data-tab="capsule3dView">💊 Tab 1: 3D 具象空间感知与对称贴壁分流 (坐标刻度+网格边界剪裁)</button>
+        <button class="test-tab-btn" data-tab="capsule2dView">📐 Tab 2: 2D Canvas 具象拓扑分析</button>
+    </div>
+
+    <!-- Tab 1: 3D 具象智能视界 -->
+    <div class="test-view active" id="capsule3dView">
+        <div id="capsule3dCanvasContainer"></div>
+
+        <!-- 🤖 具象智能 6-DOF 空间姿态与力学 HUD 浮窗 -->
+        <div class="capsule-hud">
+            <h4>
+                <span>🧠 天予具象智能遥测 (Embodied AI Pose)</span>
+                <span style="color: #00e676;" id="hudStatusDot">ONLINE</span>
+            </h4>
+            <div class="hud-row">
+                <span>空间位姿矩阵 (6-DOF):</span>
+                <span class="hud-val" id="hudPoseMatrix">[0.0, -100.0, 80.0, 0.0°]</span>
+            </div>
+            <div class="hud-row">
+                <span>肠壁法向碰撞边界:</span>
+                <span class="hud-val" id="hudWallDistance">R_max = 88.0 mm (法向剪裁已开启)</span>
+            </div>
+            <div class="hud-row">
+                <span>撞壁流体流态:</span>
+                <span class="hud-val orange" id="hudFlowMode">对称顺壁分流 (肠壁外 100% 剪裁)</span>
+            </div>
+            <div class="hud-row">
+                <span>当前控制模式:</span>
+                <span class="hud-val orange" id="hudFluidState">▶ 独立前进巡航</span>
+            </div>
+            <div class="hud-row">
+                <span>水刀主压强:</span>
+                <span class="hud-val" id="hudHydroPressure">150 bar (15.0 MPa)</span>
+            </div>
+            <div class="hud-row">
+                <span>贴壁安全状态:</span>
+                <span class="hud-val" id="hudSafetyStatus">✅ 100% 触底贴附 (Y=-160mm)</span>
+            </div>
+        </div>
+
+        <!-- 🎛️ 具象智能 3D 空间坐标调谐面板 -->
+        <div class="embodied-coord-panel">
+            <h5>🎯 具象空间坐标控制器</h5>
+            <div class="slider-group">
+                <label><span>X 轴位移 (横向):</span><span id="lblPosX">0.0 mm</span></label>
+                <input type="range" id="sldPosX" min="-40" max="40" value="0" step="1">
+            </div>
+            <div class="slider-group">
+                <label><span>Y 轴位移 (高度/触底):</span><span id="lblPosY">-100.0 mm</span></label>
+                <input type="range" id="sldPosY" min="-120" max="-60" value="-100" step="1">
+            </div>
+            <div class="slider-group">
+                <label><span>Z 轴位移 (纵深):</span><span id="lblPosZ">80.0 mm</span></label>
+                <input type="range" id="sldPosZ" min="-140" max="140" value="80" step="1">
+            </div>
+            <div class="slider-group">
+                <label><span>感知辅助网格显示:</span><input type="checkbox" id="chkShowAxes" checked style="accent-color:#00d2ff; cursor:pointer;"></label>
+            </div>
+        </div>
+
+        <!-- 🎮 具象智能动作控制面板 -->
+        <div class="capsule-control-panel">
+            <button class="ctrl-btn" id="btnForward">▶ 前进 (底喷推进+弧形水刀)</button>
+            <button class="ctrl-btn boost" id="btnBoost">⚡ 增加压力 (250 bar)</button>
+            <button class="ctrl-btn active-action" id="btnTurnRight">🌊 左仓分流实验 (顺壁对称分流)</button>
+            <button class="ctrl-btn" id="btnTurnLeft">↪ 右仓分流实验 (顺壁对称分流)</button>
+            <button class="ctrl-btn" id="btnSuction">💧 吸水 (左右负压 -45 kPa)</button>
+            <button class="ctrl-btn" id="btnReverse">◀ 后退 (双仓前/下反推)</button>
+            <button class="ctrl-btn" id="btnAutoLoop" style="border-color: #ffd700; color: #ffd700;">🔄 自动巡航模式</button>
+        </div>
+    </div>
+
+    <!-- Tab 2: 2D Canvas 拓扑网格视图 -->
+    <div class="test-view" id="capsule2dView">
+        <canvas id="capsule2dCanvas" width="1100" height="640"></canvas>
+    </div>
+
+    <script src="tianyu_geometry_engine.js"></script>
+    <script src="capsule_test.js"></script>
+</body>
+</html>
