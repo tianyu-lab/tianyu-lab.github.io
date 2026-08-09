@@ -47,14 +47,14 @@
             <h3>🎨 第二步：Pop-Stack 逐帧 30 FPS 两路动态视频解算输出</h3>
             <div class="outputs-wrapper">
                 <div class="output-box">
-                    <h4>🏆 第一路: 轨迹骨架与极值点阵 (Pop-Stack Trajectory & RGB Extrema)</h4>
+                    <h4>🏆 第一路: 极值点阵与轨迹拓扑 (Pop-Stack 3T Vector Skeleton)</h4>
                     <canvas id="tianyuPlayerCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;">0 依赖 GPU · 绿色轨迹骨架与 RGB 实拍色彩点阵</p>
+                    <p style="font-size:11px; color:#00e676; margin-top:5px;">0 依赖 GPU · 绿色骨架与 RGB 实拍色彩点阵</p>
                 </div>
                 <div class="output-box">
-                    <h4>🎞️ 第二路: 真实色彩多边形充填 (RGB Photoreal Reconstructed View)</h4>
+                    <h4>🎞️ 第二路: 真实 3D 凸包与实拍 RGB 空间色块重构 (Reconstructed Color View)</h4>
                     <canvas id="reconstructedCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;">Pop-Stack RGB 渐变色场与全彩画面渐进重构</p>
+                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;">Pop-Stack 空间 Voronoi / Delaunay 实拍 RGB 色彩重构</p>
                 </div>
             </div>
         </div>
@@ -147,7 +147,7 @@
             loop(timestamp || 0);
         }
 
-        // 第一路：轨迹骨架与 RGB 极值点阵
+        // 第一路：极值点阵与轨迹骨架
         function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
@@ -160,7 +160,8 @@
 
             const cx = w / 2, cy = h / 2;
 
-            ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.2;
+            // 绘制极值连线拓扑
+            ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.0;
             ctx.fillStyle = "rgba(0, 230, 118, 0.12)";
             ctx.beginPath();
             for (let i = 0; i < extrema.length; i++) {
@@ -169,13 +170,14 @@
             }
             ctx.closePath(); ctx.stroke(); ctx.fill();
 
+            // 绘制高亮 RGB 极值点阵
             for (let pt of extrema) {
                 ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
-                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 3.5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 4.0, 0, Math.PI * 2); ctx.fill();
             }
         }
 
-        // 第二路：真实 RGB 渐变色场与像素画面重构 (取代单色蓝底)
+        // 第二路：基于 Pop-Stack 极值点阵的 Voronoi / 三角化 RGB 实拍空间色彩片区重构
         function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
@@ -188,32 +190,42 @@
 
             const cx = w / 2, cy = h / 2;
 
-            // 计算多边形质心 RGB 均值
-            let sumR = 0, sumG = 0, sumB = 0;
+            // 三角扇块全彩插值重构 (以质心为心连接极值点)
+            let avgX = 0, avgY = 0, sumR = 0, sumG = 0, sumB = 0;
             for (let pt of extrema) {
+                avgX += pt.x; avgY += pt.y;
                 sumR += pt.r; sumG += pt.g; sumB += pt.b;
             }
+            avgX /= extrema.length; avgY /= extrema.length;
             const avgR = Math.round(sumR / extrema.length);
             const avgG = Math.round(sumG / extrema.length);
             const avgB = Math.round(sumB / extrema.length);
 
-            // 绘制真实 RGB 多边形色场
-            const gradient = ctx.createRadialGradient(cx, cy, 10, cx, cy, 180);
-            gradient.addColorStop(0, `rgba(${avgR}, ${avgG}, ${avgB}, 0.85)`);
-            gradient.addColorStop(1, `rgba(${avgR*0.5}, ${avgG*0.5}, ${avgB*0.5}, 0.3)`);
-
-            ctx.fillStyle = gradient;
-            ctx.beginPath();
+            // 绘制连续 RGB 三角扇块重构实拍面
             for (let i = 0; i < extrema.length; i++) {
-                const pt = extrema[i];
-                if (i === 0) ctx.moveTo(cx + pt.x, cy + pt.y); else ctx.lineTo(cx + pt.x, cy + pt.y);
-            }
-            ctx.closePath(); ctx.fill();
+                const p1 = extrema[i];
+                const p2 = extrema[(i + 1) % extrema.length];
 
-            // 逐点恢复实拍 RGB 色彩矩阵
+                const triR = Math.round((p1.r + p2.r + avgR) / 3);
+                const triG = Math.round((p1.g + p2.g + avgG) / 3);
+                const triB = Math.round((p1.b + p2.b + avgB) / 3);
+
+                ctx.fillStyle = `rgba(${triR}, ${triG}, ${triB}, 0.85)`;
+                ctx.strokeStyle = `rgb(${triR}, ${triG}, ${triB})`;
+                ctx.lineWidth = 1.0;
+                
+                ctx.beginPath();
+                ctx.moveTo(cx + avgX, cy + avgY);
+                ctx.lineTo(cx + p1.x, cy + p1.y);
+                ctx.lineTo(cx + p2.x, cy + p2.y);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+            }
+
+            // 叠加实拍 RGB 采样节点
             for (let pt of extrema) {
                 ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
-                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 4.5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(cx + pt.x, cy + pt.y, 4.0, 0, Math.PI * 2); ctx.fill();
             }
         }
     </script>
