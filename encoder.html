@@ -31,7 +31,6 @@
     </div>
 
     <div class="container">
-        <!-- 左侧: 本地视频选择与专属【⚡ 转换编码】按钮 -->
         <div class="card">
             <h3>第一步：选择本地 MP4 视频并点击【⚡ 转换编码】按钮</h3>
             
@@ -41,25 +40,19 @@
                 <span id="fileNameDisplay" style="font-size:12px; color:#94a3b8;">未选择视频</span>
             </div>
 
-            <!-- 原视频播放器 -->
             <video id="sourceVideo" controls loop playsinline style="display:none;"></video>
             <canvas id="scanCanvas" width="256" height="256" style="display:none;"></canvas>
 
             <div style="margin-top: 15px;">
-                <!-- 专属转换编码按钮 -->
                 <button class="btn-action" onclick="runManualConvert()" id="btnConvert">⚡ 2. 转换编码 (运行 256 页 Pop-Stack 编码函数)</button>
             </div>
             
             <p id="statusMsg" style="font-size:13px; color:#38bdf8; margin-top:12px; font-weight:bold;">提示：选择视频后，请点击上面的【⚡ 转换编码】按钮！</p>
         </div>
 
-        <!-- 右侧: 结果输出窗口与拷贝按钮 -->
         <div class="card">
             <h3>第二步：编码结果输出窗口与拷贝码流内容</h3>
-            <!-- 右边输出窗口 -->
             <textarea id="streamOutputText" readonly placeholder="点击【⚡ 转换编码】按钮后，编码函数将把全量 256 页 Pop-Stack 结果输出到此窗口..."></textarea>
-            
-            <!-- 下面拷贝内容按钮 -->
             <button class="btn-copy" onclick="copyStreamData()">📋 3. 拷贝码流内容 (去 B 站解码解算)</button>
             <span id="copyMsg" style="font-size:12px; color:#00e676; display:block; margin-top:8px;"></span>
         </div>
@@ -87,14 +80,13 @@
             document.getElementById("statusMsg").innerText = `✅ 视频已就绪！请点击【⚡ 2. 转换编码】按钮开始转换！`;
         }
 
-        // 点击【⚡ 转换编码】按钮调用的专属编码函数
         function runManualConvert() {
             if (!videoEl.src || videoEl.src === "") {
                 alert("⚠️ 请先点击【📁 1. 选择本地 MP4 视频文件】选择视频！");
                 return;
             }
 
-            document.getElementById("statusMsg").innerText = "⚡ 正在调用 Pop-Stack 编码函数，全量抓取 256 页全体素矩阵...";
+            document.getElementById("statusMsg").innerText = "⚡ 正在调用 Pop-Stack 编码函数，全量抓取 256 页真实像素阵列...";
             
             const totalFrames = 256;
             const streamBytes = [];
@@ -103,62 +95,65 @@
             videoEl.pause();
             videoEl.currentTime = 0;
 
-            function processFrame() {
-                scanCtx.drawImage(videoEl, 0, 0, 256, 256);
-                const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
-
-                // 每页全量高密抓取 4,096 个真实 RGB 像素体素
-                const pts = [];
-                for (let y = 0; y < 256; y += 4) {
-                    for (let x = 0; x < 256; x += 4) {
-                        const idx = (y * 256 + x) * 4;
-                        pts.push({
-                            x: x - 128,
-                            y: y - 128,
-                            r: imgData[idx],
-                            g: imgData[idx + 1],
-                            b: imgData[idx + 2]
-                        });
-                    }
-                }
-
-                // 写入 Pop-Stack 包头与全体素
-                streamBytes.push(0x54);
-                streamBytes.push((currentFrame >> 8) & 0xFF);
-                streamBytes.push(currentFrame & 0xFF);
-                streamBytes.push((pts.length >> 8) & 0xFF);
-                streamBytes.push(pts.length & 0xFF);
-
-                for (let pt of pts) {
-                    streamBytes.push((pt.x + 128) & 0xFF);
-                    streamBytes.push((pt.y + 128) & 0xFF);
-                    streamBytes.push(pt.r);
-                    streamBytes.push(pt.g);
-                    streamBytes.push(pt.b);
-                    streamBytes.push(currentFrame & 0xFF);
-                }
-
-                currentFrame++;
-                document.getElementById("statusMsg").innerText = `⏳ 编码函数运行中: 已完成 ${currentFrame} / ${totalFrames} 页 (${Math.round((currentFrame/totalFrames)*100)}%)，已生成 ${(streamBytes.length/1024).toFixed(0)} KB 数据...`;
-
-                if (currentFrame < totalFrames) {
-                    videoEl.currentTime = (currentFrame / totalFrames) * (videoEl.duration || 10);
-                } else {
+            function scanNextFrame() {
+                if (currentFrame >= totalFrames) {
                     outputResultToRightWindow(streamBytes);
+                    return;
                 }
+
+                // 强制同步等待视频跳帧渲染完成
+                videoEl.onseeked = function() {
+                    scanCtx.drawImage(videoEl, 0, 0, 256, 256);
+                    const imgData = scanCtx.getImageData(0, 0, 256, 256).data;
+
+                    const pts = [];
+                    for (let y = 0; y < 256; y += 4) {
+                        for (let x = 0; x < 256; x += 4) {
+                            const idx = (y * 256 + x) * 4;
+                            pts.push({
+                                x: x - 128,
+                                y: y - 128,
+                                r: imgData[idx],
+                                g: imgData[idx + 1],
+                                b: imgData[idx + 2]
+                            });
+                        }
+                    }
+
+                    // 写入 Pop-Stack 包头与全体素
+                    streamBytes.push(0x54);
+                    streamBytes.push((currentFrame >> 8) & 0xFF);
+                    streamBytes.push(currentFrame & 0xFF);
+                    streamBytes.push((pts.length >> 8) & 0xFF);
+                    streamBytes.push(pts.length & 0xFF);
+
+                    for (let pt of pts) {
+                        streamBytes.push((pt.x + 128) & 0xFF);
+                        streamBytes.push((pt.y + 128) & 0xFF);
+                        streamBytes.push(pt.r);
+                        streamBytes.push(pt.g);
+                        streamBytes.push(pt.b);
+                        streamBytes.push(currentFrame & 0xFF);
+                    }
+
+                    currentFrame++;
+                    document.getElementById("statusMsg").innerText = `⏳ 正在逐帧解算真实像素: 已完成 ${currentFrame} / ${totalFrames} 页 (${Math.round((currentFrame/totalFrames)*100)}%)，已生成 ${(streamBytes.length/1024).toFixed(0)} KB 数据...`;
+
+                    // 推进到下一帧
+                    if (currentFrame < totalFrames) {
+                        videoEl.currentTime = (currentFrame / totalFrames) * (videoEl.duration || 10);
+                    } else {
+                        outputResultToRightWindow(streamBytes);
+                    }
+                };
+
+                // 触发 seeked 事件
+                videoEl.currentTime = (currentFrame / totalFrames) * (videoEl.duration || 10);
             }
 
-            videoEl.onseeked = function() {
-                if (currentFrame < totalFrames) {
-                    processFrame();
-                }
-            };
-
-            // 触发第一帧
-            videoEl.currentTime = 0.01;
+            scanNextFrame();
         }
 
-        // 把编码结果全量输出到右边文本框窗口
         function outputResultToRightWindow(bytes) {
             const uint8 = new Uint8Array(bytes);
             let binary = "";
@@ -174,7 +169,6 @@
             document.getElementById("statusMsg").style.color = "#00e676";
         }
 
-        // 下面按钮拷贝内容
         function copyStreamData() {
             const txt = document.getElementById("streamOutputText").value;
             if (!txt) {
