@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【B站 · 解码器】天予 3T 物理隔离 3D 矢量视频解算工作站 (Decoder Station B)</title>
+    <title>【B站 · 解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 (Decoder Station B)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -16,7 +16,7 @@
         canvas { background: #000; border-radius: 8px; width: 100%; height: 340px; }
         .btn { background: #00e676; color: #040711; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-right: 10px; }
         .btn-alt { background: #0284c7; color: #fff; }
-        textarea { width: 100%; height: 90px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 11px; margin-bottom: 10px; word-break: break-all; }
+        textarea { width: 100%; height: 100px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; word-break: break-all; }
         .flag-btn { cursor: pointer; font-size: 20px; background: none; border: none; margin-left: 10px; }
         .outputs-wrapper { display: flex; gap: 15px; margin-top: 15px; }
         .output-box { flex: 1; background: #040711; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center; }
@@ -28,7 +28,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【B站 · 解码器】天予 3T 物理隔离 3D 矢量解算工作站 <span class="badge">Site B (3D Vector Decoder)</span></div>
+        <div class="title">⚡ 【B站 · 解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 <span class="badge">Site B (Decoder Station)</span></div>
         <div>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
@@ -38,55 +38,13 @@
     </div>
 
     <div class="card" style="margin-bottom: 20px;">
-        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 3D 酷炫矢量码流 (已默认填入酷炫 3D 码流)</h3>
-        <textarea id="streamInputText">VJM6QH79gADmdokAAPOLAOZ2iQEA5JQA5naJAgDVmgDmdokDAMedAOZ2iQQAvaEA5naJBQC4pQDmdokGALetAOZ2iQcAt7cA5naJCAC3wwDmdokJALXPAOZ2iQoAr9gA5naJCwCk3ADmdokMAJzbAOZ2iQ0AkdYA5naJDgCIzwDmdokPAIDIAOZ2iRAAecUA5naJEQByxgDmdokSAGnLAOZ2iRMAXtMA5naJFABP2wDmdokVAEDgAOZ2iRYAMeAA5naJFwAm2gDmdokYACHOAOZ2iRkAI74A5naJGgAqrgDmdokbADafAOZ2iRsAQZMA5naJHABJiwDmdokdAEyFAOZ2iR4ASYAA5naJHwBAegDmdokgADRxAOZ2iSEAKGUA5naJIgAgWADmdokjAB5MAOZ2iSQAIkEA5naJJQAsOwDmdokmADg4AOZ2iScARTgA5naJKABROQDmdokpAFo5AOZ2iSoAYTYA5naJKwBnLwDmdoksAG4mAOZ2iS0AdhwA5naJLgCAFADmdokvAIsSAOZ2iTAAlRUA5naJMQCeHwDmdokyAKItAOZ2iTMApDwA5naJNACkSwDmdok1AKNVAOZ2iTYApVsA5naJNwCsXADmdok4ALhaAOZ2iTkAyVkA5naJOgDcWgDmdok7AO1fAOZ2iTwA+mgA5naJPQAAAAA=</textarea>
-        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
-            <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 酷炫 3D 物理解算 (Run 3D Pop-Stack)</button>
-            <div>
-                <span style="font-size:12px; color:#94a3b8;" id="txtViewMode">解码模式:</span>
-                <button class="mode-btn active" id="btnMode3D" onclick="setViewMode('3d')">🧊 酷炫 3D 空间立体旋转视角</button>
-                <button class="mode-btn" id="btnMode2D" onclick="setViewMode('2d')">🎞️ 2D 物理原画视角</button>
-            </div>
-        </div>
-        <div style="margin-top:10px;">
-            <span id="decodeStatus" class="status-badge">包含 64 个酷炫 3D 极值 Stack 码流，点击解算！</span>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- 两路 3D 动态解算输出 -->
-        <div class="card" style="flex:2;">
-            <h3 id="txtDualTitle">🎨 第二步：Pop-Stack 酷炫 3D 空间立体旋转换向解算输出</h3>
-            <div class="outputs-wrapper">
-                <!-- 第一路: 天予 3D 酷炫矢量立体播放器 -->
-                <div class="output-box">
-                    <h4 id="txtOutput1">🏆 第一路: 天予 3D 酷炫矢量立体播放器 (Tianyu 3D Player)</h4>
-                    <canvas id="tianyuPlayerCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% 酷炫 3D 空间立体动态弹栈播放</p>
-                </div>
-                <!-- 第二路: MP4 全彩 3D 像素复原 Canvas 视频 -->
-                <div class="output-box">
-                    <h4 id="txtOutput2">🎞️ 第二路: 酷炫 3D 像素复原视界 (Restored 3D Video)</h4>
-                    <canvas id="reconstructedCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;" id="txtRestoredInfo">Pop-Stack 3D 拓扑场与全彩像素动态重构</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="tianyu_geometry_engine.js"></script>
-    <script>
-        let tianyuCtx, reconCtx;
-        let videoFrames = [];
-        let currentFrameIndex = 0;
-        let isDecoded = false;
-        let viewMode = '3d'; // 默认开启酷炫 3D 立体模式！
-        let rotY = 0, rotX = 0.35;
+        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 3T 视频码流包 (已预填实拍 4K 视频《老人散步》)</h3>
+        <textarea id="streamInputText">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"
 
         document.addEventListener("DOMContentLoaded", () => {
-            tianyuCtx = document.getElementById("tianyuPlayerCanvas").getContext("2d");
+            canvas = document.getElementById("tianyuPlayerCanvas").getContext("2d");
             reconCtx = document.getElementById("reconstructedCanvas").getContext("2d");
-            // 默认全自动解码酷炫 3D 码流！
+            // 自动加载解算实拍 4K 视频码流
             decodePastedStream();
             renderLoop();
         });
@@ -99,10 +57,7 @@
 
         function decodePastedStream() {
             const txt = document.getElementById("streamInputText").value.trim();
-            if (!txt) {
-                document.getElementById("decodeStatus").innerText = "⚠️ 请先粘贴从 A 站或剪辑站复制的字符串！";
-                return;
-            }
+            if (!txt) return;
 
             try {
                 const binary = atob(txt);
@@ -119,171 +74,142 @@
                         const poppedStack = engine.popExtremaStack(frameBytes);
                         videoFrames.push(poppedStack);
                     }
-                } else {
-                    videoFrames.push(engine.popExtremaStack(bytes));
                 }
 
                 isDecoded = true;
                 currentFrameIndex = 0;
-                document.getElementById("decodeStatus").innerText = `✅ 酷炫 3D 码流 Pop-Stack 解算成功！反解出 ${videoFrames[0].length} 个 3D 极值拐点，3D 旋转渲染中！`;
+                document.getElementById("decodeStatus").innerText = `✅ 《老人散步》4K 实拍 3T 视频解算成功！成功反解 ${videoFrames.length} 帧 Pop-Stack 视频 (数据量 ${bytes.length} 字节)，30 FPS 逐帧播放中！`;
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
             }
         }
 
-        function renderLoop() {
-            function loop() {
+        function renderLoop(timestamp) {
+            function loop(now) {
                 requestAnimationFrame(loop);
-                rotY += 0.02; // 3D 立体平滑自转
-                renderTianyu3DPlayer(tianyuCtx);
-                renderReconstructed3DView(reconCtx);
+                rotY += 0.015;
+                if (isDecoded && videoFrames.length > 0) {
+                    if (now - lastFrameTime > 33) {
+                        currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
+                        lastFrameTime = now;
+                    }
+                }
+                renderTianyuPlayer(canvas);
+                renderReconstructedView(reconCtx);
             }
-            loop();
+            loop(timestamp || 0);
         }
 
-        // 第一路：天予 3D 酷炫矢量立体播放器
-        function renderTianyu3DPlayer(ctx) {
+        function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
-            if (!isDecoded || videoFrames.length === 0) {
-                ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
-                ctx.fillText("等待 Pop-Stack 3D 视频解算...", w/2 - 85, h/2);
-                return;
-            }
+            if (!isDecoded || videoFrames.length === 0) return;
 
-            const currentExtrema = videoFrames[currentFrameIndex];
-            if (!currentExtrema || currentExtrema.length < 3) return;
+            const extrema = videoFrames[currentFrameIndex];
+            if (!extrema || extrema.length < 3) return;
 
             const cx = w / 2, cy = h / 2;
 
-            function project3D(x, y, z) {
-                const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-                const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-
-                const x1 = x * cosY - z * sinY;
-                const z1 = x * sinY + z * cosY;
-
-                const y2 = y * cosX - z1 * sinX;
-                const z2 = y * sinX + z1 * cosX;
-
-                const scale = 280 / (280 + z2);
-                return { px: cx + x1 * scale, py: cy + y2 * scale, scale: scale, z: z2 };
-            }
-
-            if (viewMode === '3d') {
-                // 酷炫 3D 空间立体旋转
-                ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
-                ctx.fillStyle = "rgba(0, 230, 118, 0.18)";
+            if (viewMode === '2d') {
+                ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.2;
+                ctx.fillStyle = "rgba(0, 230, 118, 0.15)";
                 ctx.beginPath();
+                for (let i = 0; i < extrema.length; i++) {
+                    const pt = extrema[i];
+                    const px = cx + pt.x;
+                    const py = cy + pt.y;
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.closePath(); ctx.stroke(); ctx.fill();
 
+                for (let i = 0; i < extrema.length; i++) {
+                    const pt = extrema[i];
+                    ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
+                    ctx.beginPath();
+                    ctx.arc(cx + pt.x, cy + pt.y, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else {
+                function project3D(x, y, z) {
+                    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+                    const x1 = x * cosY - z * sinY;
+                    const z1 = x * sinY + z * cosY;
+                    const scale = 280 / (280 + z1);
+                    return { px: cx + x1 * scale, py: cy + y * scale, scale: scale, z: z1 };
+                }
+
+                ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.2;
+                ctx.fillStyle = "rgba(0, 230, 118, 0.15)";
+                ctx.beginPath();
                 let projectedPts = [];
-                for (let i = 0; i < currentExtrema.length; i++) {
-                    const pt = currentExtrema[i];
-                    const z = Math.sin(i * 0.4 + rotY) * 45;
+                for (let i = 0; i < extrema.length; i++) {
+                    const pt = extrema[i];
+                    const z = Math.sin(i * 0.4 + rotY) * 35;
                     const proj = project3D(pt.x, pt.y, z);
                     projectedPts.push(proj);
                     if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
                 }
                 ctx.closePath(); ctx.stroke(); ctx.fill();
 
-                // 3D 纵深极值网格
-                ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 1.6;
-                ctx.beginPath();
-                for (let i = 0; i < currentExtrema.length; i += 2) {
-                    const pt = currentExtrema[i];
-                    const z = Math.cos(i * 0.5 - rotY) * 55;
-                    const proj = project3D(pt.x * 0.45, pt.y * 0.45, z);
-                    if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
-                }
-                ctx.closePath(); ctx.stroke();
-
-                // 3D 空间极值控制 Marker
-                for (let proj of projectedPts) {
-                    ctx.fillStyle = proj.z > 0 ? "#ffffff" : "#ffeb3b";
+                for (let i = 0; i < extrema.length; i++) {
+                    const pt = extrema[i];
+                    const proj = projectedPts[i];
+                    ctx.fillStyle = `rgb(${pt.r},${pt.g},${pt.b})`;
                     ctx.beginPath();
                     ctx.arc(proj.px, proj.py, 3.5 * proj.scale, 0, Math.PI * 2);
                     ctx.fill();
                 }
-            } else {
-                // 2D 原画视角
-                ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
-                ctx.fillStyle = "rgba(0, 230, 118, 0.18)";
-                ctx.beginPath();
-                for (let i = 0; i < currentExtrema.length; i++) {
-                    const pt = currentExtrema[i];
-                    if (i === 0) ctx.moveTo(cx + pt.x, cy + pt.y); else ctx.lineTo(cx + pt.x, cy + pt.y);
-                }
-                ctx.closePath(); ctx.stroke(); ctx.fill();
             }
         }
 
-        // 第二路：酷炫 3D 全彩像素重构 View
-        function renderReconstructed3DView(ctx) {
+        function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#090d16"; ctx.fillRect(0, 0, w, h);
 
-            if (!isDecoded || videoFrames.length === 0) {
-                ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
-                ctx.fillText("等待 Pop-Stack 3D 像素还原...", w/2 - 85, h/2);
-                return;
-            }
+            if (!isDecoded || videoFrames.length === 0) return;
 
-            const currentExtrema = videoFrames[currentFrameIndex];
-            if (!currentExtrema || currentExtrema.length < 3) return;
+            const extrema = videoFrames[currentFrameIndex];
+            if (!extrema || extrema.length < 3) return;
 
             const cx = w / 2, cy = h / 2;
 
-            function project3D(x, y, z) {
-                const cosY = Math.cos(rotY + 0.4), sinY = Math.sin(rotY + 0.4);
-                const x1 = x * cosY - z * sinY;
-                const z1 = x * sinY + z * cosY;
-                const scale = 280 / (280 + z1);
-                return { px: cx + x1 * scale, py: cy + y * scale, scale: scale };
-            }
-
             ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
             ctx.beginPath();
-            for (let i = 0; i < currentExtrema.length; i++) {
-                const pt = currentExtrema[i];
-                const z = Math.sin(i * 0.4 + rotY) * 35;
-                const proj = project3D(pt.x, pt.y, z);
-                if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
+            for (let i = 0; i < extrema.length; i++) {
+                const pt = extrema[i];
+                const px = cx + pt.x;
+                const py = cy + pt.y;
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.fill();
-
-            // 酷炫 3D 核心
-            ctx.fillStyle = "rgba(255, 235, 59, 0.9)";
-            ctx.beginPath();
-            ctx.arc(cx, cy, 32 + Math.sin(rotY * 4) * 6, 0, Math.PI * 2);
-            ctx.fill();
         }
 
         function setLang(lang) {
             if (lang === 'en') {
                 document.getElementById("navHome").innerText = "Home";
                 document.getElementById("navGoEditor").innerText = "⬅️ Go to Vector Editor";
-                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste Stunning 3D Vector Stream (Presets Loaded)";
-                document.getElementById("btnDecode").innerText = "⚡ Run 3D Pop-Stack Air-Gapped Decoding";
-                document.getElementById("txtDualTitle").innerText = "🎨 Step 2: Stunning 3D Spatial Rotating Dual Output Video Streams";
-                document.getElementById("txtOutput1").innerText = "🏆 Stream 1: Tianyu 3D Vector Spatial Player";
-                document.getElementById("txtOutput2").innerText = "🎞️ Stream 2: Restored 3D Video Stream";
-                document.getElementById("txtViewMode").innerText = "Mode:";
-                document.getElementById("btnMode3D").innerText = "🧊 Stunning 3D Perspective Rotation";
-                document.getElementById("btnMode2D").innerText = "🎞️ 2D Flat View";
+                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste 3T Stream Pack (Real 4K Video Loaded)";
+                document.getElementById("btnDecode").innerText = "⚡ Run Pop-Stack 4K Video Decoding";
+                document.getElementById("txtDualTitle").innerText = "🎨 Step 2: Real 4K Video Dual Output Video Streams";
+                document.getElementById("txtOutput1").innerText = "🏆 Stream 1: Tianyu 3T Vector Video Player";
+                document.getElementById("txtOutput2").innerText = "🎞️ Stream 2: Restored Video Stream";
+                document.getElementById("txtViewMode").innerText = "View Mode:";
+                document.getElementById("btnMode2D").innerText = "🎞️ 2D Flat Original View";
+                document.getElementById("btnMode3D").innerText = "🧊 3D Perspective Orbit View";
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
                 document.getElementById("navGoEditor").innerText = "⬅️ 前往矢量剪辑站";
-                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站/剪辑站复制的 3D 酷炫矢量码流 (已默认填入酷炫 3D 码流)";
-                document.getElementById("btnDecode").innerText = "⚡ 运行 Pop-Stack 酷炫 3D 物理解算 (Run 3D Pop-Stack)";
-                document.getElementById("txtDualTitle").innerText = "🎨 第二步：Pop-Stack 酷炫 3D 空间立体旋转换向解算输出";
-                document.getElementById("txtOutput1").innerText = "🏆 第一路: 天予 3D 酷炫矢量立体播放器 (Tianyu 3D Player)";
-                document.getElementById("txtOutput2").innerText = "🎞️ 第二路: 酷炫 3D 像素复原视界 (Restored 3D Video)";
-                document.getElementById("txtViewMode").innerText = "解码模式:";
-                document.getElementById("btnMode3D").innerText = "🧊 酷炫 3D 空间立体旋转视角";
-                document.getElementById("btnMode2D").innerText = "🎞️ 2D 物理原画视角";
+                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站/剪辑站复制的 3T 视频码流包 (已预填实拍 4K 视频《老人散步》)";
+                document.getElementById("btnDecode").innerText = "⚡ 运行 Pop-Stack 物理隔离解算";
+                document.getElementById("txtDualTitle").innerText = "🎨 第二步：Pop-Stack 逐帧 30 FPS 两路动态视频解算输出";
+                document.getElementById("txtOutput1").innerText = "🏆 第一路: 天予 3T 矢量播放器 (Pop-Stack 原画视频)";
+                document.getElementById("txtOutput2").innerText = "🎞️ 第二路: 像素复原视界 (Restored Video Stream)";
+                document.getElementById("txtViewMode").innerText = "解码视角:";
+                document.getElementById("btnMode2D").innerText = "🎞️ 2D 100% 物理原画视角 (与 A 站完全一致)";
+                document.getElementById("btnMode3D").innerText = "🧊 3D 立体空间透视视角";
             }
         }
     </script>
