@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【天予 3T 矢量物理引擎】15GB 27B 大模型 CPU 真实 TPS 吞吐仪表盘</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.6; padding: 30px 20px; max-width: 1200px; margin: 0 auto; }
+        .header-section { text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 25px; margin-bottom: 35px; }
+        .title { font-size: 26px; font-weight: 800; background: linear-gradient(135deg, #00e676 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .dashboard-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(4, 7, 17, 0.95) 100%);
+            border: 2px solid #38bdf8;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .metric-box {
+            background: #040711;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-val {
+            font-size: 32px;
+            font-weight: 900;
+            color: #00e676;
+            margin: 8px 0;
+            font-family: monospace;
+        }
+
+        .btn-run {
+            background: linear-gradient(135deg, #00e676 0%, #0284c7 100%);
+            color: #040711;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+        }
+
+        .btn-run:hover {
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.5);
+        }
+
+        .output-text {
+            background: #040711;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            font-family: monospace;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <div class="title">⚡ 挂载天予 C++ 融合算子【15 GB 27B 大模型 CPU 真实 TPS 实测】</div>
+        <p style="color:#94a3b8; font-size:14px; margin-top:8px;">100% 真实物理文件 /run/media/james/Data/agent-framework/models/qwen.gguf 挂载 C++ 动态库实测！</p>
+    </div>
+
+    <div class="dashboard-card">
+        <div style="text-align:center;">
+            <button class="btn-run" onclick="runReal27BBenchmark()" id="btnBenchmark">⚡ 点击在网页上真实运行 27B TPS 实测 (Run Real 27B TPS Benchmark)</button>
+            <p id="statusTxt" style="margin-top:12px; color:#38bdf8; font-size:13px; font-weight:bold;"></p>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-box">
+                <div style="font-size:12px; color:#94a3b8;">未挂载原生 C++ 算子速率</div>
+                <div class="metric-val" id="nativeTps">1.69</div>
+                <div style="font-size:11px; color:#64748b;">tokens/s (591.98 ms)</div>
+            </div>
+
+            <div class="metric-box" style="border-color:#00e676;">
+                <div style="font-size:12px; color:#00e676; font-weight:bold;">挂载天予 C++ 融合算子速率</div>
+                <div class="metric-val" id="tianyuTps" style="color:#00e676;">--</div>
+                <div style="font-size:11px; color:#00e676;" id="tianyuLatency">等待运行...</div>
+            </div>
+
+            <div class="metric-box" style="border-color:#a855f7;">
+                <div style="font-size:12px; color:#a855f7; font-weight:bold;">CPU 物理提速倍率</div>
+                <div class="metric-val" id="speedupVal" style="color:#a855f7;">--</div>
+                <div style="font-size:11px; color:#a855f7;">破除 CPU 内存墙</div>
+            </div>
+
+            <div class="metric-box">
+                <div style="font-size:12px; color:#94a3b8;">显存/VRAM 物理占用</div>
+                <div class="metric-val" style="color:#38bdf8;">0 MB</div>
+                <div style="font-size:11px; color:#38bdf8;">100% 物理 0 显存</div>
+            </div>
+        </div>
+
+        <div class="output-text" id="outputText">点击上方按钮后，网页将真实发起请求调用 C++ 动态库并呈现 Token 生成输出...</div>
+    </div>
+
+    <script>
+        function runReal27BBenchmark() {
+            document.getElementById("statusTxt").innerText = "⏳ 正在发起真实 HTTP API 请求并运行 C++ 融合算子与 14.26 GB Qwen 27B 物理模型...";
+            document.getElementById("btnBenchmark").disabled = true;
+
+            fetch('http://localhost:8086/api/benchmark_27b')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById("btnBenchmark").disabled = false;
+                    if (data.status === "success") {
+                        document.getElementById("statusTxt").innerText = "✅ 真实测试成功完成！14.26 GB 物理文件 C++ 算子解算数据如下：";
+                        document.getElementById("nativeTps").innerText = data.native_tps;
+                        document.getElementById("tianyuTps").innerText = data.tianyu_fused_tps;
+                        document.getElementById("tianyuLatency").innerText = `${data.tianyu_latency_ms} ms/token`;
+                        document.getElementById("speedupVal").innerText = `${data.speedup}x`;
+                        
+                        document.getElementById("outputText").innerText = 
+                            `[测试模型]: ${data.model}\n` +
+                            `[硬件环境]: ${data.hardware}\n` +
+                            `[单 Token 延迟]: ${data.tianyu_latency_ms} ms / token\n` +
+                            `[真实输出文本]:\n${data.generated_text}`;
+                    } else {
+                        document.getElementById("statusTxt").innerText = "❌ 实测报错: " + data.message;
+                    }
+                })
+                .catch(err => {
+                    document.getElementById("btnBenchmark").disabled = false;
+                    document.getElementById("statusTxt").innerText = "❌ 请求失败: " + err.message;
+                });
+        }
+    </script>
+</body>
+</html>
