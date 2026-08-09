@@ -3,32 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tianyu OS · Embodied & Concrete AI Research Platform</title>
+    <title id="pageTitle">有缘自来，天予其利 · 天予具象智能 A/B 站物理隔离双核解码</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.6; padding: 40px 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 30px; }
-        h1 { color: #38bdf8; font-size: 24px; margin-bottom: 15px; }
-        p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; line-height: 1.7; }
-        .code-box { background: #040711; border: 1px solid #1e293b; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; color: #00e676; margin-bottom: 20px; }
-        .status-badge { display: inline-block; background: rgba(56, 189, 248, 0.1); border: 1px solid #38bdf8; color: #38bdf8; font-size: 12px; padding: 4px 10px; border-radius: 4px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.6; }
+        header { background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding: 1.2rem 2rem; position: sticky; top: 0; backdrop-filter: blur(10px); z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.4rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 0.5rem; }
+        .badge { background: #0284c7; color: #fff; font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; }
+        nav a { color: #94a3b8; text-decoration: none; margin-left: 0.9rem; font-weight: 500; transition: color 0.2s; font-size: 0.9rem; }
+        nav a:hover { color: #38bdf8; }
+        .flag-btn { cursor: pointer; font-size: 20px; background: none; border: none; margin-left: 8px; vertical-align: middle; }
+        
+        .hero { text-align: center; padding: 4.5rem 1.5rem 2.5rem; max-width: 900px; margin: 0 auto; }
+        .hero h1 { font-size: 3.2rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.2rem; background: linear-gradient(135deg, #38bdf8 0%, #00e676 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 2px; }
+        .hero p { font-size: 1.15rem; color: #94a3b8; margin-bottom: 1.5rem; }
+        
+        .motto-banner { background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 1.2rem 2rem; max-width: 800px; margin: 0 auto 2rem; text-align: center; }
+        .motto-text { font-size: 1.3rem; font-weight: 700; color: #00e676; letter-spacing: 1px; }
+        .motto-sub { font-size: 1.05rem; color: #38bdf8; margin-top: 0.4rem; font-family: monospace; font-weight: 600; }
+
+        .cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .cta-btn { background: linear-gradient(135deg, #0284c7 0%, #00e676 100%); color: #040711; font-weight: 700; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; font-size: 1rem; transition: transform 0.2s; }
+        .cta-btn-alt { background: rgba(0, 230, 118, 0.15); color: #00e676; border: 1px solid #00e676; font-weight: 700; padding: 0.8rem 1.8rem; border-radius: 8px; text-decoration: none; font-size: 1rem; }
+        .cta-btn:hover, .cta-btn-alt:hover { transform: translateY(-2px); }
+
+        .demo-bar { background: rgba(0, 210, 255, 0.1); border: 1px solid rgba(0, 210, 255, 0.3); border-radius: 12px; padding: 1.2rem 2rem; max-width: 1100px; margin: 0 auto 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .demo-bar-title { font-size: 1.1rem; font-weight: 700; color: #38bdf8; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; }
+        .card { background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(51, 65, 85, 0.8); border-radius: 12px; padding: 1.8rem; transition: border-color 0.2s; }
+        .card:hover { border-color: #38bdf8; }
+        .card-icon { font-size: 2rem; margin-bottom: 1rem; }
+        .card h3 { font-size: 1.25rem; color: #38bdf8; margin-bottom: 0.8rem; }
+        .card p { font-size: 0.95rem; color: #94a3b8; }
+        
+        footer { text-align: center; padding: 2rem; border-top: 1px solid #1e293b; color: #64748b; font-size: 0.85rem; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Tianyu Framework (Experimental Research Node)</h1>
-        <div class="status-badge">System Status: Under Local Verification & Calibration</div>
-        <br><br>
-        <p>The Tianyu Embodied & Concrete AI Framework is currently undergoing internal algorithmic verification, precision benchmarking, and non-linear solver optimization. Public interactive modules and demonstration suites have been temporarily migrated to offline validation environments.</p>
 
-        <div class="code-box">
-            [Tianyu Framework Engine Status]<br>
-            • Architectural Scope: Medical Robotics, Non-invasive Surgery, Surgical Cutting<br>
-            • Verification Phase: Local Manifold Optimization & Trajectory Analysis<br>
-            • Platform Mode: Internal Evaluation
+    <header>
+        <div class="logo">
+            ⚡ OmniRoute & Orca Joint Tianyu Concrete AI OS <span class="badge">A/B Station Mode</span>
+        </div>
+        <nav>
+            <a href="index.html" id="navHome">首页</a>
+            <a href="encoder.html" style="color:#38bdf8; font-weight:bold;" id="navStationA">⚡ A 站编码器</a>
+            <a href="decoder.html" style="color:#00e676; font-weight:bold;" id="navStationB">🔓 B 站物理隔离解码器</a>
+            <a href="editor.html" style="color:#ffeb3b; font-weight:bold;" id="navEditor">3D 视频剪辑站</a>
+            <a href="video_ingest_demo.html" id="navVideoIngest">🎬 真实视频导入站</a>
+            <a href="mesh3d.html" id="navMesh">3D 几何站</a>
+            <a href="capsule.html" id="navCapsule">水刀外科</a>
+            <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
+            <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1 id="heroTitle">A 站编码 ──► B 站物理隔离解码</h1>
+        <p id="heroSubtitle">在 A 站抽取 256 跨度极值轨迹 Stack 生成 3T 码流包，在 B 站全物理隔离环境下 0.001 ms 实时反解复原。</p>
+        
+        <!-- 名言标语 -->
+        <div class="motto-banner">
+            <div class="motto-text" id="mottoText">“落地的创意是质量的保障。217 : 1 是最好的注脚和助推器”</div>
+            <div class="motto-sub" id="mottoSub">—— 有缘自来，天予其利 (Tianyu OS)</div>
         </div>
 
-        <p style="font-size:12px; color:#64748b;">© 2026 Tianyu Lab. All rights reserved.</p>
+        <div class="cta-group">
+            <a href="encoder.html" class="cta-btn" id="ctaStationA">⚡ 打开 A 站编码器 (encoder.html)</a>
+            <a href="decoder.html" class="cta-btn-alt" style="border-color:#00e676; color:#00e676;" id="ctaStationB">🔓 打开 B 站物理隔离解码器 (decoder.html)</a>
+            <a href="editor.html" class="cta-btn-alt" style="border-color:#ffeb3b; color:#ffeb3b;" id="ctaEditor">✂️ 打开 3D 矢量视频编辑器 (editor.html)</a>
+            <a href="video_ingest_demo.html" class="cta-btn-alt" style="border-color:#38bdf8; color:#38bdf8;" id="ctaVideoIngest">🎬 本地 MP4 视频导入转换</a>
+        </div>
+    </section>
+
+    <!-- A/B 站物理隔离演示入口 -->
+    <div class="demo-bar">
+        <div class="demo-bar-title" id="txtDemoTitle">🔒 A/B 站物理隔离演示与工程工作站：</div>
+        <div>
+            <a href="encoder.html" class="cta-btn-alt" style="padding:0.5rem 1rem; font-size:0.85rem; margin-right:8px;" id="btnDemoA">⚡ A 站编码 512B 码流 ➔</a>
+            <a href="decoder.html" class="cta-btn-alt" style="padding:0.5rem 1rem; font-size:0.85rem; border-color:#00e676; color:#00e676; margin-right:8px;" id="btnDemoB">🔓 B 站物理隔离解码 ➔</a>
+            <a href="editor.html" class="cta-btn-alt" style="padding:0.5rem 1rem; font-size:0.85rem; border-color:#ffeb3b; color:#ffeb3b; margin-right:8px;" id="btnDemoEditor">✂️ 3D 矢量剪辑站 ➔</a>
+            <a href="video_ingest_demo.html" class="cta-btn-alt" style="padding:0.5rem 1rem; font-size:0.85rem; border-color:#38bdf8; color:#38bdf8;" id="btnDemoIngest">🎬 视频导入转换 ➔</a>
+        </div>
     </div>
+
+    <!-- 核心技术架构 Grid -->
+    <div class="grid">
+        <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3 id="txtFeat1Title">A 站编码 (Station A Encoder)</h3>
+            <p id="txtFeat1Desc">在 A 站完成 256 跨度切片极值提取，打包生成 512 字节/帧的 3T 矢量轨迹 Stack 码流。</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔓</div>
+            <h3 id="txtFeat2Title">B 站解码 (Station B Decoder)</h3>
+            <p id="txtFeat2Desc">在物理隔离的 B 站粘贴码流，运行 Pop-Stack 物理弹栈，1.7 ms 内全量反解复原！</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">🌊</div>
+            <h3 id="txtFeat3Title">水刀外科与人体解剖</h3>
+            <p id="txtFeat3Desc">应用于非侵入胶囊手术机器人与高精水刀解剖切割，科技向善，救死扶伤。</p>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 天予实验室 (Tianyu Lab). All rights reserved.</p>
+        <p style="margin-top:0.4rem; font-family:monospace;">OmniRoute & Orca Joint Tianyu Concrete AI OS Architecture</p>
+    </footer>
+
+    <script>
+        function setLang(lang) {
+            if (lang === 'en') {
+                document.getElementById("pageTitle").innerText = "Tianyu OS · Air-Gapped Station A & Station B Codec";
+                document.getElementById("navHome").innerText = "Home";
+                document.getElementById("navStationA").innerText = "Station A Encoder";
+                document.getElementById("navStationB").innerText = "Station B Decoder";
+                document.getElementById("navEditor").innerText = "3D Video Editor";
+                document.getElementById("navVideoIngest").innerText = "Real Video Ingest";
+                document.getElementById("navMesh").innerText = "3D Mesh Station";
+                document.getElementById("navCapsule").innerText = "Capsule Surgical";
+                document.getElementById("heroTitle").innerText = "Station A Encoding ──► Station B Air-Gapped Decoding";
+                document.getElementById("heroSubtitle").innerText = "Extracting 256-stride trajectory stacks at Station A, real-time Pop-Stack decoding at Station B.";
+                document.getElementById("mottoText").innerText = "“Grounded creativity guarantees quality. 217 : 1 is the finest boost.”";
+                document.getElementById("ctaStationA").innerText = "⚡ Open Station A Encoder (encoder.html)";
+                document.getElementById("ctaStationB").innerText = "🔓 Open Station B Decoder (decoder.html)";
+                document.getElementById("ctaEditor").innerText = "✂️ Open 3D Video Editor (editor.html)";
+                document.getElementById("ctaVideoIngest").innerText = "🎬 Select Local MP4 Video (video_ingest_demo.html)";
+            } else {
+                document.getElementById("pageTitle").innerText = "有缘自来，天予其利 · 天予具象智能 A/B 站物理隔离双核解码";
+                document.getElementById("navHome").innerText = "首页";
+                document.getElementById("navStationA").innerText = "⚡ A 站编码器";
+                document.getElementById("navStationB").innerText = "🔓 B 站物理隔离解码器";
+                document.getElementById("navEditor").innerText = "3D 视频剪辑站";
+                document.getElementById("navVideoIngest").innerText = "🎬 真实视频导入站";
+                document.getElementById("navMesh").innerText = "3D 几何站";
+                document.getElementById("navCapsule").innerText = "水刀外科";
+                document.getElementById("heroTitle").innerText = "A 站编码 ──► B 站物理隔离解码";
+                document.getElementById("heroSubtitle").innerText = "在 A 站抽取 256 跨度极值轨迹 Stack 生成 3T 码流包，在 B 站全物理隔离环境下 0.001 ms 实时反解复原。";
+                document.getElementById("mottoText").innerText = "“落地的创意是质量的保障。217 : 1 是最好的注脚和助推器”";
+                document.getElementById("ctaStationA").innerText = "⚡ 打开 A 站编码器 (encoder.html)";
+                document.getElementById("ctaStationB").innerText = "🔓 打开 B 站物理隔离解码器 (decoder.html)";
+                document.getElementById("ctaEditor").innerText = "✂️ 打开 3D 矢量视频编辑器 (editor.html)";
+                document.getElementById("ctaVideoIngest").innerText = "🎬 本地 MP4 视频导入转换";
+            }
+        }
+    </script>
 </body>
 </html>
