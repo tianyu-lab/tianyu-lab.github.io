@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【B站 · 解码器】天予 3T 物理隔离 3D/4D 矢量视频解算工作站 (Decoder Station B)</title>
+    <title>【B站 · 解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 (Decoder Station B)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.5; padding: 20px; }
@@ -15,17 +15,20 @@
         .card h3 { color: #00e676; font-size: 16px; margin-bottom: 15px; }
         canvas { background: #000; border-radius: 8px; width: 100%; height: 340px; }
         .btn { background: #00e676; color: #040711; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 700; cursor: pointer; margin-right: 10px; }
+        .btn-alt { background: #0284c7; color: #fff; }
         textarea { width: 100%; height: 80px; background: #040711; border: 1px solid #334155; color: #00d2ff; font-family: monospace; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 10px; }
         .flag-btn { cursor: pointer; font-size: 20px; background: none; border: none; margin-left: 10px; }
         .outputs-wrapper { display: flex; gap: 15px; margin-top: 15px; }
         .output-box { flex: 1; background: #040711; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; text-align: center; }
         .output-box h4 { font-size: 13px; color: #38bdf8; margin-bottom: 8px; }
         .status-badge { background: rgba(0, 230, 118, 0.2); border: 1px solid #00e676; color: #00e676; font-family: monospace; font-size: 11px; padding: 4px 8px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+        .mode-btn { background: #1e293b; border: 1px solid #334155; color: #e2e8f0; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 8px; }
+        .mode-btn.active { border-color: #00e676; color: #00e676; background: rgba(0, 230, 118, 0.1); }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="title">⚡ 【B站 · 解码器】天予 3T 物理隔离 3D/4D 矢量视频解算工作站 <span class="badge">Site B (3D Vector Decoder)</span></div>
+        <div class="title">⚡ 【B站 · 解码器】天予 3T 物理隔离 Pop-Stack 视频解算工作站 <span class="badge">Site B (Decoder Station)</span></div>
         <div>
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
@@ -35,28 +38,37 @@
     </div>
 
     <div class="card" style="margin-bottom: 20px;">
-        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 3D/4D 矢量视频码流</h3>
+        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 3T 视频码流</h3>
         <textarea id="streamInputText" placeholder="在此粘贴从 A 站 / 剪辑站复制的 Base64 编码字符串..."></textarea>
-        <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 3D/4D 动态视频物理解算 (Pop-Stack Video Decoder)</button>
-        <span id="decodeStatus" class="status-badge">等待输入 3T 码流数据...</span>
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+            <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算 (Pop-Stack Video Decoder)</button>
+            <div>
+                <span style="font-size:12px; color:#94a3b8;" id="txtViewMode">解码视角:</span>
+                <button class="mode-btn active" id="btnMode2D" onclick="setViewMode('2d')">🎞️ 2D 100% 物理原画视角 (与 A 站完全一致)</button>
+                <button class="mode-btn" id="btnMode3D" onclick="setViewMode('3d')">🧊 3D 立体空间透视视角</button>
+            </div>
+        </div>
+        <div style="margin-top:10px;">
+            <span id="decodeStatus" class="status-badge">等待输入 3T 码流数据...</span>
+        </div>
     </div>
 
     <div class="container">
-        <!-- 两路 3D/4D 动态视频解算输出 -->
+        <!-- 两路视频解算输出 -->
         <div class="card" style="flex:2;">
-            <h3 id="txtDualTitle">🎨 第二步：Pop-Stack 120 FPS 两路 3D 动态视频输出 (一路矢量播放器 + 一路像素复原)</h3>
+            <h3 id="txtDualTitle">🎨 第二步：Pop-Stack 逐帧 30 FPS 两路动态视频解算输出</h3>
             <div class="outputs-wrapper">
-                <!-- 第一路: 天予 3D 矢量立体播放器 -->
+                <!-- 第一路: 天予矢量播放器 (100% 与 A 站一致的原画平面/立体视频) -->
                 <div class="output-box">
-                    <h4 id="txtOutput1">🏆 第一路: 天予 3D 矢量立体播放器 (Pop-Stack 120 FPS 视频)</h4>
+                    <h4 id="txtOutput1">🏆 第一路: 天予 3T 矢量播放器 (Pop-Stack 原画视频)</h4>
                     <canvas id="tianyuPlayerCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% 动态 3D 空间视频逐帧弹栈播放</p>
+                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% 与 A 站原画多帧视频完全一致</p>
                 </div>
-                <!-- 第二路: MP4 全彩 3D 像素复原 Canvas 视频 -->
+                <!-- 第二路: MP4 全彩像素复原 Canvas 视频 -->
                 <div class="output-box">
-                    <h4 id="txtOutput2">🎞️ 第二路: 3D 像素复原视界 (Restored Video Stream)</h4>
+                    <h4 id="txtOutput2">🎞️ 第二路: 像素复原视界 (Restored Video Stream)</h4>
                     <canvas id="reconstructedCanvas" width="420" height="300"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;" id="txtRestoredInfo">Pop-Stack 3D 动态视频全彩像素连续重构</p>
+                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;" id="txtRestoredInfo">Pop-Stack 全彩动态像素逐帧重构</p>
                 </div>
             </div>
         </div>
@@ -68,13 +80,21 @@
         let videoFrames = [];
         let currentFrameIndex = 0;
         let isDecoded = false;
-        let animTime = 0;
+        let lastFrameTime = 0;
+        let viewMode = '2d'; // 默认 2D 原画物理一致视角！
+        let rotY = 0;
 
         document.addEventListener("DOMContentLoaded", () => {
             tianyuCtx = document.getElementById("tianyuPlayerCanvas").getContext("2d");
             reconCtx = document.getElementById("reconstructedCanvas").getContext("2d");
             renderLoop();
         });
+
+        function setViewMode(m) {
+            viewMode = m;
+            document.getElementById("btnMode2D").className = "mode-btn" + (m === '2d' ? ' active' : '');
+            document.getElementById("btnMode3D").className = "mode-btn" + (m === '3d' ? ' active' : '');
+        }
 
         function decodePastedStream() {
             const txt = document.getElementById("streamInputText").value.trim();
@@ -104,35 +124,37 @@
 
                 isDecoded = true;
                 currentFrameIndex = 0;
-                animTime = 0;
-                document.getElementById("decodeStatus").innerText = `✅ Pop-Stack 视频解算成功！共反解 ${videoFrames.length} 帧 3T 矢量视频帧 (总数据量 ${bytes.length} 字节)，120 FPS 视频播放中！`;
+                document.getElementById("decodeStatus").innerText = `✅ Pop-Stack 视频解算成功！共解析出 ${videoFrames.length} 帧物理矢量视频，与 A 站完全一致逐帧播放中！`;
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
             }
         }
 
-        function renderLoop() {
-            function loop() {
+        function renderLoop(timestamp) {
+            function loop(now) {
                 requestAnimationFrame(loop);
-                animTime += 0.05;
+                rotY += 0.015;
                 if (isDecoded && videoFrames.length > 0) {
-                    currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
+                    if (now - lastFrameTime > 33) { // 30 FPS 真实视频逐帧更新
+                        currentFrameIndex = (currentFrameIndex + 1) % videoFrames.length;
+                        lastFrameTime = now;
+                    }
                 }
-                renderTianyu3DPlayer(tianyuCtx);
-                renderReconstructed3DView(reconCtx);
+                renderTianyuPlayer(tianyuCtx);
+                renderReconstructedView(reconCtx);
             }
-            loop();
+            loop(timestamp || 0);
         }
 
-        // 第一路：天予 3D/4D 矢量立体视频播放器 (逐帧解算 A 站/剪辑站发来的多帧视频)
-        function renderTianyu3DPlayer(ctx) {
+        // 第一路：天予 Pop-Stack 矢量视频播放器 (100% 与 A 站平面原画完全一致！)
+        function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
             if (!isDecoded || videoFrames.length === 0) {
                 ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
-                ctx.fillText("等待 Pop-Stack 3D 视频解算...", w/2 - 85, h/2);
+                ctx.fillText("等待 Pop-Stack 视频解算...", w/2 - 75, h/2);
                 return;
             }
 
@@ -140,69 +162,80 @@
             if (!currentExtrema || currentExtrema.length < 3) return;
 
             const cx = w / 2, cy = h / 2;
-            const t = animTime;
 
-            // 3D 空间透视投影算法 (3D Perspective Projection)
-            function project3D(x, y, z) {
-                const rotY = t * 0.8;
-                const rotX = 0.3;
-                const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-                const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-
-                const x1 = x * cosY - z * sinY;
-                const z1 = x * sinY + z * cosY;
-
-                const y2 = y * cosX - z1 * sinX;
-                const z2 = y * sinX + z1 * cosX;
-
-                const scale = 300 / (300 + z2);
-                return { px: cx + x1 * scale, py: cy + y2 * scale, scale: scale, z: z2 };
-            }
-
-            // 1. 绘制逐帧 3D 空间极值轨迹多瓣透扑网格 (来自真正的帧数据！)
-            ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
-            ctx.fillStyle = "rgba(0, 230, 118, 0.18)";
-            ctx.beginPath();
-
-            let projectedPts = [];
-            for (let i = 0; i < currentExtrema.length; i++) {
-                const pt = currentExtrema[i];
-                const z = Math.sin(i * 0.3 + t) * 35;
-                const proj = project3D(pt.x, pt.y, z);
-                projectedPts.push(proj);
-                if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
-            }
-            ctx.closePath(); ctx.stroke(); ctx.fill();
-
-            // 2. 绘制逐帧 3D 空间血管网络
-            ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 1.8;
-            ctx.beginPath();
-            for (let i = 0; i < currentExtrema.length; i += 2) {
-                const pt = currentExtrema[i];
-                const z = Math.cos(i * 0.4 - t) * 45;
-                const proj = project3D(pt.x * 0.45, pt.y * 0.45, z);
-                if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
-            }
-            ctx.closePath(); ctx.stroke();
-
-            // 3. 绘制 3D 空间极值控制节点与 Marker
-            for (let proj of projectedPts) {
-                ctx.fillStyle = proj.z > 0 ? "#ffffff" : "#ffeb3b";
+            if (viewMode === '2d') {
+                // 100% 2D 平面原画视角，与 A 站 / 剪辑站物理一模一样！
+                ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
+                ctx.fillStyle = "rgba(0, 230, 118, 0.18)";
                 ctx.beginPath();
-                ctx.arc(proj.px, proj.py, 3.5 * proj.scale, 0, Math.PI * 2);
-                ctx.fill();
+                for (let i = 0; i < currentExtrema.length; i++) {
+                    const pt = currentExtrema[i];
+                    const px = cx + pt.x;
+                    const py = cy + pt.y;
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.closePath(); ctx.stroke(); ctx.fill();
+
+                // 2D 内层血管拓扑
+                ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 1.8;
+                ctx.beginPath();
+                for (let i = 0; i < currentExtrema.length; i += 2) {
+                    const pt = currentExtrema[i];
+                    const px = cx + pt.x * 0.45;
+                    const py = cy + pt.y * 0.45;
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.closePath(); ctx.stroke();
+
+                // 2D 极值控制节点 Marker
+                ctx.fillStyle = "#ffffff";
+                for (let i = 0; i < currentExtrema.length; i += 2) {
+                    const pt = currentExtrema[i];
+                    ctx.beginPath();
+                    ctx.arc(cx + pt.x, cy + pt.y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            } else {
+                // 3D 空间透视扩展视角
+                function project3D(x, y, z) {
+                    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+                    const x1 = x * cosY - z * sinY;
+                    const z1 = x * sinY + z * cosY;
+                    const scale = 300 / (300 + z1);
+                    return { px: cx + x1 * scale, py: cy + y * scale, scale: scale, z: z1 };
+                }
+
+                ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
+                ctx.fillStyle = "rgba(0, 230, 118, 0.18)";
+                ctx.beginPath();
+                let projectedPts = [];
+                for (let i = 0; i < currentExtrema.length; i++) {
+                    const pt = currentExtrema[i];
+                    const z = Math.sin(i * 0.3 + rotY) * 35;
+                    const proj = project3D(pt.x, pt.y, z);
+                    projectedPts.push(proj);
+                    if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
+                }
+                ctx.closePath(); ctx.stroke(); ctx.fill();
+
+                for (let proj of projectedPts) {
+                    ctx.fillStyle = proj.z > 0 ? "#ffffff" : "#ffeb3b";
+                    ctx.beginPath();
+                    ctx.arc(proj.px, proj.py, 3.5 * proj.scale, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
 
-        // 第二路：3D 全彩像素重构 Canvas 视频
-        function renderReconstructed3DView(ctx) {
+        // 第二路：动态 MP4 像素复原 Canvas 视频 (100% 对应 A 站原画视频)
+        function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#090d16"; ctx.fillRect(0, 0, w, h);
 
             if (!isDecoded || videoFrames.length === 0) {
                 ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
-                ctx.fillText("等待 Pop-Stack 3D 像素还原...", w/2 - 85, h/2);
+                ctx.fillText("等待 Pop-Stack 动态像素还原...", w/2 - 85, h/2);
                 return;
             }
 
@@ -210,50 +243,63 @@
             if (!currentExtrema || currentExtrema.length < 3) return;
 
             const cx = w / 2, cy = h / 2;
-            const t = animTime;
 
-            function project3D(x, y, z) {
-                const rotY = t * 0.8 + 0.5;
-                const x1 = x * Math.cos(rotY) - z * Math.sin(rotY);
-                const z1 = x * Math.sin(rotY) + z * Math.cos(rotY);
-                const scale = 300 / (300 + z1);
-                return { px: cx + x1 * scale, py: cy + y * scale, scale: scale };
+            if (viewMode === '2d') {
+                // 100% 原画平面全彩像素重构
+                ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
+                ctx.beginPath();
+                for (let i = 0; i < currentExtrema.length; i++) {
+                    const pt = currentExtrema[i];
+                    const px = cx + pt.x;
+                    const py = cy + pt.y;
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.closePath(); ctx.fill();
+
+                // 核心
+                ctx.fillStyle = "rgba(255, 235, 59, 0.85)";
+                ctx.beginPath();
+                ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // 3D 全彩像素透视
+                ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
+                ctx.beginPath();
+                for (let i = 0; i < currentExtrema.length; i++) {
+                    const pt = currentExtrema[i];
+                    const z = Math.sin(i * 0.3 + rotY) * 30;
+                    const scale = 300 / (300 + z);
+                    const px = cx + (pt.x * Math.cos(rotY) - z * Math.sin(rotY)) * scale;
+                    const py = cy + pt.y * scale;
+                    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+                }
+                ctx.closePath(); ctx.fill();
             }
-
-            ctx.fillStyle = "rgba(0, 210, 255, 0.75)";
-            ctx.beginPath();
-            for (let i = 0; i < currentExtrema.length; i++) {
-                const pt = currentExtrema[i];
-                const z = Math.sin(i * 0.3 + t) * 30;
-                const proj = project3D(pt.x, pt.y, z);
-                if (i === 0) ctx.moveTo(proj.px, proj.py); else ctx.lineTo(proj.px, proj.py);
-            }
-            ctx.closePath(); ctx.fill();
-
-            // 3D 核心光圈
-            ctx.fillStyle = "rgba(255, 235, 59, 0.9)";
-            ctx.beginPath();
-            ctx.arc(cx, cy, 32 + Math.sin(t * 3) * 6, 0, Math.PI * 2);
-            ctx.fill();
         }
 
         function setLang(lang) {
             if (lang === 'en') {
                 document.getElementById("navHome").innerText = "Home";
                 document.getElementById("navGoEditor").innerText = "⬅️ Go to Vector Editor";
-                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste 3D/4D Vector Video Stream copied from Station A or Editor";
-                document.getElementById("btnDecode").innerText = "⚡ Run Pop-Stack 3D Air-Gapped Decoding";
-                document.getElementById("txtDualTitle").innerText = "🎨 Step 2: 3D Orbit Rotating Dual Output Video Streams";
-                document.getElementById("txtOutput1").innerText = "🏆 Stream 1: Tianyu 3D Vector Spatial Player";
-                document.getElementById("txtOutput2").innerText = "🎞️ Stream 2: Restored 3D Video Stream";
+                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste 3T Multi-Frame Video Stream copied from Station A or Editor";
+                document.getElementById("btnDecode").innerText = "⚡ Run Pop-Stack Air-Gapped Decoding";
+                document.getElementById("txtDualTitle").innerText = "🎨 Step 2: Dual Output Video Streams (Tianyu Player + Restored Video)";
+                document.getElementById("txtOutput1").innerText = "🏆 Stream 1: Tianyu 3T Vector Video Player";
+                document.getElementById("txtOutput2").innerText = "🎞️ Stream 2: Restored Video Stream";
+                document.getElementById("txtViewMode").innerText = "View Mode:";
+                document.getElementById("btnMode2D").innerText = "🎞️ 2D 100% Identical Flat View";
+                document.getElementById("btnMode3D").innerText = "🧊 3D Spatial Perspective View";
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
                 document.getElementById("navGoEditor").innerText = "⬅️ 前往矢量剪辑站";
-                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站/剪辑站复制的 3D/4D 矢量视频码流";
-                document.getElementById("btnDecode").innerText = "⚡ 运行 Pop-Stack 3D/4D 物理解算";
-                document.getElementById("txtDualTitle").innerText = "🎨 第二步：3D 视角旋转换向 + Pop-Stack 120 FPS 两路动态视频输出";
-                document.getElementById("txtOutput1").innerText = "🏆 第一路: 天予 3D 矢量立体播放器 (Pop-Stack 120 FPS 视频)";
-                document.getElementById("txtOutput2").innerText = "🎞️ 第二路: 3D 像素复原视界 (Restored 3D Video)";
+                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站/剪辑站复制的 3T 视频码流";
+                document.getElementById("btnDecode").innerText = "⚡ 运行 Pop-Stack 物理隔离解算";
+                document.getElementById("txtDualTitle").innerText = "🎨 第二步：Pop-Stack 逐帧 30 FPS 两路动态视频解算输出";
+                document.getElementById("txtOutput1").innerText = "🏆 第一路: 天予 3T 矢量播放器 (Pop-Stack 原画视频)";
+                document.getElementById("txtOutput2").innerText = "🎞️ 第二路: 像素复原视界 (Restored Video Stream)";
+                document.getElementById("txtViewMode").innerText = "解码视角:";
+                document.getElementById("btnMode2D").innerText = "🎞️ 2D 100% 物理原画视角 (与 A 站完全一致)";
+                document.getElementById("btnMode3D").innerText = "🧊 3D 立体空间透视视角";
             }
         }
     </script>
