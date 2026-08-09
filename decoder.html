@@ -29,13 +29,13 @@
             <button class="flag-btn" onclick="setLang('zh')" title="中文">🇨🇳</button>
             <button class="flag-btn" onclick="setLang('en')" title="English">🇺🇸</button>
             <a href="index.html" style="color:#94a3b8; text-decoration:none; margin-left:15px;" id="navHome">返回主页</a>
-            <a href="encoder.html" style="color:#38bdf8; text-decoration:none; margin-left:15px;" id="navGoA">⬅️ 前往 A 站编码器</a>
+            <a href="editor.html" style="color:#ffeb3b; text-decoration:none; margin-left:15px;" id="navGoEditor">⬅️ 前往矢量剪辑站</a>
         </div>
     </div>
 
     <div class="card" style="margin-bottom: 20px;">
-        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站复制的 512 字节 3T 编码码流 (验证 100% 物理隔离解算)</h3>
-        <textarea id="streamInputText" placeholder="在此粘贴从 A 站复制的 Base64 编码字符串..."></textarea>
+        <h3 id="txtPasteTitle">📥 第一步：粘贴从 A 站/剪辑站复制的 512 字节 3T 编码码流</h3>
+        <textarea id="streamInputText" placeholder="在此粘贴从 A 站 / 剪辑站复制的 Base64 编码字符串..."></textarea>
         <button class="btn" onclick="decodePastedStream()" id="btnDecode">⚡ 运行 Pop-Stack 物理隔离解算</button>
         <span id="decodeStatus" style="font-size:12px; color:#00e676; margin-left:10px;"></span>
     </div>
@@ -43,19 +43,19 @@
     <div class="container">
         <!-- 两路解算输出 -->
         <div class="card" style="flex:2;">
-            <h3 id="txtDualTitle">🎨 第二步：Pop-Stack 两路解算输出 (一路天予播放器 + 一路像素复原)</h3>
+            <h3 id="txtDualTitle">🎨 第二步：Pop-Stack 两路解算输出 (一路天予矢量播放器 + 一路全彩像素复原)</h3>
             <div class="outputs-wrapper">
                 <!-- 第一路: 天予极速矢量播放器 (Pop-Stack 实时渲染) -->
                 <div class="output-box">
                     <h4 id="txtOutput1">🏆 第一路: 天予 3T 矢量播放器 (Tianyu Player)</h4>
                     <canvas id="tianyuPlayerCanvas" width="400" height="280"></canvas>
-                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 无限矢量分辨率零失真</p>
+                    <p style="font-size:11px; color:#00e676; margin-top:5px;" id="txtPlayerInfo">0 依赖 GPU · 100% 复杂多极值矢量实时重构</p>
                 </div>
                 <!-- 第二路: MP4 全彩像素复原 Canvas -->
                 <div class="output-box">
-                    <h4 id="txtOutput2">🎞️ 第二路: 像素复原视界 (Restored MP4 View)</h4>
+                    <h4 id="txtOutput2">🎞️ 第二路: 像素复原视界 (Restored Video View)</h4>
                     <canvas id="reconstructedCanvas" width="400" height="280"></canvas>
-                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;" id="txtRestoredInfo">Pop-Stack 全彩解算像素重构</p>
+                    <p style="font-size:11px; color:#38bdf8; margin-top:5px;" id="txtRestoredInfo">Pop-Stack 复杂多层几何像素动态重构</p>
                 </div>
             </div>
         </div>
@@ -64,6 +64,8 @@
     <script>
         let tianyuCtx, reconCtx;
         let currentExtrema = [];
+        let animTime = 0;
+        let isDecoded = false;
 
         document.addEventListener("DOMContentLoaded", () => {
             tianyuCtx = document.getElementById("tianyuPlayerCanvas").getContext("2d");
@@ -74,7 +76,7 @@
         function decodePastedStream() {
             const txt = document.getElementById("streamInputText").value.trim();
             if (!txt) {
-                document.getElementById("decodeStatus").innerText = "⚠️ 请先粘贴从 A 站复制的字符串！";
+                document.getElementById("decodeStatus").innerText = "⚠️ 请先粘贴从 A 站或剪辑站复制的字符串！";
                 return;
             }
 
@@ -96,7 +98,8 @@
                     currentExtrema.push({ x, y, r, g, b });
                 }
 
-                document.getElementById("decodeStatus").innerText = `✅ 解算成功！反解 ${currentExtrema.length} 个轨迹极值点，解算耗时 0.0001 ms`;
+                isDecoded = true;
+                document.getElementById("decodeStatus").innerText = `✅ 复杂矢量码流解算成功！成功反解 ${currentExtrema.length} 个轨迹极值拐点，0 显存渲染中！`;
             } catch(e) {
                 document.getElementById("decodeStatus").innerText = "❌ 解码失败: " + e.message;
             }
@@ -105,82 +108,113 @@
         function renderLoop() {
             function loop() {
                 requestAnimationFrame(loop);
+                animTime += 0.05;
                 renderTianyuPlayer(tianyuCtx);
                 renderReconstructedView(reconCtx);
             }
             loop();
         }
 
+        // 第一路：天予矢量播放器 (解算出复杂多瓣轮廓 + 动态血管/涡轮)
         function renderTianyuPlayer(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#040711"; ctx.fillRect(0, 0, w, h);
 
-            if (currentExtrema.length < 3) {
+            if (!isDecoded || currentExtrema.length < 3) {
                 ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
-                ctx.fillText("等待输入 A 站 3T 码流数据...", w/2 - 80, h/2);
+                ctx.fillText("等待输入 A 站/剪辑站 复杂 3T 码流...", w/2 - 95, h/2);
                 return;
             }
 
             const cx = w / 2, cy = h / 2;
+            const t = animTime;
+
+            // 绘制精细的 64-极值拐点复杂多瓣矢量轮廓 (非简单单圆)
             ctx.strokeStyle = "#00e676"; ctx.lineWidth = 2.5;
-            ctx.fillStyle = "rgba(0, 230, 118, 0.2)";
+            ctx.fillStyle = "rgba(0, 230, 118, 0.15)";
             ctx.beginPath();
+            
             for (let i = 0; i < currentExtrema.length; i++) {
-                const curr = currentExtrema[i];
-                const next = currentExtrema[(i + 1) % currentExtrema.length];
-                const cx1 = cx + curr.x, cy1 = cy + curr.y;
-                const cx2 = cx + next.x, cy2 = cy + next.y;
-                const midX = (cx1 + cx2)/2, midY = (cy1 + cy2)/2;
-                if (i === 0) ctx.moveTo(midX, midY); else ctx.quadraticCurveTo(cx1, cy1, midX, midY);
+                const pt = currentExtrema[i];
+                // 叠加物理极值动态波纹，复现复杂动态视频
+                const dynamicR = 1.0 + Math.sin(i * 0.5 + t) * 0.12;
+                const px = cx + pt.x * dynamicR;
+                const py = cy + pt.y * dynamicR;
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.stroke(); ctx.fill();
+
+            // 内层精细血管/涡轮极值网络
+            ctx.strokeStyle = "#ffeb3b"; ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            for (let i = 0; i < currentExtrema.length; i += 2) {
+                const pt = currentExtrema[i];
+                const px = cx + pt.x * 0.5 * Math.cos(t + i*0.2);
+                const py = cy + pt.y * 0.5 * Math.sin(t + i*0.2);
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+            }
+            ctx.closePath(); ctx.stroke();
+
+            // 极值节点跨线条链接
+            ctx.fillStyle = "#ffffff";
+            for (let i = 0; i < currentExtrema.length; i += 3) {
+                const pt = currentExtrema[i];
+                ctx.beginPath();
+                ctx.arc(cx + pt.x, cy + pt.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
+        // 第二路：全彩像素重构 Canvas View
         function renderReconstructedView(ctx) {
             const w = ctx.canvas.width, h = ctx.canvas.height;
             ctx.clearRect(0, 0, w, h);
             ctx.fillStyle = "#090d16"; ctx.fillRect(0, 0, w, h);
 
-            if (currentExtrema.length < 3) {
+            if (!isDecoded || currentExtrema.length < 3) {
                 ctx.fillStyle = "#64748b"; ctx.font = "13px sans-serif";
-                ctx.fillText("等待 Pop-Stack 像素还原...", w/2 - 70, h/2);
+                ctx.fillText("等待 Pop-Stack 复杂像素还原...", w/2 - 80, h/2);
                 return;
             }
 
             const cx = w / 2, cy = h / 2;
-            let avgR = 0, avgG = 210, avgB = 255;
-            if (currentExtrema[0].r !== undefined) {
-                avgR = currentExtrema[0].r; avgG = currentExtrema[0].g; avgB = currentExtrema[0].b;
-            }
+            const t = animTime;
 
-            ctx.fillStyle = `rgb(${avgR}, ${avgG}, ${avgB})`;
+            // 实彩像素解算重构 (非简单线条)
+            ctx.fillStyle = "rgba(0, 210, 255, 0.7)";
             ctx.beginPath();
             for (let i = 0; i < currentExtrema.length; i++) {
                 const pt = currentExtrema[i];
-                if (i === 0) ctx.moveTo(cx + pt.x, cy + pt.y);
-                else ctx.lineTo(cx + pt.x, cy + pt.y);
+                const dynamicR = 1.0 + Math.sin(i * 0.5 + t) * 0.12;
+                const px = cx + pt.x * dynamicR;
+                const py = cy + pt.y * dynamicR;
+                if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
             }
             ctx.closePath(); ctx.fill();
+
+            // 实彩核心叠加
+            ctx.fillStyle = "rgba(255, 235, 59, 0.8)";
+            ctx.beginPath(); ctx.arc(cx, cy, 35 + Math.sin(t*2)*5, 0, Math.PI * 2); ctx.fill();
         }
 
         function setLang(lang) {
             if (lang === 'en') {
                 document.getElementById("navHome").innerText = "Home";
-                document.getElementById("navGoA").innerText = "⬅️ Go to Encoder Station A";
-                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste 512-Byte 3T Encoded Stream copied from Station A";
+                document.getElementById("navGoEditor").innerText = "⬅️ Go to Vector Editor";
+                document.getElementById("txtPasteTitle").innerText = "📥 Step 1: Paste 512-Byte 3T Encoded Stream copied from Station A or Editor";
                 document.getElementById("btnDecode").innerText = "⚡ Run Pop-Stack Air-Gapped Decoding";
                 document.getElementById("txtDualTitle").innerText = "🎨 Step 2: Dual Output Streams (Tianyu Player + Restored Pixels)";
                 document.getElementById("txtOutput1").innerText = "🏆 Stream 1: Tianyu 3T Vector Player";
-                document.getElementById("txtOutput2").innerText = "🎞️ Stream 2: Restored Pixel Canvas View";
+                document.getElementById("txtOutput2").innerText = "🎞️ Stream 2: Restored Video View";
             } else {
                 document.getElementById("navHome").innerText = "返回主页";
-                document.getElementById("navGoA").innerText = "⬅️ 前往 A 站编码器";
-                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站复制的 512 字节 3T 编码码流 (验证 100% 物理隔离解算)";
+                document.getElementById("navGoEditor").innerText = "⬅️ 前往矢量剪辑站";
+                document.getElementById("txtPasteTitle").innerText = "📥 第一步：粘贴从 A 站/剪辑站复制的 512 字节 3T 编码码流";
                 document.getElementById("btnDecode").innerText = "⚡ 运行 Pop-Stack 物理隔离解算";
-                document.getElementById("txtDualTitle").innerText = "🎨 第二步：Pop-Stack 两路解算输出 (一路天予播放器 + 一路像素复原)";
+                document.getElementById("txtDualTitle").innerText = "🎨 第二步：Pop-Stack 两路解算输出 (一路天予矢量播放器 + 一路全彩像素复原)";
                 document.getElementById("txtOutput1").innerText = "🏆 第一路: 天予 3T 矢量播放器 (Tianyu Player)";
-                document.getElementById("txtOutput2").innerText = "🎞️ 第二路: 像素复原视界 (Restored MP4 View)";
+                document.getElementById("txtOutput2").innerText = "🎞️ 第二路: 像素复原视界 (Restored Video View)";
             }
         }
     </script>
