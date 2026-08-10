@@ -3,286 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>【天予 3T 矢量物理引擎】时空无界解算与硬件优势白皮书 | Tianyu 3T Vector Engine Whitepaper</title>
+    <title>Tianyu Embodied AI Framework | 课题研究说明</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: #040711; color: #e2e8f0; line-height: 1.6; padding: 30px 20px; max-width: 1200px; margin: 0 auto; }
-        .header-section { text-align: center; border-bottom: 1px solid #1e293b; padding-bottom: 25px; margin-bottom: 35px; }
-        .motto { font-size: 14px; color: #00e676; letter-spacing: 2px; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
-        .title { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #00e676 0%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
-
-        .golden-theorem-card {
-            background: linear-gradient(135deg, rgba(0, 230, 118, 0.15) 0%, rgba(2, 132, 199, 0.25) 100%);
-            border: 2px solid #00e676;
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 35px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 230, 118, 0.15);
-        }
-        .golden-theorem-card h1 {
-            font-size: 22px;
-            font-weight: 900;
-            color: #00e676;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-        }
-        .golden-quote-zh {
-            font-size: 22px;
-            font-weight: 900;
-            color: #ffffff;
-            line-height: 1.6;
-            margin-bottom: 8px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-        .golden-quote-en {
-            font-size: 15px;
-            font-weight: 600;
-            color: #38bdf8;
-            font-style: italic;
-            margin-bottom: 15px;
-        }
-
-        .demo-links-box {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px dashed rgba(0, 230, 118, 0.3);
-        }
-        .demo-btn {
-            background: linear-gradient(135deg, #00e676 0%, #0284c7 100%);
-            color: #040711;
-            padding: 12px 28px;
-            border-radius: 25px;
-            font-size: 15px;
-            font-weight: 900;
-            text-decoration: none;
-            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
-            transition: all 0.2s ease-in-out;
-        }
-        .demo-btn:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.5);
-        }
-        .demo-btn.secondary {
-            background: #0f172a;
-            color: #38bdf8;
-            border: 1.5px solid #38bdf8;
-            box-shadow: none;
-        }
-        .demo-btn.secondary:hover {
-            background: #1e293b;
-            color: #00e676;
-            border-color: #00e676;
-        }
-        .demo-btn.tps-btn {
-            background: linear-gradient(135deg, #a855f7 0%, #0284c7 100%);
-            color: #ffffff;
-            border: none;
-        }
-
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 25px; margin-bottom: 35px; }
-        .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 25px; }
-        .card h2 { font-size: 18px; color: #00e676; margin-bottom: 15px; border-left: 4px solid #00e676; padding-left: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .card h2 span.lang-tag { font-size: 11px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; padding: 2px 8px; border-radius: 4px; border: 1px solid #38bdf8; }
-
-        .table-wrapper { width: 100%; overflow-x: auto; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        th, td { padding: 12px 15px; border-bottom: 1px solid #1e293b; }
-        th { background: #040711; color: #38bdf8; font-weight: 700; }
-        tr:hover { background: rgba(255,255,255,0.02); }
-        .highlight-val { color: #00e676; font-weight: bold; }
-
-        .adv-list { list-style: none; padding: 0; }
-        .adv-list li { margin-bottom: 15px; position: relative; padding-left: 24px; }
-        .adv-list li::before { content: "⚡"; position: absolute; left: 0; top: 0; color: #00e676; }
-        .adv-list strong { color: #38bdf8; display: block; font-size: 14px; margin-bottom: 3px; }
-
-        .protection-box { background: rgba(168, 85, 247, 0.1); border: 1px solid #a855f7; border-radius: 8px; padding: 15px; margin-top: 20px; font-size: 13px; color: #d8b4fe; }
-        .footer { text-align: center; border-top: 1px solid #1e293b; padding-top: 20px; color: #64748b; font-size: 12px; margin-top: 40px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0b0f19; color: #cbd5e1; line-height: 1.7; padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+        .header { border-bottom: 1px solid #1e293b; padding-bottom: 20px; margin-bottom: 30px; text-align: center; }
+        .motto { color: #10b981; font-weight: bold; font-size: 14px; letter-spacing: 1px; margin-bottom: 10px; }
+        .title { font-size: 24px; font-weight: 700; color: #f8fafc; }
+        .card { background: #1e293b; border-radius: 8px; padding: 25px; margin-bottom: 25px; border: 1px solid #334155; }
+        .card h2 { font-size: 16px; color: #38bdf8; margin-bottom: 12px; }
+        p { font-size: 14px; margin-bottom: 12px; color: #94a3b8; }
+        ul { padding-left: 20px; font-size: 14px; color: #94a3b8; margin-bottom: 15px; }
+        li { margin-bottom: 8px; }
+        .footer { text-align: center; font-size: 12px; color: #64748b; margin-top: 40px; border-top: 1px solid #1e293b; padding-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="header-section">
-        <div class="motto">救死扶伤 · 科技向善 | Humanitarian Medical AI Framework</div>
-        <div class="title">在永不放弃的精神下，我们终于成功了！</div>
-        <div class="title" style="font-size:18px; color:#94a3b8; font-weight:normal;">With Unyielding Perseverance, Success is Finally Achieved!</div>
+    <div class="header">
+        <div class="motto">救死扶伤 · 科技向善</div>
+        <div class="title">Tianyu Embodied AI Framework 课题研究说明</div>
     </div>
 
-    <!-- 🌟 主要位置：时空对偶金句与 3 大在线 Live Demo 体验入口 -->
-    <div class="golden-theorem-card">
-        <h1>🌌 时空无界解算统一定理 (Space-Time Boundaryless Unity Theorem)</h1>
-        
-        <div class="golden-quote-zh">
-            “时间是空间的累积与投影，空间是时间的定格与延伸。”
-        </div>
-        <div class="golden-quote-zh" style="font-size:18px; color:#00e676; margin-bottom:12px;">
-            “到了解析这步，矢量视频流与 3D 空间几何完全没有界限！”
-        </div>
-        
-        <div class="golden-quote-en">
-            "Time is the accumulation and projection of Space; Space is the freeze-frame and extension of Time."<br>
-            "At the stage of decoding, there is absolutely NO boundary between vector video streams and 3D spatial geometry!"
-        </div>
-
-        <p style="font-size:13px; color:#94a3b8; margin-top:15px; max-width:850px; margin-left:auto; margin-right:auto;">
-            沿着空间 Z 轴扫描生成 3D 解剖几何，沿着时间 T 轴扫描生成 4D 矢量视频流。两者在硬件物理底层共享同一个微秒级无界解算内核，实现 0 显存依赖与百倍极致压缩！
-        </p>
-
-        <!-- 🚀 2 大 Live Demo 在线体验按钮 -->
-        <div class="demo-links-box">
-            <a href="encoder.html" class="demo-btn">⚡ A站 Coder 编码体验 (Live Coder Demo)</a>
-            <a href="decoder.html" class="demo-btn secondary">⚡ B站 Decoder 0 显存解算 (Live Decoder Demo)</a>
-        </div>
+    <div class="card">
+        <h2>🔬 课题研究定位与物理边界说明</h2>
+        <p>本仓库为天予具身智能框架（Tianyu Embodied AI Framework）的内部学术与算法探索记录。在前期实验中，我们对体系结构与编解码效率进行了多维度测试，总结出以下客观物理现实：</p>
+        <ul>
+            <li><strong>编解码实时性与硬件差距：</strong> 现代 H.264/H.265 等标准依赖专用的 ASIC/ASIP 硬件编码芯片，可在边缘设备实时运行。本研究当前的前端与 CPU 端实验受限于通用 CPU 运算与浏览器环境，编码处理时间远长于播放时长，目前尚无法用于低延迟实时编码或直播场景。</li>
+            <li><strong>CPU 大模型推理吞吐物理瓶颈：</strong> 在纯 CPU 环境下运行 27B 等重型模型受限于物理 DRAM 内存带宽瓶颈，原生实际推演速度（约 1.5 tokens/s）与独立显卡/专用加速硬件仍存在本质差距。</li>
+        </ul>
     </div>
 
-    <!-- 中英文双语白皮书 Section 1: 硬件对比优势 -->
-    <div class="card-grid">
-        <div class="card">
-            <h2>🇨🇳 相比传统独立 GPU 硬件的物理级优势 <span class="lang-tag">CHINESE</span></h2>
-            <ul class="adv-list">
-                <li>
-                    <strong>1. 零显存依赖与零 PCIe 总线拷屏开销</strong>
-                    传统独立显卡解码必须将码流通过 PCIe 总线复制到 GPU 显存 (VRAM) 中跑重型 CUDA/NVENC 流水线。天予 3T 架构实现物理级 0 显存依赖，解算引擎仅占约 0.5 KB CPU 缓存，数据在 L1 缓存内直接完成反解，彻底消除 PCIe 传输延时。
-                </li>
-                <li>
-                    <strong>2. 微秒级极速反解与 86,000+ FPS 吞吐</strong>
-                    不依赖复杂的矩阵乘法或反 DCT 变换，解算过程纯粹为指针级极速反解。单核 CPU 解算吞吐率高达 86,000+ FPS，单帧解算延迟低至 0.011 ms (11 微秒)，比传统硬件 GPU 解码快两个数量级！
-                </li>
-                <li>
-                    <strong>3. 极低功耗与非侵入式端侧无缝嵌入</strong>
-                    解算逻辑极度精简，可直接运行在 0.1W 功耗的嵌入式 ARM / RISC-V 芯片或微控制器 (MCU) 上。完全适应胶囊手术机器人、无风扇医疗设备与非侵入式解剖感知。
-                </li>
-                <li>
-                    <strong>4. 时空无界解算统一 (Space-Time Boundaryless Unity)</strong>
-                    传统 GPU 解码电路被死死固化为 2D 视频。天予 3T 架构同一套微秒级解算引擎，向下解算 25 FPS 矢量视频流，向上直接解算 3D 外科解剖体素结构，实现时空解算彻底统一。
-                </li>
-            </ul>
-        </div>
-
-        <div class="card">
-            <h2>🇺🇸 Physical Breakthroughs over Traditional GPUs <span class="lang-tag">ENGLISH</span></h2>
-            <ul class="adv-list">
-                <li>
-                    <strong>1. Zero VRAM Dependency & Zero PCIe Overhead</strong>
-                    Traditional GPU decoding requires copying bitstreams over PCIe buses into VRAM. Tianyu 3T achieves Zero VRAM dependency with its decoding kernel fitting in ~0.5 KB CPU Cache, decoding directly within L1 Cache and completely eliminating PCIe bus latency.
-                </li>
-                <li>
-                    <strong>2. Microsecond Latency & 86,000+ FPS Throughput</strong>
-                    Without complex matrix multiplication or inverse DCT transforms, decoding operates as pointer-level ultra-fast stream reconstruction. Single-core throughput exceeds 86,000+ FPS, with single-frame latency as low as 0.011 ms (11 microseconds)—two orders of magnitude faster than traditional GPUs!
-                </li>
-                <li>
-                    <strong>3. Ultra-Low Power Consumption & Native Embedding</strong>
-                    Extremely lightweight logic allows native execution on 0.1W low-power embedded ARM/RISC-V chips or MCUs. Perfect for capsule surgical robots, fanless medical hardware, and non-invasive anatomical sensing.
-                </li>
-                <li>
-                    <strong>4. Space-Time Boundaryless Unity Theorem</strong>
-                    Traditional GPU decoders are hardwired for 2D video. Tianyu 3T uses a unified microsecond engine to decode 25 FPS vector video streams downwards and 3D surgical anatomical voxel geometries upwards, achieving total space-time decoding unity.
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- 8 种主路/子模式工业矩阵对比表 -->
-    <div class="card" style="margin-bottom: 35px;">
-        <h2>📊 工业级 8 种主路/子模式物理压缩率矩阵 (Industrial Matrix) <span class="lang-tag">2 SECONDS BASELINE</span></h2>
-        <p style="font-size:13px; color:#94a3b8; margin-bottom:15px;">以 2 秒物理视频切片、原图 16.78 MB 全体素矩阵为 1:1 无损对比基准：</p>
-        
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>主路架构 (Main Pipeline)</th>
-                        <th>帧率子模式 (FPS)</th>
-                        <th>单秒码流 (MB/s)</th>
-                        <th>2秒码流体积 (MB)</th>
-                        <th>真实物理压缩比</th>
-                        <th>画质与应用场景 (Application Scenarios)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td rowspan="4" style="font-weight:bold; color:#38bdf8;">第一路: 极值基准 + 抽帧<br><span style="font-size:11px; font-weight:normal; color:#94a3b8;">Extrema + Sub-Sampling</span></td>
-                        <td>10 FPS</td>
-                        <td>0.28 MB/s</td>
-                        <td>0.56 MB</td>
-                        <td class="highlight-val">30.0 : 1</td>
-                        <td>极高压缩，运动平滑，适合移动医疗低带宽传输</td>
-                    </tr>
-                    <tr>
-                        <td>15 FPS</td>
-                        <td>0.42 MB/s</td>
-                        <td>0.84 MB</td>
-                        <td class="highlight-val">20.0 : 1</td>
-                        <td>均衡型，静态解像度 0 损失，人眼体验优良</td>
-                    </tr>
-                    <tr>
-                        <td>20 FPS</td>
-                        <td>0.56 MB/s</td>
-                        <td>1.12 MB</td>
-                        <td class="highlight-val">15.0 : 1</td>
-                        <td>高流畅度，细微抖动无遗漏，标准流媒体</td>
-                    </tr>
-                    <tr>
-                        <td>25 FPS</td>
-                        <td>0.69 MB/s</td>
-                        <td>1.38 MB</td>
-                        <td class="highlight-val">12.2 : 1</td>
-                        <td>人眼 1:1 物理对齐，运动边缘无缝丝滑</td>
-                    </tr>
-                    <tr style="border-top:2px solid #334155;">
-                        <td rowspan="4" style="font-weight:bold; color:#00e676;">第二路: 极值基准 + 2³ + 抽帧<br><span style="font-size:11px; font-weight:normal; color:#94a3b8;">Extrema + 2³ Cuboid + Sub-Sampling</span></td>
-                        <td>10 FPS</td>
-                        <td>0.08 MB/s</td>
-                        <td>0.16 MB</td>
-                        <td class="highlight-val" style="color:#a855f7;">104.9 : 1 (百倍压缩)</td>
-                        <td><strong>超极致百倍压缩！</strong> 80 KB/s 极微型码流，胶囊机器人首选</td>
-                    </tr>
-                    <tr>
-                        <td>15 FPS</td>
-                        <td>0.12 MB/s</td>
-                        <td>0.24 MB</td>
-                        <td class="highlight-val">69.9 : 1</td>
-                        <td>高压缩比，静态极清，微动响应敏捷</td>
-                    </tr>
-                    <tr>
-                        <td>20 FPS</td>
-                        <td>0.16 MB/s</td>
-                        <td>0.32 MB</td>
-                        <td class="highlight-val">52.4 : 1</td>
-                        <td>黄金档位，画质与码流绝佳折中</td>
-                    </tr>
-                    <tr>
-                        <td>25 FPS</td>
-                        <td>0.20 MB/s</td>
-                        <td>0.40 MB</td>
-                        <td class="highlight-val" style="color:#00e676;">42.0 : 1 (推荐档)</td>
-                        <td><strong>经典推荐档！</strong> 0.2 MB/s 兼顾人眼 25 FPS 丝滑与无瑕还原</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div style="background: rgba(0, 230, 118, 0.08); border: 1.5px solid #00e676; border-radius: 10px; padding: 20px; margin-top: 25px;">
-            <h3 style="color:#00e676; font-size:16px; margin-bottom:8px;">📌 物理工程定性结论 (Engineering Conclusion):</h3>
-            <ul style="font-size:13px; color:#e2e8f0; padding-left:20px; line-height:1.8;">
-                <li>❌ <strong>实时直播/实时传输 (Real-time Live Streaming): 不可用</strong> — 受限于编码端 (Coder) 对视频帧一阶/二阶极值轨迹提取与 HTML5 Video Seek 解码开销 (2秒视频需 15s~30s 编码)，无法用于低延迟随采随编直播。</li>
-                <li>✅ <strong>高倍物理压缩与离线存储 (Physical Compression & Offline Storage): 完全可用，且优势巨大！</strong> — 离线预压缩率高达 12.2 : 1 ~ 104.9 : 1，生成仅 512 字节 / 百 KB 极小码流。下发至终端 (Decoder) 实现 0 显存依赖、0.5 KB 缓存与 0.011 ms 微秒级超低功耗解算播报。</li>
-            </ul>
-        </div>
-
-        <div class="protection-box">
-            🛡️ <strong>反逻辑静态保护与安全规约 (Anti-Logic Protection Protocol):</strong><br>
-            全量静态代码、Descriptor 与传输码流中均已全面隐去敏感技术术语，采用 4 层掩码扩散保护 (Paradigm Diffusion) 与运行时数学不变量动态派生反解密钥 (`deriveDynamicAntiLogicKey`)。授权节点可于 0.0001 ms 内动态完成解算，静态分析与 AST 逆向破解工具物理级无从下手。
-        </div>
+    <div class="card">
+        <h2>👣 脚踏实地 · 敬畏科学</h2>
+        <p>科研与工程探索必须尊重物理事实，脚踏实地，严谨求真。我们将继续聚焦于基础算法的物理可行性探索，不浮夸、不造假，一步一个脚印地推进相关研究。</p>
     </div>
 
     <div class="footer">
-        Tianyu Embodied AI Framework © 2026 | 救死扶伤 · 科技向善 | strictly Non-Military & Medical Life-Saving Only
+        Tianyu Embodied AI Framework © 2026 | Medical & Life-Saving Applications Only
     </div>
 </body>
 </html>
