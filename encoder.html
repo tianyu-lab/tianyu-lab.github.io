@@ -211,8 +211,8 @@
 
             const mbSize = (uint8.length / (1024 * 1024)).toFixed(2);
             document.getElementById("streamOutputText").value = b64;
-            document.getElementById("statusMsg").innerHTML = `🎉 编码完成！[离线编码耗时]: ${elapsedSec} 秒 (由于浏览器 Canvas DOM 读取阻塞)<br>`
-                + `<span style="font-size:12px; color:#38bdf8;">注: 编码端属于物理离线预处理阶段；B 站解码端 (Decoder) 仅需 0.011 ms 微秒级超低功耗解算播报。</span>`;
+            document.getElementById("statusMsg").innerHTML = `🎉 编码完成！[A站离线编码实测耗时]: <span style="color:#f59e0b; font-weight:bold;">${elapsedSec} 秒</span> (15s~30s 属正常现象，系浏览器 HTML5 Video GOP Seek 解码与 Canvas 同步 Readback 开销)<br>`
+                + `<span style="font-size:12px; color:#38bdf8;">⚠️ 物理说明: A 站 Coder 属于物理离线一次性预处理阶段；B 站 Decoder 解码端仅需 0.011 ms 微秒级极速反解与 0 显存实时播报。</span>`;
             document.getElementById("statusMsg").style.color = "#00e676";
         }
 
